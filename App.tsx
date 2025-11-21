@@ -303,9 +303,7 @@ function App() {
             alert("JSON copied to clipboard!");
         });
         // 當拷貝 Lyrics 時，視為儲存，存入 sessionStorage
-        useEffect(() => {
-            sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(lyrics));
-        }, [lyrics]);
+        sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(lyrics));
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
