@@ -233,7 +233,7 @@ function App() {
         const newLyrics = [...lyrics];
         newLyrics[index] = {
             ...newLyrics[index],
-            time: secondsToTime(playerTime),
+            time: secondsToTime(playerTime, 1),
         };
         setLyrics(newLyrics);
     };
@@ -254,7 +254,7 @@ function App() {
 
     const addLine = () => {
         const newLine: LyricLine = {
-            time: secondsToTime(playerTime),
+            time: secondsToTime(playerTime, 1),
             text: [{ phrase: "New", duration: 20 }],
             translation: "",
         };
