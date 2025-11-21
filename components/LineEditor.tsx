@@ -235,14 +235,14 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                             className="text-gray-500 hover:text-purple-300"
                             title="Seek to BG time"
                         >
-                            <MoveRight size={12} />
+                            <MoveRight size={15} />
                         </button>
                         <button
                             onClick={toggleBackgroundVoice}
                             className="text-red-400/50 hover:text-red-400"
                             title="Remove BG Voice"
                         >
-                            <XCircle size={12} />
+                            <Trash2 size={15} />
                         </button>
                       </div>
                   </div>

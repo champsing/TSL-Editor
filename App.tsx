@@ -7,7 +7,7 @@ import React, {
     useImperativeHandle,
 } from "react";
 import { LyricLine, LyricData } from "./types";
-import { INITIAL_JSON_DATA, timeToSeconds, secondsToTime } from "./utils";
+import { INITIAL_JSON_DATA, DEFAULT_VIDEO_ID, timeToSeconds, secondsToTime } from "./utils";
 import { LineEditor } from "./components/LineEditor";
 import {
     Plus,
@@ -159,7 +159,6 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
 );
 YouTubePlayer.displayName = "YouTubePlayer";
 
-const DEFAULT_VIDEO_ID = "p-O_X77C4l8"; // Bocchi the Rock - Guitar, Loneliness and Blue Planet
 
 function App() {
     // State
