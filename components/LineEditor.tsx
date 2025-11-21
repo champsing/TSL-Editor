@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { LyricLine, LyricPhrase } from '../types';
-import { PhraseEditor } from './PhraseEditor';
-import { Clock, Plus, Trash2, MoveRight, Mic2, XCircle, GripVertical } from 'lucide-react';
+import React, { useState } from "react";
+import { LyricLine, LyricPhrase } from "../types";
+import { PhraseEditor } from "./PhraseEditor";
+import {
+  Clock,
+  Plus,
+  Trash2,
+  MoveRight,
+  Mic2,
+  XCircle,
+  GripVertical,
+} from "lucide-react";
 
 interface LineEditorProps {
   index: number;
@@ -13,19 +21,21 @@ interface LineEditorProps {
   onSeek: (timeStr: string) => void;
 }
 
-export const LineEditor: React.FC<LineEditorProps> = ({ 
-  index, 
-  line, 
+export const LineEditor: React.FC<LineEditorProps> = ({
+  index,
+  line,
   isCurrent,
-  onUpdate, 
+  onUpdate,
   onDelete,
   onStampTime,
-  onSeek
+  onSeek,
 }) => {
-
   // --- Drag and Drop State ---
   // 追蹤當前被拖曳的項目：type 分為 'main' (主歌詞) 或 'bg' (背景音)
-  const [dragState, setDragState] = useState<{ type: 'main' | 'bg', index: number } | null>(null);
+  const [dragState, setDragState] = useState<{
+    type: "main" | "bg";
+    index: number;
+  } | null>(null);
 
   // --- Main Text Handlers ---
   const handlePhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
@@ -36,7 +46,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
   };
 
   const addPhrase = () => {
-    const newPhrase: LyricPhrase = { phrase: '', duration: 20 };
+    const newPhrase: LyricPhrase = { phrase: "", duration: 20 };
     const newText = line.text ? [...line.text, newPhrase] : [newPhrase];
     onUpdate(index, { ...line, text: newText });
   };
@@ -50,135 +60,150 @@ export const LineEditor: React.FC<LineEditorProps> = ({
   // --- Background Voice Handlers ---
   const toggleBackgroundVoice = () => {
     if (line.background_voice) {
-        if (window.confirm("Remove background voice track?")) {
-            const { background_voice, ...rest } = line;
-            onUpdate(index, rest);
-        }
+      if (window.confirm("Remove background voice track?")) {
+        const { background_voice, ...rest } = line;
+        onUpdate(index, rest);
+      }
     } else {
-        onUpdate(index, { 
-            ...line, 
-            background_voice: { 
-                time: line.time, 
-                text: [{ phrase: '', duration: 20 }] 
-            } 
-        });
+      onUpdate(index, {
+        ...line,
+        background_voice: {
+          time: line.time,
+          text: [{ phrase: "", duration: 20 }],
+        },
+      });
     }
   };
 
   const updateBgVoiceTime = (newTime: string) => {
-      if (!line.background_voice) return;
-      onUpdate(index, {
-          ...line,
-          background_voice: { ...line.background_voice, time: newTime }
-      });
+    if (!line.background_voice) return;
+    onUpdate(index, {
+      ...line,
+      background_voice: { ...line.background_voice, time: newTime },
+    });
   };
 
   const handleBgPhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
-      if (!line.background_voice) return;
-      const newText = [...line.background_voice.text];
-      newText[pIndex] = updatedPhrase;
-      onUpdate(index, {
-          ...line,
-          background_voice: { ...line.background_voice, text: newText }
-      });
+    if (!line.background_voice) return;
+    const newText = [...line.background_voice.text];
+    newText[pIndex] = updatedPhrase;
+    onUpdate(index, {
+      ...line,
+      background_voice: { ...line.background_voice, text: newText },
+    });
   };
 
   const addBgPhrase = () => {
-      if (!line.background_voice) return;
-      const newPhrase: LyricPhrase = { phrase: '', duration: 20 };
-      const newText = [...line.background_voice.text, newPhrase];
-      onUpdate(index, {
-          ...line,
-          background_voice: { ...line.background_voice, text: newText }
-      });
+    if (!line.background_voice) return;
+    const newPhrase: LyricPhrase = { phrase: "", duration: 20 };
+    const newText = [...line.background_voice.text, newPhrase];
+    onUpdate(index, {
+      ...line,
+      background_voice: { ...line.background_voice, text: newText },
+    });
   };
 
   const deleteBgPhrase = (pIndex: number) => {
-      if (!line.background_voice) return;
-      const newText = line.background_voice.text.filter((_, i) => i !== pIndex);
-      onUpdate(index, {
-          ...line,
-          background_voice: { ...line.background_voice, text: newText }
-      });
+    if (!line.background_voice) return;
+    const newText = line.background_voice.text.filter((_, i) => i !== pIndex);
+    onUpdate(index, {
+      ...line,
+      background_voice: { ...line.background_voice, text: newText },
+    });
   };
 
   // --- Drag and Drop Logic ---
-  
+
   // 開始拖曳
-  const handleDragStart = (e: React.DragEvent, type: 'main' | 'bg', idx: number) => {
-      setDragState({ type, index: idx });
-      // 設定拖曳效果
-      e.dataTransfer.effectAllowed = "move";
-      // 可以設定 ghost image，但這裡使用預設
+  const handleDragStart = (
+    e: React.DragEvent,
+    type: "main" | "bg",
+    idx: number,
+  ) => {
+    setDragState({ type, index: idx });
+    // 設定拖曳效果
+    e.dataTransfer.effectAllowed = "move";
+    // 可以設定 ghost image，但這裡使用預設
   };
 
   // 允許放下 (必須阻止預設行為才能觸發 drop)
   const handleDragOver = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
   };
 
   // 放下並重新排序
-  const handleDrop = (e: React.DragEvent, targetType: 'main' | 'bg', targetIndex: number) => {
-      e.preventDefault();
-      
-      if (!dragState) return;
-      if (dragState.type !== targetType) return; // 不允許跨軌道拖曳 (例如把背景音拖到主歌詞)
-      if (dragState.index === targetIndex) {
-          setDragState(null);
-          return;
-      }
+  const handleDrop = (
+    e: React.DragEvent,
+    targetType: "main" | "bg",
+    targetIndex: number,
+  ) => {
+    e.preventDefault();
 
-      const listKey = targetType === 'main' ? 'text' : 'background_voice';
-      
-      let currentList: LyricPhrase[] = [];
-      if (targetType === 'main') {
-          currentList = [...(line.text || [])];
-      } else {
-          currentList = [...(line.background_voice?.text || [])];
-      }
-
-      // 執行移動：刪除舊位置，插入新位置
-      const itemToMove = currentList[dragState.index];
-      currentList.splice(dragState.index, 1); // 移除
-      currentList.splice(targetIndex, 0, itemToMove); // 插入
-
-      // 更新狀態
-      if (targetType === 'main') {
-          onUpdate(index, { ...line, text: currentList });
-      } else {
-          onUpdate(index, {
-              ...line,
-              background_voice: { ...line.background_voice!, text: currentList }
-          });
-      }
-      
+    if (!dragState) return;
+    if (dragState.type !== targetType) return; // 不允許跨軌道拖曳 (例如把背景音拖到主歌詞)
+    if (dragState.index === targetIndex) {
       setDragState(null);
+      return;
+    }
+
+    const listKey = targetType === "main" ? "text" : "background_voice";
+
+    let currentList: LyricPhrase[] = [];
+    if (targetType === "main") {
+      currentList = [...(line.text || [])];
+    } else {
+      currentList = [...(line.background_voice?.text || [])];
+    }
+
+    // 執行移動：刪除舊位置，插入新位置
+    const itemToMove = currentList[dragState.index];
+    currentList.splice(dragState.index, 1); // 移除
+    currentList.splice(targetIndex, 0, itemToMove); // 插入
+
+    // 更新狀態
+    if (targetType === "main") {
+      onUpdate(index, { ...line, text: currentList });
+    } else {
+      onUpdate(index, {
+        ...line,
+        background_voice: {
+          ...line.background_voice!,
+          text: currentList,
+        },
+      });
+    }
+
+    setDragState(null);
   };
 
-
-  const isSpecialType = !!line.type && line.type !== 'normal';
+  const isSpecialType = !!line.type && line.type !== "normal";
 
   return (
-    <div className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${isCurrent ? 'is-current bg-dark/80 border-primary shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]' : 'bg-panel border-gray-700 hover:border-gray-500'}`}>
-      
+    <div
+      className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${
+        isCurrent
+          ? "is-current bg-dark/80 border-primary shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]"
+          : "bg-panel border-gray-700 hover:border-gray-500"
+      }`}
+    >
       {/* Toolbar Header */}
       <div className="flex items-center gap-3 mb-3 flex-wrap">
         <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-gray-600">
-          <button 
+          <button
             onClick={() => onStampTime(index)}
             className="p-1.5 hover:bg-primary hover:text-black rounded text-primary transition-colors"
             title="Stamp current player time"
           >
             <Clock size={16} />
           </button>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={line.time}
             onChange={(e) => onUpdate(index, { ...line, time: e.target.value })}
             className="bg-transparent w-20 text-center font-mono text-lg text-white outline-none focus:text-primary"
           />
-          <button 
+          <button
             onClick={() => onSeek(line.time)}
             className="p-1.5 hover:bg-white/20 rounded text-gray-400 transition-colors"
             title="Seek player to this time"
@@ -188,172 +213,190 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 uppercase font-bold">Type:</span>
-            <select 
-                value={line.type || 'normal'} 
-                onChange={(e) => onUpdate(index, { ...line, type: e.target.value === 'normal' ? undefined : e.target.value as any })}
-                className="bg-black/30 border border-gray-600 rounded px-2 py-1 text-sm outline-none focus:border-primary"
-            >
-                <option value="normal">Lyrics</option>
-                <option value="prelude">Prelude</option>
-                <option value="interlude">Interlude</option>
-                <option value="end">End</option>
-            </select>
+          <span className="text-xs text-gray-400 uppercase font-bold">
+            Type:
+          </span>
+          <select
+            value={line.type || "normal"}
+            onChange={(e) =>
+              onUpdate(index, {
+                ...line,
+                type:
+                  e.target.value === "normal"
+                    ? undefined
+                    : (e.target.value as any),
+              })
+            }
+            className="bg-black/30 border border-gray-600 rounded px-2 py-1 text-sm outline-none focus:border-primary"
+          >
+            <option value="normal">Lyrics</option>
+            <option value="prelude">Prelude</option>
+            <option value="interlude">Interlude</option>
+            <option value="end">End</option>
+          </select>
         </div>
 
-        <div className="flex-grow"></div>
+        <div className="grow"></div>
 
         {/* Toggle Background Voice Button */}
-        <button 
-            onClick={toggleBackgroundVoice}
-            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
-                line.background_voice 
-                ? 'bg-purple-900/40 text-purple-300 border border-purple-500/50' 
-                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-            }`}
+        <button
+          onClick={toggleBackgroundVoice}
+          className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
+            line.background_voice
+              ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
+              : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+          }`}
         >
-            <Mic2 size={14} />
-            {line.background_voice ? 'Has BG Voice' : 'Add BG Voice'}
+          <Mic2 size={14} />
+          {line.background_voice ? "Has BG Voice" : "Add BG Voice"}
         </button>
 
-        <button 
-            onClick={() => onDelete(index)}
-            className="text-red-400 hover:bg-red-400/10 p-2 rounded transition-colors"
-            title="Delete Line"
+        <button
+          onClick={() => onDelete(index)}
+          className="text-red-400 hover:bg-red-400/10 p-2 rounded transition-colors"
+          title="Delete Line"
         >
-            <Trash2 size={18} />
+          <Trash2 size={18} />
         </button>
       </div>
 
       {/* Main Lyric Content */}
       {!isSpecialType && (
         <div className="space-y-3">
-            {/* Phrases Flow */}
-            <div className="flex flex-wrap gap-2 items-start">
-                {line.text?.map((phrase, pIndex) => (
-                    <div 
-                        key={pIndex}
-                        className={`flex items-center gap-0.5 transition-opacity ${
-                            dragState?.type === 'main' && dragState?.index === pIndex ? 'opacity-40' : 'opacity-100'
-                        }`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, 'main', pIndex)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, 'main', pIndex)}
-                    >
-                        {/* Drag Handle */}
-                        <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-400 -mt-4">
-                            <GripVertical size={14} />
-                        </div>
-                        
-                        <PhraseEditor 
-                            phrase={phrase} 
-                            onChange={(up) => handlePhraseChange(pIndex, up)}
-                            onDelete={() => deletePhrase(pIndex)}
-                        />
-                    </div>
-                ))}
-                <button 
-                    onClick={addPhrase}
-                    className="h-[82px] w-10 flex items-center justify-center border border-dashed border-gray-500 rounded-md text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/10 transition-all"
-                >
-                    <Plus size={20} />
-                </button>
-            </div>
+          {/* Phrases Flow */}
+          <div className="flex flex-wrap gap-2 items-start">
+            {line.text?.map((phrase, pIndex) => (
+              <div
+                key={pIndex}
+                className={`flex items-center gap-0.5 transition-opacity ${
+                  dragState?.type === "main" && dragState?.index === pIndex
+                    ? "opacity-40"
+                    : "opacity-100"
+                }`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, "main", pIndex)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, "main", pIndex)}
+              >
+                {/* Drag Handle */}
+                <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-400 -mt-4">
+                  <GripVertical size={14} />
+                </div>
 
-            {/* Translation */}
-            <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
-                <span className="text-xs text-green-400 font-bold px-2">TL</span>
-                <input 
-                    type="text" 
-                    value={line.translation || ''}
-                    onChange={(e) => onUpdate(index, { ...line, translation: e.target.value })}
-                    className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
-                    placeholder="Translation..."
+                <PhraseEditor
+                  phrase={phrase}
+                  onChange={(up) => handlePhraseChange(pIndex, up)}
+                  onDelete={() => deletePhrase(pIndex)}
                 />
-            </div>
+              </div>
+            ))}
+            <button
+              onClick={addPhrase}
+              className="h-[82px] w-10 flex items-center justify-center border border-dashed border-gray-500 rounded-md text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/10 transition-all"
+            >
+              <Plus size={20} />
+            </button>
+          </div>
+
+          {/* Translation */}
+          <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
+            <span className="text-xs text-green-400 font-bold px-2">TL</span>
+            <input
+              type="text"
+              value={line.translation || ""}
+              onChange={(e) =>
+                onUpdate(index, {
+                  ...line,
+                  translation: e.target.value,
+                })
+              }
+              className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
+              placeholder="Translation..."
+            />
+          </div>
         </div>
       )}
 
       {/* Marker Content */}
       {isSpecialType && (
         <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20 mb-3">
-            {line.type?.toUpperCase()} MARKER
+          {line.type?.toUpperCase()} MARKER
         </div>
       )}
 
       {/* Background Voice Section */}
       {line.background_voice && (
-          <div className="mt-4 p-3 bg-purple-900/10 border border-purple-500/20 rounded-lg relative">
-              <div className="absolute top-0 left-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-br">
-                  BACKGROUND VOICE
-              </div>
-              
-              <div className="flex items-start gap-4 mt-4">
-                  {/* BG Voice Time Control */}
-                  <div className="flex flex-col gap-1 pt-2">
-                      <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
-                          <input 
-                              type="text"
-                              value={line.background_voice.time}
-                              onChange={(e) => updateBgVoiceTime(e.target.value)}
-                              className="w-20 bg-transparent text-xs text-center p-1 outline-none font-mono text-purple-200"
-                          />
-                      </div>
-                      <div className="flex justify-between">
-                        <button 
-                            onClick={() => onSeek(line.background_voice!.time)}
-                            className="text-gray-500 hover:text-purple-300"
-                            title="Seek to BG time"
-                        >
-                            <MoveRight size={15} />
-                        </button>
-                        <button
-                            onClick={toggleBackgroundVoice}
-                            className="text-red-400/50 hover:text-red-400"
-                            title="Remove BG Voice"
-                        >
-                            <Trash2 size={15} />
-                        </button>
-                      </div>
-                  </div>
-
-                  {/* BG Phrases */}
-                  <div className="flex flex-wrap gap-2 items-start flex-1">
-                      {line.background_voice.text.map((phrase, pIndex) => (
-                          <div 
-                            key={`bg-${pIndex}`}
-                            className={`flex items-center gap-0.5 transition-opacity ${
-                                dragState?.type === 'bg' && dragState?.index === pIndex ? 'opacity-40' : 'opacity-100'
-                            }`}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, 'bg', pIndex)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, 'bg', pIndex)}
-                          >
-                            {/* Drag Handle */}
-                            <div className="cursor-grab active:cursor-grabbing text-purple-500/40 hover:text-purple-400 -mt-4">
-                                <GripVertical size={14} />
-                            </div>
-
-                            <PhraseEditor 
-                                phrase={phrase} 
-                                onChange={(up) => handleBgPhraseChange(pIndex, up)}
-                                onDelete={() => deleteBgPhrase(pIndex)}
-                            />
-                          </div>
-                      ))}
-                      <button 
-                          onClick={addBgPhrase}
-                          className="h-[82px] w-8 flex items-center justify-center border border-dashed border-purple-500/30 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"
-                      >
-                          <Plus size={16} />
-                      </button>
-                  </div>
-              </div>
+        <div className="mt-4 p-3 bg-purple-900/10 border border-purple-500/20 rounded-lg relative">
+          <div className="absolute top-0 left-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-br">
+            BACKGROUND VOICE
           </div>
-      )}
 
+          <div className="flex items-start gap-4 mt-4">
+            {/* BG Voice Time Control */}
+            <div className="flex flex-col gap-1 pt-2">
+              <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
+                <input
+                  type="text"
+                  value={line.background_voice.time}
+                  onChange={(e) => updateBgVoiceTime(e.target.value)}
+                  className="w-20 bg-transparent text-xs text-center p-1 outline-none font-mono text-purple-200"
+                />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  onClick={() => onSeek(line.background_voice!.time)}
+                  className="text-gray-500 hover:text-purple-300"
+                  title="Seek to BG time"
+                >
+                  <MoveRight size={15} />
+                </button>
+                <button
+                  onClick={toggleBackgroundVoice}
+                  className="text-red-400/50 hover:text-red-400"
+                  title="Remove BG Voice"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* BG Phrases */}
+            <div className="flex flex-wrap gap-2 items-start flex-1">
+              {line.background_voice.text.map((phrase, pIndex) => (
+                <div
+                  key={`bg-${pIndex}`}
+                  className={`flex items-center gap-0.5 transition-opacity ${
+                    dragState?.type === "bg" && dragState?.index === pIndex
+                      ? "opacity-40"
+                      : "opacity-100"
+                  }`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, "bg", pIndex)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, "bg", pIndex)}
+                >
+                  {/* Drag Handle */}
+                  <div className="cursor-grab active:cursor-grabbing text-purple-500/40 hover:text-purple-400 -mt-4">
+                    <GripVertical size={14} />
+                  </div>
+
+                  <PhraseEditor
+                    phrase={phrase}
+                    onChange={(up) => handleBgPhraseChange(pIndex, up)}
+                    onDelete={() => deleteBgPhrase(pIndex)}
+                  />
+                </div>
+              ))}
+              <button
+                onClick={addBgPhrase}
+                className="h-[82px] w-8 flex items-center justify-center border border-dashed border-purple-500/30 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
