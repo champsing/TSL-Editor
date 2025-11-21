@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LyricLine, LyricPhrase } from '../types';
 import { PhraseEditor } from './PhraseEditor';
-import { Clock, Plus, Trash2, MoveRight, Mic2, XCircle } from 'lucide-react';
+import { Clock, Plus, Trash2, MoveRight, Mic2, XCircle, GripVertical } from 'lucide-react';
 
 interface LineEditorProps {
   index: number;
@@ -22,6 +22,10 @@ export const LineEditor: React.FC<LineEditorProps> = ({
   onStampTime,
   onSeek
 }) => {
+
+  // --- Drag and Drop State ---
+  // 追蹤當前被拖曳的項目：type 分為 'main' (主歌詞) 或 'bg' (背景音)
+  const [dragState, setDragState] = useState<{ type: 'main' | 'bg', index: number } | null>(null);
 
   // --- Main Text Handlers ---
   const handlePhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
@@ -46,17 +50,15 @@ export const LineEditor: React.FC<LineEditorProps> = ({
   // --- Background Voice Handlers ---
   const toggleBackgroundVoice = () => {
     if (line.background_voice) {
-        // Remove it
         if (window.confirm("Remove background voice track?")) {
             const { background_voice, ...rest } = line;
             onUpdate(index, rest);
         }
     } else {
-        // Add it
         onUpdate(index, { 
             ...line, 
             background_voice: { 
-                time: line.time, // default to same time as line
+                time: line.time, 
                 text: [{ phrase: '', duration: 20 }] 
             } 
         });
@@ -98,6 +100,60 @@ export const LineEditor: React.FC<LineEditorProps> = ({
           ...line,
           background_voice: { ...line.background_voice, text: newText }
       });
+  };
+
+  // --- Drag and Drop Logic ---
+  
+  // 開始拖曳
+  const handleDragStart = (e: React.DragEvent, type: 'main' | 'bg', idx: number) => {
+      setDragState({ type, index: idx });
+      // 設定拖曳效果
+      e.dataTransfer.effectAllowed = "move";
+      // 可以設定 ghost image，但這裡使用預設
+  };
+
+  // 允許放下 (必須阻止預設行為才能觸發 drop)
+  const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+  };
+
+  // 放下並重新排序
+  const handleDrop = (e: React.DragEvent, targetType: 'main' | 'bg', targetIndex: number) => {
+      e.preventDefault();
+      
+      if (!dragState) return;
+      if (dragState.type !== targetType) return; // 不允許跨軌道拖曳 (例如把背景音拖到主歌詞)
+      if (dragState.index === targetIndex) {
+          setDragState(null);
+          return;
+      }
+
+      const listKey = targetType === 'main' ? 'text' : 'background_voice';
+      
+      let currentList: LyricPhrase[] = [];
+      if (targetType === 'main') {
+          currentList = [...(line.text || [])];
+      } else {
+          currentList = [...(line.background_voice?.text || [])];
+      }
+
+      // 執行移動：刪除舊位置，插入新位置
+      const itemToMove = currentList[dragState.index];
+      currentList.splice(dragState.index, 1); // 移除
+      currentList.splice(targetIndex, 0, itemToMove); // 插入
+
+      // 更新狀態
+      if (targetType === 'main') {
+          onUpdate(index, { ...line, text: currentList });
+      } else {
+          onUpdate(index, {
+              ...line,
+              background_voice: { ...line.background_voice!, text: currentList }
+          });
+      }
+      
+      setDragState(null);
   };
 
 
@@ -175,12 +231,27 @@ export const LineEditor: React.FC<LineEditorProps> = ({
             {/* Phrases Flow */}
             <div className="flex flex-wrap gap-2 items-start">
                 {line.text?.map((phrase, pIndex) => (
-                    <PhraseEditor 
-                        key={pIndex} 
-                        phrase={phrase} 
-                        onChange={(up) => handlePhraseChange(pIndex, up)}
-                        onDelete={() => deletePhrase(pIndex)}
-                    />
+                    <div 
+                        key={pIndex}
+                        className={`flex items-center gap-0.5 transition-opacity ${
+                            dragState?.type === 'main' && dragState?.index === pIndex ? 'opacity-40' : 'opacity-100'
+                        }`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, 'main', pIndex)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, 'main', pIndex)}
+                    >
+                        {/* Drag Handle */}
+                        <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-400 -mt-4">
+                            <GripVertical size={14} />
+                        </div>
+                        
+                        <PhraseEditor 
+                            phrase={phrase} 
+                            onChange={(up) => handlePhraseChange(pIndex, up)}
+                            onDelete={() => deletePhrase(pIndex)}
+                        />
+                    </div>
                 ))}
                 <button 
                     onClick={addPhrase}
@@ -250,12 +321,27 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                   {/* BG Phrases */}
                   <div className="flex flex-wrap gap-2 items-start flex-1">
                       {line.background_voice.text.map((phrase, pIndex) => (
-                          <PhraseEditor 
-                              key={`bg-${pIndex}`} 
-                              phrase={phrase} 
-                              onChange={(up) => handleBgPhraseChange(pIndex, up)}
-                              onDelete={() => deleteBgPhrase(pIndex)}
-                          />
+                          <div 
+                            key={`bg-${pIndex}`}
+                            className={`flex items-center gap-0.5 transition-opacity ${
+                                dragState?.type === 'bg' && dragState?.index === pIndex ? 'opacity-40' : 'opacity-100'
+                            }`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, 'bg', pIndex)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, 'bg', pIndex)}
+                          >
+                            {/* Drag Handle */}
+                            <div className="cursor-grab active:cursor-grabbing text-purple-500/40 hover:text-purple-400 -mt-4">
+                                <GripVertical size={14} />
+                            </div>
+
+                            <PhraseEditor 
+                                phrase={phrase} 
+                                onChange={(up) => handleBgPhraseChange(pIndex, up)}
+                                onDelete={() => deleteBgPhrase(pIndex)}
+                            />
+                          </div>
                       ))}
                       <button 
                           onClick={addBgPhrase}

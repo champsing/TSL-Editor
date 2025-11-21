@@ -7,7 +7,12 @@ import React, {
     useImperativeHandle,
 } from "react";
 import { LyricLine, LyricData } from "./types";
-import { INITIAL_JSON_DATA, DEFAULT_VIDEO_ID, timeToSeconds, secondsToTime } from "./utils";
+import {
+    INITIAL_JSON_DATA,
+    DEFAULT_VIDEO_ID,
+    timeToSeconds,
+    secondsToTime,
+} from "./utils";
 import { LineEditor } from "./components/LineEditor";
 import {
     Plus,
@@ -18,6 +23,10 @@ import {
     Clock,
     MoveRight,
 } from "lucide-react";
+
+// --- 定義 Storage Keys ---
+const STORAGE_KEY_VIDEO_ID = "sync_editor_video_id";
+const STORAGE_KEY_LYRICS = "sync_editor_lyrics";
 
 // --- 定義 YouTube Player Props 與 Handle ---
 interface YouTubePlayerProps {
@@ -75,6 +84,7 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
             const initPlayer = () => {
                 if (!containerRef.current || playerInstanceRef.current) return;
 
+                // @ts-ignore
                 playerInstanceRef.current = new window.YT.Player(
                     containerRef.current,
                     {
@@ -90,6 +100,7 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
                                 // Player ready
                             },
                             onStateChange: (event: any) => {
+                                // @ts-ignore
                                 const PlayerState = window.YT.PlayerState;
                                 const isPlaying =
                                     event.data === PlayerState.PLAYING;
@@ -108,7 +119,7 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
                     }
                 );
             };
-
+            // @ts-ignore
             if (!window.YT) {
                 // 載入 API
                 if (!document.getElementById("yt-api-script")) {
@@ -122,7 +133,9 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
                         firstScriptTag
                     );
                 }
+                // @ts-ignore
                 const previousReady = window.onYouTubeIframeAPIReady;
+                // @ts-ignore
                 window.onYouTubeIframeAPIReady = () => {
                     if (previousReady) previousReady();
                     initPlayer();
@@ -159,30 +172,58 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
 );
 YouTubePlayer.displayName = "YouTubePlayer";
 
-
 function App() {
     // State
-    const [videoId, setVideoId] = useState(DEFAULT_VIDEO_ID);
-    const [tempVideoId, setTempVideoId] = useState(DEFAULT_VIDEO_ID);
-    const [lyrics, setLyrics] = useState<LyricData>([]);
+    // 1. 初始化 Video ID: 優先從 sessionStorage 讀取，否則使用預設值
+    const [videoId, setVideoId] = useState(() => {
+        const savedId = sessionStorage.getItem(STORAGE_KEY_VIDEO_ID);
+        return savedId || DEFAULT_VIDEO_ID;
+    });
+
+    // Temp Video ID 初始化時也跟隨 videoId
+    const [tempVideoId, setTempVideoId] = useState(videoId);
+
+    // 2. 初始化 Lyrics: 優先從 sessionStorage 讀取，否則解析 INITIAL_JSON_DATA
+    const [lyrics, setLyrics] = useState<LyricData>(() => {
+        const savedLyrics = sessionStorage.getItem(STORAGE_KEY_LYRICS);
+        if (savedLyrics) {
+            try {
+                return JSON.parse(savedLyrics);
+            } catch (e) {
+                console.error(
+                    "Failed to parse saved lyrics from sessionStorage",
+                    e
+                );
+            }
+        }
+        // Fallback to Initial Data
+        try {
+            return JSON.parse(INITIAL_JSON_DATA);
+        } catch (e) {
+            console.error("Failed to parse initial data");
+            return [];
+        }
+    });
+
     const [playerTime, setPlayerTime] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [jsonModalOpen, setJsonModalOpen] = useState(false);
 
     // Refs
-    // 注意：這裡的 Ref 類型改為指向我們自定義的 YouTubePlayerHandle
     const playerRef = useRef<YouTubePlayerHandle>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Initialize Data
+    // --- Storage Sync Effects ---
+
+    // 當 Video ID 改變時，存入 sessionStorage
     useEffect(() => {
-        try {
-            const parsed = JSON.parse(INITIAL_JSON_DATA);
-            setLyrics(parsed);
-        } catch (e) {
-            console.error("Failed to parse initial data");
-        }
-    }, []);
+        sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, videoId);
+    }, [videoId]);
+
+    // 當 Lyrics 改變時，存入 sessionStorage
+    useEffect(() => {
+        sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(lyrics));
+    }, [lyrics]);
 
     // Find current line based on time
     const currentLineIndex = useMemo(() => {
@@ -201,10 +242,8 @@ function App() {
     // Auto-scroll to current line
     useEffect(() => {
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
-            const currentLine = document.getElementsByClassName(
-                "is-current"
-            )[0];
-            
+            const currentLine =
+                document.getElementsByClassName("is-current")[0];
 
             currentLine?.scrollIntoView({
                 behavior: "smooth",
@@ -214,17 +253,15 @@ function App() {
     }, [currentLineIndex]);
 
     // Player Handlers
-    // 修改：直接接收秒數 (Native Player 傳上來的)
     const handleProgress = (currentTime: number) => {
         setPlayerTime(currentTime);
     };
 
-    // 修改：使用我們自定義的 seekTo 方法
     const handleSeek = (timeStr: string) => {
         const seconds = timeToSeconds(timeStr);
         if (playerRef.current) {
             playerRef.current.seekTo(seconds);
-            setPlayerTime(seconds); // 立即更新 UI 時間，不用等 callback
+            setPlayerTime(seconds); // 立即更新 UI 時間
         }
     };
 
@@ -280,6 +317,7 @@ function App() {
             try {
                 const json = JSON.parse(event.target?.result as string);
                 if (Array.isArray(json)) {
+                    // 讀取新檔案時，會自動觸發 useEffect 更新 sessionStorage
                     setLyrics(json);
                 } else {
                     alert("Invalid JSON format: Expected an array.");
@@ -300,7 +338,7 @@ function App() {
                         <Music2 className="text-dark" size={24} />
                     </div>
                     <h1 className="text-2xl font-playfair font-bold text-white">
-                        <span className="text-primary">Sync</span>Editor
+                        <span className="text-primary">TSL</span>Editor
                     </h1>
                 </div>
 
@@ -372,8 +410,8 @@ function App() {
                             onClick={addLine}
                             className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
                                 !isPlaying
-                                    ? "shadow-lg shadow-green-900/20" // 當 isPlaying 為 false (暫停中) 時顯示陰影
-                                    : "opacity-50 cursor-not-allowed shadow-none" // 當 isPlaying 為 true (播放中) 時移除陰影並變半透明
+                                    ? "shadow-lg shadow-green-900/20"
+                                    : "opacity-50 cursor-not-allowed shadow-none"
                             }`}
                             disabled={isPlaying}
                         >
@@ -416,9 +454,6 @@ function App() {
                 {/* Right Panel: Fixed Player */}
                 <div className="w-[400px] bg-black flex flex-col border-l border-gray-800 shadow-2xl z-10">
                     <div className="h-relative bg-black aspect-video">
-                        {/* 這裡使用了我們自定義的 YouTubePlayer 
-                           並傳入了同步時間與狀態的 callback
-                        */}
                         <YouTubePlayer
                             ref={playerRef}
                             videoId={videoId}
@@ -458,6 +493,9 @@ function App() {
                             <p>
                                 <strong>Note:</strong> Time format is{" "}
                                 <code>MM:SS.mm</code>.
+                            </p>
+                            <p>
+                                You can only add lines when the video is paused.
                             </p>
                         </div>
                     </div>
