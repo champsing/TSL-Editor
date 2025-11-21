@@ -1,7 +1,7 @@
 import React from 'react';
 import { LyricLine, LyricPhrase } from '../types';
 import { PhraseEditor } from './PhraseEditor';
-import { Clock, Plus, Trash2, MoveRight } from 'lucide-react';
+import { Clock, Plus, Trash2, MoveRight, Mic2, XCircle } from 'lucide-react';
 
 interface LineEditorProps {
   index: number;
@@ -23,6 +23,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
   onSeek
 }) => {
 
+  // --- Main Text Handlers ---
   const handlePhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
     if (!line.text) return;
     const newText = [...line.text];
@@ -42,7 +43,65 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     onUpdate(index, { ...line, text: newText });
   };
 
-  const isSpecialType = !!line.type;
+  // --- Background Voice Handlers ---
+  const toggleBackgroundVoice = () => {
+    if (line.background_voice) {
+        // Remove it
+        if (window.confirm("Remove background voice track?")) {
+            const { background_voice, ...rest } = line;
+            onUpdate(index, rest);
+        }
+    } else {
+        // Add it
+        onUpdate(index, { 
+            ...line, 
+            background_voice: { 
+                time: line.time, // default to same time as line
+                text: [{ phrase: '', duration: 20 }] 
+            } 
+        });
+    }
+  };
+
+  const updateBgVoiceTime = (newTime: string) => {
+      if (!line.background_voice) return;
+      onUpdate(index, {
+          ...line,
+          background_voice: { ...line.background_voice, time: newTime }
+      });
+  };
+
+  const handleBgPhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
+      if (!line.background_voice) return;
+      const newText = [...line.background_voice.text];
+      newText[pIndex] = updatedPhrase;
+      onUpdate(index, {
+          ...line,
+          background_voice: { ...line.background_voice, text: newText }
+      });
+  };
+
+  const addBgPhrase = () => {
+      if (!line.background_voice) return;
+      const newPhrase: LyricPhrase = { phrase: '', duration: 20 };
+      const newText = [...line.background_voice.text, newPhrase];
+      onUpdate(index, {
+          ...line,
+          background_voice: { ...line.background_voice, text: newText }
+      });
+  };
+
+  const deleteBgPhrase = (pIndex: number) => {
+      if (!line.background_voice) return;
+      const newText = line.background_voice.text.filter((_, i) => i !== pIndex);
+      onUpdate(index, {
+          ...line,
+          background_voice: { ...line.background_voice, text: newText }
+      });
+  };
+
+
+  const isSpecialType = !!line.type && line.type !== 'normal';
 
   return (
     <div className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${isCurrent ? 'is-current bg-dark/80 border-primary shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]' : 'bg-panel border-gray-700 hover:border-gray-500'}`}>
@@ -88,6 +147,19 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
         <div className="flex-grow"></div>
 
+        {/* Toggle Background Voice Button */}
+        <button 
+            onClick={toggleBackgroundVoice}
+            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
+                line.background_voice 
+                ? 'bg-purple-900/40 text-purple-300 border border-purple-500/50' 
+                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+            }`}
+        >
+            <Mic2 size={14} />
+            {line.background_voice ? 'Has BG Voice' : 'Add BG Voice'}
+        </button>
+
         <button 
             onClick={() => onDelete(index)}
             className="text-red-400 hover:bg-red-400/10 p-2 rounded transition-colors"
@@ -97,7 +169,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         </button>
       </div>
 
-      {/* Lyric Content - Show when NOT special type */}
+      {/* Main Lyric Content */}
       {!isSpecialType && (
         <div className="space-y-3">
             {/* Phrases Flow */}
@@ -132,11 +204,68 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         </div>
       )}
 
-      {/* Marker Content - Show when special type */}
+      {/* Marker Content */}
       {isSpecialType && (
-        <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20">
+        <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20 mb-3">
             {line.type?.toUpperCase()} MARKER
         </div>
+      )}
+
+      {/* Background Voice Section */}
+      {line.background_voice && (
+          <div className="mt-4 p-3 bg-purple-900/10 border border-purple-500/20 rounded-lg relative">
+              <div className="absolute top-0 left-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-br">
+                  BACKGROUND VOICE
+              </div>
+              
+              <div className="flex items-start gap-4 mt-4">
+                  {/* BG Voice Time Control */}
+                  <div className="flex flex-col gap-1 pt-2">
+                      <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
+                          <input 
+                              type="text"
+                              value={line.background_voice.time}
+                              onChange={(e) => updateBgVoiceTime(e.target.value)}
+                              className="w-20 bg-transparent text-xs text-center p-1 outline-none font-mono text-purple-200"
+                          />
+                      </div>
+                      <div className="flex justify-between">
+                        <button 
+                            onClick={() => onSeek(line.background_voice!.time)}
+                            className="text-gray-500 hover:text-purple-300"
+                            title="Seek to BG time"
+                        >
+                            <MoveRight size={12} />
+                        </button>
+                        <button
+                            onClick={toggleBackgroundVoice}
+                            className="text-red-400/50 hover:text-red-400"
+                            title="Remove BG Voice"
+                        >
+                            <XCircle size={12} />
+                        </button>
+                      </div>
+                  </div>
+
+                  {/* BG Phrases */}
+                  <div className="flex flex-wrap gap-2 items-start flex-1">
+                      {line.background_voice.text.map((phrase, pIndex) => (
+                          <PhraseEditor 
+                              key={`bg-${pIndex}`} 
+                              phrase={phrase} 
+                              onChange={(up) => handleBgPhraseChange(pIndex, up)}
+                              onDelete={() => deleteBgPhrase(pIndex)}
+                          />
+                      ))}
+                      <button 
+                          onClick={addBgPhrase}
+                          className="h-[82px] w-8 flex items-center justify-center border border-dashed border-purple-500/30 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"
+                      >
+                          <Plus size={16} />
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
 
     </div>
