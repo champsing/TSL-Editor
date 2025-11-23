@@ -183,7 +183,7 @@ function App() {
     // Temp Video ID 初始化時也跟隨 videoId
     const [tempVideoId, setTempVideoId] = useState(videoId);
 
-    // 2. 初始化 Lyrics: 優先從 sessionStorage 讀取，否則解析 INITIAL_JSON_DATA
+    // 2. 初始化 Lyrics
     const [lyrics, setLyrics] = useState<LyricData>(() => {
         const savedLyrics = sessionStorage.getItem(STORAGE_KEY_LYRICS);
         if (savedLyrics) {
@@ -196,7 +196,6 @@ function App() {
                 );
             }
         }
-        // Fallback to Initial Data
         try {
             return JSON.parse(INITIAL_JSON_DATA);
         } catch (e) {
@@ -209,13 +208,16 @@ function App() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [jsonModalOpen, setJsonModalOpen] = useState(false);
 
+    // 新增：追蹤當前展開編輯的行索引 (一次只能展開一個)
+    const [editingLineIndex, setEditingLineIndex] = useState<number | null>(
+        null
+    );
+
     // Refs
     const playerRef = useRef<YouTubePlayerHandle>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // --- Storage Sync Effects ---
-
-    // 當 Video ID 改變時，存入 sessionStorage
     useEffect(() => {
         sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, videoId);
     }, [videoId]);
@@ -280,6 +282,10 @@ function App() {
         if (window.confirm("Delete this line?")) {
             const newLyrics = lyrics.filter((_, i) => i !== index);
             setLyrics(newLyrics);
+            // 如果刪除的是正在編輯的行，重置編輯狀態
+            if (editingLineIndex === index) {
+                setEditingLineIndex(null);
+            }
         }
     };
 
@@ -295,6 +301,8 @@ function App() {
         const newLyrics = [...lyrics];
         newLyrics.splice(insertIndex, 0, newLine);
         setLyrics(newLyrics);
+        // 新增後自動選中該行進行編輯
+        setEditingLineIndex(insertIndex);
     };
 
     const copyJson = () => {
@@ -302,7 +310,6 @@ function App() {
         navigator.clipboard.writeText(jsonStr).then(() => {
             alert("JSON copied to clipboard!");
         });
-        // 當拷貝 Lyrics 時，視為儲存，存入 sessionStorage
         sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(lyrics));
     };
 
@@ -314,8 +321,8 @@ function App() {
             try {
                 const json = JSON.parse(event.target?.result as string);
                 if (Array.isArray(json)) {
-                    // 讀取新檔案時，會自動觸發 useEffect 更新 sessionStorage
                     setLyrics(json);
+                    setEditingLineIndex(null); // 重置編輯狀態
                 } else {
                     alert("Invalid JSON format: Expected an array.");
                 }
@@ -438,6 +445,10 @@ function App() {
                                     index={index}
                                     line={line}
                                     isCurrent={index === currentLineIndex}
+                                    isEditing={index === editingLineIndex} // 傳入是否為編輯模式
+                                    onEditStart={() =>
+                                        setEditingLineIndex(index)
+                                    } // 切換編輯模式
                                     onUpdate={updateLine}
                                     onDelete={deleteLine}
                                     onStampTime={handleStamp}

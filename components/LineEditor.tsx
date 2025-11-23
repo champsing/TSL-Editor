@@ -9,12 +9,15 @@ import {
     Mic2,
     XCircle,
     GripVertical,
+    Pencil, // 新增鉛筆 icon
 } from "lucide-react";
 
 interface LineEditorProps {
     index: number;
     line: LyricLine;
     isCurrent: boolean;
+    isEditing: boolean; // 新增：是否處於編輯狀態
+    onEditStart: () => void; // 新增：切換到編輯狀態的回調
     onUpdate: (index: number, newLine: LyricLine) => void;
     onDelete: (index: number) => void;
     onStampTime: (index: number) => void;
@@ -25,13 +28,14 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     index,
     line,
     isCurrent,
+    isEditing,
+    onEditStart,
     onUpdate,
     onDelete,
     onStampTime,
     onSeek,
 }) => {
     // --- Drag and Drop State ---
-    // 追蹤當前被拖曳的項目：type 分為 'main' (主歌詞) 或 'bg' (背景音)
     const [dragState, setDragState] = useState<{
         type: "main" | "bg";
         index: number;
@@ -119,25 +123,20 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     // --- Drag and Drop Logic ---
 
-    // 開始拖曳
     const handleDragStart = (
         e: React.DragEvent,
         type: "main" | "bg",
         idx: number
     ) => {
         setDragState({ type, index: idx });
-        // 設定拖曳效果
         e.dataTransfer.effectAllowed = "move";
-        // 可以設定 ghost image，但這裡使用預設
     };
 
-    // 允許放下 (必須阻止預設行為才能觸發 drop)
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
     };
 
-    // 放下並重新排序
     const handleDrop = (
         e: React.DragEvent,
         targetType: "main" | "bg",
@@ -146,7 +145,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         e.preventDefault();
 
         if (!dragState) return;
-        if (dragState.type !== targetType) return; // 不允許跨軌道拖曳 (例如把背景音拖到主歌詞)
+        if (dragState.type !== targetType) return;
         if (dragState.index === targetIndex) {
             setDragState(null);
             return;
@@ -161,12 +160,10 @@ export const LineEditor: React.FC<LineEditorProps> = ({
             currentList = [...(line.background_voice?.text || [])];
         }
 
-        // 執行移動：刪除舊位置，插入新位置
         const itemToMove = currentList[dragState.index];
-        currentList.splice(dragState.index, 1); // 移除
-        currentList.splice(targetIndex, 0, itemToMove); // 插入
+        currentList.splice(dragState.index, 1);
+        currentList.splice(targetIndex, 0, itemToMove);
 
-        // 更新狀態
         if (targetType === "main") {
             onUpdate(index, { ...line, text: currentList });
         } else {
@@ -184,6 +181,98 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     const isSpecialType = !!line.type && line.type !== "normal";
 
+    // --- 預覽模式 (非編輯狀態) ---
+    if (!isEditing) {
+        return (
+            <div
+                className={`mb-2 p-3 rounded-lg border transition-all duration-300 relative group flex items-start gap-4 ${
+                    isCurrent
+                        ? "bg-dark/80 border-primary shadow-[0_0_10px_rgba(74,194,215,0.2)]"
+                        : "bg-panel border-gray-700 hover:border-gray-600"
+                }`}
+            >
+                {/* Time Stamp */}
+                <div className="flex flex-col items-center gap-1 min-w-18 pt-1">
+                    <span className="font-mono text-primary font-bold text-lg">
+                        {line.time}
+                    </span>
+                </div>
+
+                {/* Content Preview */}
+                <div
+                    className="flex-1 space-y-2 cursor-pointer"
+                    onClick={onEditStart}
+                    title="Click to edit"
+                >
+                    {/* Main Text */}
+                    <div className="flex flex-wrap gap-1">
+                        {!isSpecialType &&
+                            (!line.text || line.text.length === 0) && (
+                                <span className="text-gray-500 italic text-sm">
+                                    Empty line
+                                </span>
+                            )}
+                        {isSpecialType && (
+                            <span className="text-base text-gray-500 uppercase border border-gray-700 px-1 rounded">
+                                {line.type}
+                            </span>
+                        )}
+                        {line.text?.map((p, i) => (
+                            <div
+                                key={i}
+                                className="bg-black/30 px-2 py-0.5 rounded border border-gray-700/50 flex flex-col min-w-8"
+                            >
+                                <span className="text-gray-200 text-sm font-medium">
+                                    {p.phrase || "\u00A0"}
+                                </span>
+                                <span className="text-[10px] text-teal-500/70 font-mono text-right leading-none">
+                                    {p.duration}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* BG Voice Preview */}
+                    {line.background_voice && (
+                        <div className="flex items-center gap-2 pt-1 border-t border-white/5 mt-1">
+                            <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">
+                                BG
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                                {line.background_voice.text.map((p, i) => (
+                                    <div
+                                        key={i}
+                                        className="bg-purple-900/20 px-2 py-0.5 rounded border border-purple-500/20 flex flex-col"
+                                    >
+                                        <span className="text-purple-200 text-xs">
+                                            {p.phrase || "\u00A0"}
+                                        </span>
+                                        <span className="text-[9px] text-purple-400/70 font-mono text-right leading-none">
+                                            {p.duration}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Edit Button (Pencil Icon) */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEditStart();
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-gray-700 text-white rounded hover:bg-primary hover:text-black transition-all opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                    title="Edit Line"
+                >
+                    <Pencil size={16} />
+                </button>
+            </div>
+        );
+    }
+
+    // --- 編輯模式 (完整介面) ---
     return (
         <div
             className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${
