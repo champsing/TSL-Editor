@@ -445,21 +445,31 @@ function App() {
                                 {lyrics.length} lines total
                             </div>
                         </div>
-                        <button
-                            onClick={addLine}
-                            className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
-                                !isPlaying
-                                    ? "shadow-lg shadow-green-900/20"
-                                    : "opacity-50 cursor-not-allowed shadow-none"
-                            }`}
-                            disabled={isPlaying}
-                        >
-                            <Plus size={18} />
-                            Add Line at{" "}
-                            {isPlaying
-                                ? "--:--.--"
-                                : secondsToTime(playerTime, 1)}
-                        </button>
+                        <div className="flex gap-2">
+                            {/* 新增 Preview 按鈕 (預覽按鈕) */}
+                            <button
+                                onClick={() => setPreviewModalOpen(true)}
+                                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded flex items-center gap-2 transition shadow-lg shadow-purple-900/20"
+                            >
+                                <Play size={18} />
+                                Preview
+                            </button>
+                            <button
+                                onClick={addLine}
+                                className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
+                                    !isPlaying
+                                        ? "shadow-lg shadow-green-900/20"
+                                        : "opacity-50 cursor-not-allowed shadow-none"
+                                }`}
+                                disabled={isPlaying}
+                            >
+                                <Plus size={18} />
+                                Add Line at{" "}
+                                {isPlaying
+                                    ? "--:--.--"
+                                    : secondsToTime(playerTime, 1)}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Scrollable List (可滾動清單) */}
