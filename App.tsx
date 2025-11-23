@@ -25,6 +25,7 @@ import {
     MoveRight,
     Play,
     CheckCircle, // 新增圖標：用於提交狀態
+    Undo2, // 新增圖標：用於撤銷暫存
 } from "lucide-react";
 
 // 引入 lodash/isEqual 進行深度比較，判斷 JSON 是否改變。
@@ -201,7 +202,7 @@ YouTubePlayer.displayName = "YouTubePlayer";
 // --- 輔助函式：深度比較兩個歌詞陣列 (簡易版) ---
 const areLyricsEqual = (a: LyricData, b: LyricData): boolean => {
     // 更好的做法是引入 lodash/isEqual，這裡使用 JSON.stringify 作為簡易替代
-    // 但請注意：JSON.stringify 的順序可能會影響結果，在複雜物件中不夠精準。
+    // 但 JSON.stringify 的順序可能會影響結果，在複雜物件中不夠精準。
     // 在此應用中 (LyricLine 結構相對固定)，這應該足夠。
     return JSON.stringify(a) === JSON.stringify(b);
 };
@@ -283,8 +284,6 @@ function App() {
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
             // 注意: 這裡的 currentLineIndex 是針對 'lyrics' (已提交)
             // 但清單渲染的是 'stagedLyrics'。
-            // 由於只有 commit 時 'lyrics' 才會更新，
-            // 且 LineEditor 還是使用 index，這裡應該不會有問題。
             const currentLine =
                 document.getElementsByClassName("is-current")[0];
 
@@ -317,17 +316,43 @@ function App() {
         }
     };
 
-    // --- 新增 Commit 函式 ---
+    // --- Commit 函式 ---
     const commitLyrics = () => {
         if (!hasUncommittedChanges) return; // 沒有變更則不提交
 
-        setLyrics(stagedLyrics); // 更新已提交狀態
+        // 使用結構化克隆確保 deep copy
+        const newStagedLyrics = JSON.parse(JSON.stringify(stagedLyrics));
+
+        setLyrics(newStagedLyrics); // 更新已提交狀態
         // 寫入 sessionStorage (節省效能)
         sessionStorage.setItem(
             STORAGE_KEY_LYRICS,
-            JSON.stringify(stagedLyrics)
+            JSON.stringify(newStagedLyrics)
         );
         console.log("Lyrics committed and saved to sessionStorage!");
+    };
+
+    // --- 新增 Discard 函式：將暫存狀態回復到已提交狀態 ---
+    const discardChanges = () => {
+        if (!hasUncommittedChanges) return;
+
+        // 使用自訂的確認框代替 alert/confirm
+        const confirmation = window.confirm(
+            "確定要放棄所有未提交的變更嗎？這將會回復到上次提交的狀態。"
+        );
+
+        if (!confirmation) {
+            return;
+        }
+
+        // 將暫存狀態回復到已提交狀態 (lyrics)
+        // 使用結構化克隆確保 deep copy
+        const newLyrics = JSON.parse(JSON.stringify(lyrics));
+        setStagedLyrics(newLyrics);
+
+        setEditingLineIndex(null); // 離開編輯模式
+
+        console.log("Uncommitted changes discarded.");
     };
 
     // --- 編輯相關函式：現在修改 stagedLyrics ---
@@ -364,8 +389,6 @@ function App() {
             translation: "",
         };
         // Insert after current index or at end (這裡使用已提交的 currentLineIndex)
-        // 注意：這裡可能會因為 currentLineIndex (使用 lyrics) 和 stagedLyrics 的長度不同而產生不精準的插入位置
-        // 更嚴謹的做法是重新計算一個 stagedCurrentLineIndex，但為簡化，暫時沿用 currentLineIndex 邏輯
         const insertIndex =
             currentLineIndex !== -1
                 ? currentLineIndex + 1
@@ -382,7 +405,6 @@ function App() {
         navigator.clipboard.writeText(jsonStr).then(() => {
             console.log("JSON copied to clipboard!");
         });
-        // 這裡不再寫入 sessionStorage，因為 commitLyrics 已經處理
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -445,59 +467,50 @@ function App() {
                     </button>
                 </div>
 
-                {/* Actions (操作按鈕) - 新增 Commit/Status */}
-                <div className="flex items-center gap-3">
-                    {/* Commit 按鈕與狀態指示燈 */}
-                    <button
-                        onClick={commitLyrics}
-                        disabled={!hasUncommittedChanges}
-                        className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
-                            hasUncommittedChanges
-                                ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
-                                : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        }`}
-                    >
-                        <CheckCircle size={16} />
-                        Commit
-                        {/* 狀態指示燈 */}
-                        <span
-                            className={`w-3 h-3 rounded-full ml-1 ${
+                <div className="flex gap-2">
+                    {/* Actions (操作按鈕) - 新增 Commit/Discard/Status */}
+                    <div className="flex items-center gap-3">
+                        {/* Commit 按鈕與狀態指示燈 */}
+                        <button
+                            onClick={commitLyrics}
+                            disabled={!hasUncommittedChanges}
+                            className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                                 hasUncommittedChanges
-                                    ? "bg-red-400 animate-pulse"
-                                    : "bg-green-400"
+                                    ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
                             }`}
-                            title={
-                                hasUncommittedChanges
-                                    ? "Uncommitted Changes (未提交變更)"
-                                    : "Committed (已提交)"
-                            }
-                        ></span>
-                    </button>
+                        >
+                            <CheckCircle size={16} />
+                            Commit
+                            {/* 狀態指示燈 */}
+                            <span
+                                className={`w-3 h-3 rounded-full ml-1 ${
+                                    hasUncommittedChanges
+                                        ? "bg-red-400 animate-pulse"
+                                        : "bg-green-400"
+                                }`}
+                                title={
+                                    hasUncommittedChanges
+                                        ? "Uncommitted Changes (未提交變更)"
+                                        : "Committed (已提交)"
+                                }
+                            ></span>
+                        </button>
 
-                    <label className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition">
-                        <Upload size={16} />
-                        Import
-                        <input
-                            type="file"
-                            className="hidden"
-                            accept=".json"
-                            onChange={handleFileUpload}
-                        />
-                    </label>
-                    <button
-                        onClick={() => setJsonModalOpen(true)}
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition"
-                    >
-                        <FileJson size={16} />
-                        View JSON
-                    </button>
-                    <button
-                        onClick={copyJson}
-                        className="bg-primary hover:bg-teal-300 text-dark font-semibold px-4 py-2 rounded-md flex items-center gap-2 text-sm shadow-[0_0_10px_rgba(74,194,215,0.3)] transition"
-                    >
-                        <Copy size={16} />
-                        Copy JSON
-                    </button>
+                        {/* Discard 按鈕 */}
+                        <button
+                            onClick={discardChanges}
+                            disabled={!hasUncommittedChanges}
+                            className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
+                                hasUncommittedChanges
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                                    : "bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
+                            }`}
+                        >
+                            <Undo2 size={16} />
+                            Discard
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -623,10 +636,41 @@ function App() {
                             </p>
                             <p>只有當影片暫停時才能新增行。</p>
                             <p>
-                                編輯後必須點擊{" "}
+                                編輯後可以點擊{" "}
                                 <strong className="text-red-400">Commit</strong>{" "}
-                                按鈕才能使更改生效並儲存。
+                                按鈕提交變更；或點擊{" "}
+                                <strong className="text-gray-300">
+                                    Discard
+                                </strong>{" "}
+                                按鈕還原。
                             </p>
+                        </div>
+
+                        <div className="flex gap-2 mt-10">
+                            <label className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition">
+                                <Upload size={16} />
+                                Import
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept=".json"
+                                    onChange={handleFileUpload}
+                                />
+                            </label>
+                            <button
+                                onClick={() => setJsonModalOpen(true)}
+                                className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition"
+                            >
+                                <FileJson size={16} />
+                                View JSON
+                            </button>
+                            <button
+                                onClick={copyJson}
+                                className="bg-primary hover:bg-teal-300 text-dark font-semibold px-4 py-2 rounded-md flex items-center gap-2 text-sm shadow-[0_0_10px_rgba(74,194,215,0.3)] transition"
+                            >
+                                <Copy size={16} />
+                                Copy JSON
+                            </button>
                         </div>
                     </div>
                 </div>
