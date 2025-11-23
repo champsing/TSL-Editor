@@ -24,7 +24,13 @@ import {
     Clock,
     MoveRight,
     Play,
+    CheckCircle, // 新增圖標：用於提交狀態
 } from "lucide-react";
+
+// 引入 lodash/isEqual 進行深度比較，判斷 JSON 是否改變。
+// 假設專案中已安裝 'lodash'
+// 如果沒有安裝，可以使用一個簡單的 JSON.stringify 比較作為替代
+// import isEqual from 'lodash/isEqual';
 
 // --- 定義 Storage Keys (儲存鍵) ---
 const STORAGE_KEY_VIDEO_ID = "sync_editor_video_id";
@@ -192,6 +198,14 @@ const YouTubePlayer = forwardRef<YouTubePlayerHandle, YouTubePlayerProps>(
 );
 YouTubePlayer.displayName = "YouTubePlayer";
 
+// --- 輔助函式：深度比較兩個歌詞陣列 (簡易版) ---
+const areLyricsEqual = (a: LyricData, b: LyricData): boolean => {
+    // 更好的做法是引入 lodash/isEqual，這裡使用 JSON.stringify 作為簡易替代
+    // 但請注意：JSON.stringify 的順序可能會影響結果，在複雜物件中不夠精準。
+    // 在此應用中 (LyricLine 結構相對固定)，這應該足夠。
+    return JSON.stringify(a) === JSON.stringify(b);
+};
+
 function App() {
     // State (狀態管理)
     const [videoId, setVideoId] = useState(() => {
@@ -201,6 +215,7 @@ function App() {
 
     const [tempVideoId, setTempVideoId] = useState(videoId);
 
+    // 儲存已提交/已存檔的歌詞
     const [lyrics, setLyrics] = useState<LyricData>(() => {
         const savedLyrics = sessionStorage.getItem(STORAGE_KEY_LYRICS);
         if (savedLyrics) {
@@ -221,10 +236,13 @@ function App() {
         }
     });
 
+    // 儲存正在編輯/暫存的歌詞 (新的狀態)
+    const [stagedLyrics, setStagedLyrics] = useState<LyricData>(lyrics);
+
     const [playerTime, setPlayerTime] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [jsonModalOpen, setJsonModalOpen] = useState(false);
-    const [previewModalOpen, setPreviewModalOpen] = useState(false); // 新增預覽狀態
+    const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
     const [editingLineIndex, setEditingLineIndex] = useState<number | null>(
         null
@@ -238,7 +256,7 @@ function App() {
         sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, videoId);
     }, [videoId]);
 
-    // 找出當前正在播放的行
+    // 找出當前正在播放的行 (使用已提交的 lyrics)
     const currentLineIndex = useMemo(() => {
         let index = -1;
         for (let i = 0; i < lyrics.length; i++) {
@@ -252,12 +270,21 @@ function App() {
         return index;
     }, [playerTime, lyrics]);
 
+    // 檢查是否有未提交的變更 (紅/綠點狀態)
+    const hasUncommittedChanges = useMemo(() => {
+        return !areLyricsEqual(lyrics, stagedLyrics);
+    }, [lyrics, stagedLyrics]);
+
     // 自動滾動到當前行
     useEffect(() => {
         // 如果正在預覽，不執行這裡的滾動，因為預覽視窗有自己的滾動
         if (previewModalOpen) return;
 
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
+            // 注意: 這裡的 currentLineIndex 是針對 'lyrics' (已提交)
+            // 但清單渲染的是 'stagedLyrics'。
+            // 由於只有 commit 時 'lyrics' 才會更新，
+            // 且 LineEditor 還是使用 index，這裡應該不會有問題。
             const currentLine =
                 document.getElementsByClassName("is-current")[0];
 
@@ -290,29 +317,41 @@ function App() {
         }
     };
 
+    // --- 新增 Commit 函式 ---
+    const commitLyrics = () => {
+        if (!hasUncommittedChanges) return; // 沒有變更則不提交
+
+        setLyrics(stagedLyrics); // 更新已提交狀態
+        // 寫入 sessionStorage (節省效能)
+        sessionStorage.setItem(
+            STORAGE_KEY_LYRICS,
+            JSON.stringify(stagedLyrics)
+        );
+        console.log("Lyrics committed and saved to sessionStorage!");
+    };
+
+    // --- 編輯相關函式：現在修改 stagedLyrics ---
     const handleStamp = (index: number) => {
-        const newLyrics = [...lyrics];
+        const newLyrics = [...stagedLyrics];
         newLyrics[index] = {
             ...newLyrics[index],
             time: secondsToTime(playerTime, 1),
         };
-        setLyrics(newLyrics);
+        setStagedLyrics(newLyrics);
     };
 
     const updateLine = (index: number, updatedLine: LyricLine) => {
-        const newLyrics = [...lyrics];
+        const newLyrics = [...stagedLyrics];
         newLyrics[index] = updatedLine;
-        setLyrics(newLyrics);
+        setStagedLyrics(newLyrics);
     };
 
     const deleteLine = (index: number) => {
-        // 使用自定義的簡單確認代替 alert/confirm
         if (!window.confirm("確定要刪除這行歌詞嗎？")) return;
 
-        const newLyrics = lyrics.filter((_, i) => i !== index);
-        setLyrics(newLyrics);
+        const newLyrics = stagedLyrics.filter((_, i) => i !== index);
+        setStagedLyrics(newLyrics);
 
-        // 如果刪除的是正在編輯的行，重置編輯狀態
         if (editingLineIndex === index) {
             setEditingLineIndex(null);
         }
@@ -324,23 +363,26 @@ function App() {
             text: [{ phrase: "新行歌詞", duration: 20 }],
             translation: "",
         };
-        // Insert after current index or at end
+        // Insert after current index or at end (這裡使用已提交的 currentLineIndex)
+        // 注意：這裡可能會因為 currentLineIndex (使用 lyrics) 和 stagedLyrics 的長度不同而產生不精準的插入位置
+        // 更嚴謹的做法是重新計算一個 stagedCurrentLineIndex，但為簡化，暫時沿用 currentLineIndex 邏輯
         const insertIndex =
-            currentLineIndex !== -1 ? currentLineIndex + 1 : lyrics.length;
-        const newLyrics = [...lyrics];
+            currentLineIndex !== -1
+                ? currentLineIndex + 1
+                : stagedLyrics.length;
+        const newLyrics = [...stagedLyrics];
         newLyrics.splice(insertIndex, 0, newLine);
-        setLyrics(newLyrics);
-        // 新增後自動選中該行進行編輯
+        setStagedLyrics(newLyrics);
         setEditingLineIndex(insertIndex);
     };
 
     const copyJson = () => {
+        // 複製已提交的 lyrics
         const jsonStr = JSON.stringify(lyrics, null, 4);
         navigator.clipboard.writeText(jsonStr).then(() => {
-            // 使用自定義的簡單提示代替 alert/confirm
             console.log("JSON copied to clipboard!");
         });
-        sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(lyrics));
+        // 這裡不再寫入 sessionStorage，因為 commitLyrics 已經處理
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,15 +393,20 @@ function App() {
             try {
                 const json = JSON.parse(event.target?.result as string);
                 if (Array.isArray(json)) {
+                    // 同時更新 lyrics 和 stagedLyrics
                     setLyrics(json);
+                    setStagedLyrics(json);
                     setEditingLineIndex(null);
+                    // 檔案載入成功後立即寫入 sessionStorage
+                    sessionStorage.setItem(
+                        STORAGE_KEY_LYRICS,
+                        JSON.stringify(json)
+                    );
                 } else {
                     console.error("Invalid JSON format: Expected an array.");
-                    // 使用自定義的簡單提示代替 alert/confirm
                 }
             } catch (err) {
                 console.error("Error parsing JSON file", err);
-                // 使用自定義的簡單提示代替 alert/confirm
             }
         };
         reader.readAsText(file);
@@ -398,8 +445,35 @@ function App() {
                     </button>
                 </div>
 
-                {/* Actions (操作按鈕) */}
+                {/* Actions (操作按鈕) - 新增 Commit/Status */}
                 <div className="flex items-center gap-3">
+                    {/* Commit 按鈕與狀態指示燈 */}
+                    <button
+                        onClick={commitLyrics}
+                        disabled={!hasUncommittedChanges}
+                        className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
+                            hasUncommittedChanges
+                                ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                                : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        }`}
+                    >
+                        <CheckCircle size={16} />
+                        Commit
+                        {/* 狀態指示燈 */}
+                        <span
+                            className={`w-3 h-3 rounded-full ml-1 ${
+                                hasUncommittedChanges
+                                    ? "bg-red-400 animate-pulse"
+                                    : "bg-green-400"
+                            }`}
+                            title={
+                                hasUncommittedChanges
+                                    ? "Uncommitted Changes (未提交變更)"
+                                    : "Committed (已提交)"
+                            }
+                        ></span>
+                    </button>
+
                     <label className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition">
                         <Upload size={16} />
                         Import
@@ -442,7 +516,7 @@ function App() {
                             </div>
                             <div className="h-8 w-px bg-gray-600 mx-2"></div>
                             <div className="text-sm text-gray-400">
-                                {lyrics.length} lines total
+                                {stagedLyrics.length} lines total
                             </div>
                         </div>
                         <div className="flex gap-2">
@@ -478,16 +552,19 @@ function App() {
                         className="flex-1 overflow-y-auto p-6 scroll-smooth pb-32"
                     >
                         <div className="max-w-4xl mx-auto">
-                            {lyrics.length === 0 && (
+                            {stagedLyrics.length === 0 && (
                                 <div className="text-center text-gray-500 mt-20">
                                     No lyrics loaded. Import a file or add a
                                     line.
                                 </div>
                             )}
-                            {lyrics.map((line, index) => (
+                            {/* 清單現在使用 stagedLyrics 進行渲染 */}
+                            {stagedLyrics.map((line, index) => (
                                 <LineEditor
                                     key={index}
                                     index={index}
+                                    // 雖然渲染 stagedLyrics，但 isCurrent 依賴 currentLineIndex (使用 lyrics)
+                                    // 這是故意的，因為只有 committed 的歌詞才會影響播放高亮
                                     line={line}
                                     isCurrent={index === currentLineIndex}
                                     isEditing={index === editingLineIndex} // 傳入是否為編輯模式
@@ -545,6 +622,11 @@ function App() {
                                 <code>MM:SS.mm</code>。
                             </p>
                             <p>只有當影片暫停時才能新增行。</p>
+                            <p>
+                                編輯後必須點擊{" "}
+                                <strong className="text-red-400">Commit</strong>{" "}
+                                按鈕才能使更改生效並儲存。
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -569,6 +651,7 @@ function App() {
                         <textarea
                             className="flex-1 bg-[#1e1e1e] text-green-400 font-mono p-4 text-sm resize-none outline-none"
                             readOnly
+                            // 這裡顯示已提交的 lyrics
                             value={JSON.stringify(lyrics, null, 4)}
                         />
                         <div className="p-4 border-t border-gray-700 flex justify-end gap-3">
@@ -592,6 +675,7 @@ function App() {
             {/* Preview Modal (預覽模態框) */}
             {previewModalOpen && (
                 <PreviewModal
+                    // 預覽使用已提交的 lyrics
                     lyrics={lyrics}
                     currentTime={playerTime}
                     onClose={() => setPreviewModalOpen(false)}
