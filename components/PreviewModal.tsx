@@ -53,7 +53,6 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
   isPlaying,
   onPlayPause,
   currentSongTitle = "Preview Song",
-  currentSongArtist = "Unknown Artist",
 }) => {
   const processedLyrics = useMemo(() => processLyrics(lyrics), [lyrics]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -250,7 +249,6 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-[#231f1f]/90 px-6 py-4 rounded-xl flex items-center gap-6 shadow-2xl backdrop-blur-sm border border-white/10">
         <div className="flex flex-col">
             <span className="text-white font-bold text-lg">{currentSongTitle}</span>
-            <span className="text-gray-400 text-sm">{currentSongArtist}</span>
         </div>
 
         <div className="h-8 w-px bg-gray-600"></div>
