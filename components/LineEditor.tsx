@@ -223,7 +223,9 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 className="bg-black/30 px-2 py-0.5 rounded border border-gray-700/50 flex flex-col min-w-8"
                             >
                                 <span className="text-gray-200 text-sm font-medium">
-                                    {p.phrase || "\u00A0"}
+                                    {!p.phrase || p.phrase == " "
+                                        ? "\u00A0"
+                                        : p.phrase}
                                 </span>
                                 <span className="text-[10px] text-teal-500/70 font-mono text-right leading-none">
                                     {p.duration}
