@@ -9,6 +9,7 @@ export interface LyricPhrase {
 export interface BackgroundVoiceLine {
     time: string;
     text: LyricPhrase[];
+    translation?: string;
 }
 
 export interface LyricLine {
