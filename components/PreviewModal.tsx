@@ -250,6 +250,38 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                                 ))}
                             </div>
 
+                            {/* Main Text & Karaoke Effect */}
+                            <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
+                                {line.background_voice?.text.map((phrase, pIndex) => (
+                                    <span
+                                        key={pIndex}
+                                        className="preview-lyric-phrase relative px-0.5"
+                                        style={
+                                            isActiveLine
+                                                ? getPhraseStyle(
+                                                      currentTime,
+                                                      line,
+                                                      pIndex,
+                                                      phrase,
+                                                  )
+                                                : {}
+                                        }
+                                    >
+                                        {/* Pronunciation (Ruby) */}
+                                        {phrase.pronounciation ? (
+                                            <ruby>
+                                                {phrase.phrase}
+                                                <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
+                                                    {phrase.pronounciation}
+                                                </rt>
+                                            </ruby>
+                                        ) : (
+                                            phrase.phrase
+                                        )}
+                                    </span>
+                                ))}
+                            </div>
+
                             {/* Translation (Only shown for active line) */}
                             {line.translation && isActiveLine && (
                                 <div className="mt-4 text-xl text-teal-300 font-medium">
