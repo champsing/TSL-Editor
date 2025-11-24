@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { LineEditor } from "./components/LineEditor";
 import { PreviewModal } from "./components/PreviewModal";
 import { JsonModal } from "./components/JsonModal"; // 新增 Modal 組件 (如下)
+import { DiffModal } from "./components/DiffModal"; // 匯入新的 DiffModal 組件
 import { EditorHeader } from "./components/EditorHeader";
 import { EditorSidebar } from "./components/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
@@ -45,11 +46,14 @@ function App() {
         handleFileUpload,
     } = useLyricEditor();
 
+    // 新增用於控制 Diff Modal 開啟/關閉的 state
+    const [diffModalOpen, setDiffModalOpen] = React.useState(false);
+
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // 自動滾動到當前行 (使用 committed lyrics 的索引)
     useEffect(() => {
-        if (previewModalOpen) return;
+        if (previewModalOpen || diffModalOpen) return; // 避免 Modal 開啟時滾動
 
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
             const currentLine =
@@ -60,7 +64,7 @@ function App() {
                 block: "center",
             });
         }
-    }, [currentLineIndex, previewModalOpen]);
+    }, [currentLineIndex, previewModalOpen, diffModalOpen]); // 監聽 diffModalOpen 狀態
 
     return (
         <div className="flex flex-col h-screen bg-secondary">
@@ -72,6 +76,7 @@ function App() {
                 hasUncommittedChanges={hasUncommittedChanges}
                 commitLyrics={commitLyrics}
                 discardChanges={discardChanges}
+                onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
             />
 
             {/* Main Content (主要內容) */}
@@ -182,6 +187,17 @@ function App() {
                     onClose={() => setPreviewModalOpen(false)}
                     isPlaying={isPlaying}
                     onPlayPause={handlePlayPause}
+                />
+            )}
+
+            {/* Diff Modal */}
+            {diffModalOpen && (
+                <DiffModal
+                    // 已提交的 JSON (Committed)
+                    committedJson={JSON.stringify(lyrics, null, 4)}
+                    // 當前編輯中的 JSON (Uncommitted)
+                    uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
+                    onClose={() => setDiffModalOpen(false)}
                 />
             )}
         </div>
