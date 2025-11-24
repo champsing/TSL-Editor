@@ -1,3 +1,5 @@
+export const VERSION_NUMBER = "1.3.1";
+
 export const timeToSeconds = (timeStr: string): number => {
     if (!timeStr) return 0;
     const [minutes, rest] = timeStr.split(":");

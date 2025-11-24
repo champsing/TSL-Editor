@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle, Music2, Undo2 } from "lucide-react";
+import { VERSION_NUMBER } from "@/utils";
 
 interface EditorHeaderProps {
     tempVideoId: string;
@@ -27,7 +28,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <h1 className="text-2xl font-playfair font-bold text-white">
                 <span className="text-primary">TSL</span>Editor
             </h1>
-            <sup class="text-gray-400 ">Ver 1.3.0</sup>
+            <sup class="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
         </div>
 
         {/* --- 2. YouTube ID Input --- */}
