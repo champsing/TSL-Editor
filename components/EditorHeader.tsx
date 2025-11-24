@@ -27,6 +27,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <h1 className="text-2xl font-playfair font-bold text-white">
                 <span className="text-primary">TSL</span>Editor
             </h1>
+            <sup class="text-gray-400 ">Ver 1.3.0</sup>
         </div>
 
         {/* --- 2. YouTube ID Input --- */}
