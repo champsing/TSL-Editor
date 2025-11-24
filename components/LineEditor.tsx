@@ -7,17 +7,16 @@ import {
     Trash2,
     MoveRight,
     Mic2,
-    XCircle,
     GripVertical,
-    Pencil, // 新增鉛筆 icon
+    Pencil,
 } from "lucide-react";
 
 interface LineEditorProps {
     index: number;
     line: LyricLine;
     isCurrent: boolean;
-    isEditing: boolean; // 新增：是否處於編輯狀態
-    onEditStart: () => void; // 新增：切換到編輯狀態的回調
+    isEditing: boolean;
+    onEditStart: () => void;
     onUpdate: (index: number, newLine: LyricLine) => void;
     onDelete: (index: number) => void;
     onStampTime: (index: number) => void;
@@ -35,13 +34,15 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     onStampTime,
     onSeek,
 }) => {
-    // --- Drag and Drop State ---
+    // --- State: Drag and Drop ---
     const [dragState, setDragState] = useState<{
         type: "main" | "bg";
         index: number;
     } | null>(null);
 
-    // --- Main Text Handlers ---
+    const isSpecialType = !!line.type && line.type !== "normal";
+
+    // --- Handlers: Main Text ---
     const handlePhraseChange = (pIndex: number, updatedPhrase: LyricPhrase) => {
         if (!line.text) return;
         const newText = [...line.text];
@@ -61,10 +62,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         onUpdate(index, { ...line, text: newText });
     };
 
-    // --- Background Voice Handlers ---
+    // --- Handlers: Background Voice ---
     const toggleBackgroundVoice = () => {
         if (line.background_voice) {
             if (window.confirm("Remove background voice track?")) {
+                // 使用解構賦值移除屬性
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { background_voice, ...rest } = line;
                 onUpdate(index, rest);
             }
@@ -89,7 +92,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     const handleBgPhraseChange = (
         pIndex: number,
-        updatedPhrase: LyricPhrase
+        updatedPhrase: LyricPhrase,
     ) => {
         if (!line.background_voice) return;
         const newText = [...line.background_voice.text];
@@ -113,7 +116,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const deleteBgPhrase = (pIndex: number) => {
         if (!line.background_voice) return;
         const newText = line.background_voice.text.filter(
-            (_, i) => i !== pIndex
+            (_, i) => i !== pIndex,
         );
         onUpdate(index, {
             ...line,
@@ -121,12 +124,11 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         });
     };
 
-    // --- Drag and Drop Logic ---
-
+    // --- Logic: Drag and Drop ---
     const handleDragStart = (
         e: React.DragEvent,
         type: "main" | "bg",
-        idx: number
+        idx: number,
     ) => {
         setDragState({ type, index: idx });
         e.dataTransfer.effectAllowed = "move";
@@ -140,19 +142,21 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const handleDrop = (
         e: React.DragEvent,
         targetType: "main" | "bg",
-        targetIndex: number
+        targetIndex: number,
     ) => {
         e.preventDefault();
 
-        if (!dragState) return;
-        if (dragState.type !== targetType) return;
+        if (!dragState || dragState.type !== targetType) {
+            setDragState(null);
+            return;
+        }
+
         if (dragState.index === targetIndex) {
             setDragState(null);
             return;
         }
 
-        const listKey = targetType === "main" ? "text" : "background_voice";
-
+        // 獲取當前列表的副本
         let currentList: LyricPhrase[] = [];
         if (targetType === "main") {
             currentList = [...(line.text || [])];
@@ -160,10 +164,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
             currentList = [...(line.background_voice?.text || [])];
         }
 
+        // 執行移動
         const itemToMove = currentList[dragState.index];
         currentList.splice(dragState.index, 1);
         currentList.splice(targetIndex, 0, itemToMove);
 
+        // 更新狀態
         if (targetType === "main") {
             onUpdate(index, { ...line, text: currentList });
         } else {
@@ -179,9 +185,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         setDragState(null);
     };
 
-    const isSpecialType = !!line.type && line.type !== "normal";
-
-    // --- 預覽模式 (非編輯狀態) ---
+    // --- Render: Preview Mode ---
     if (!isEditing) {
         return (
             <div
@@ -198,32 +202,32 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     </span>
                 </div>
 
-                {/* Content Preview */}
+                {/* Content Preview (Click to Edit) */}
                 <div
                     className="flex-1 space-y-2 cursor-pointer"
                     onClick={onEditStart}
                     title="Click to edit"
                 >
-                    {/* Main Text */}
+                    {/* Main Text / Special Type */}
                     <div className="flex flex-wrap gap-1">
+                        {isSpecialType && (
+                            <span className="text-base text-gray-500 uppercase border border-gray-700 px-1 rounded">
+                                {line.type}
+                            </span>
+                        )}
                         {!isSpecialType &&
                             (!line.text || line.text.length === 0) && (
                                 <span className="text-gray-500 italic text-sm">
                                     Empty line
                                 </span>
                             )}
-                        {isSpecialType && (
-                            <span className="text-base text-gray-500 uppercase border border-gray-700 px-1 rounded">
-                                {line.type}
-                            </span>
-                        )}
                         {line.text?.map((p, i) => (
                             <div
                                 key={i}
                                 className="bg-black/30 px-2 py-0.5 rounded border border-gray-700/50 flex flex-col min-w-8"
                             >
                                 <span className="text-gray-200 text-sm font-medium">
-                                    {!p.phrase || p.phrase == " "
+                                    {!p.phrase || p.phrase === " "
                                         ? "\u00A0"
                                         : p.phrase}
                                 </span>
@@ -259,7 +263,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     )}
                 </div>
 
-                {/* Edit Button (Pencil Icon) */}
+                {/* Edit Button */}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
@@ -274,7 +278,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         );
     }
 
-    // --- 編輯模式 (完整介面) ---
+    // --- Render: Editing Mode ---
     return (
         <div
             className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${
@@ -283,8 +287,9 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     : "bg-panel border-gray-700 hover:border-gray-500"
             }`}
         >
-            {/* Toolbar Header */}
+            {/* 1. Toolbar Header (Time & Type & Actions) */}
             <div className="flex items-center gap-3 mb-3 flex-wrap">
+                {/* Time Control */}
                 <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-gray-600">
                     <button
                         onClick={() => onStampTime(index)}
@@ -310,6 +315,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     </button>
                 </div>
 
+                {/* Type Selector */}
                 <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400 uppercase font-bold">
                         Type:
@@ -349,6 +355,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     {line.background_voice ? "Has BG Voice" : "Add BG Voice"}
                 </button>
 
+                {/* Delete Line Button */}
                 <button
                     onClick={() => onDelete(index)}
                     className="text-red-400 hover:bg-red-400/10 p-2 rounded transition-colors"
@@ -358,7 +365,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                 </button>
             </div>
 
-            {/* Main Lyric Content */}
+            {/* 2. Main Lyric Content (Phrases & Translation) */}
             {!isSpecialType && (
                 <div className="space-y-3">
                     {/* Phrases Flow */}
@@ -393,6 +400,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 />
                             </div>
                         ))}
+                        {/* Add Phrase Button */}
                         <button
                             onClick={addPhrase}
                             className="h-[82px] w-10 flex items-center justify-center border border-dashed border-gray-500 rounded-md text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/10 transition-all"
@@ -401,7 +409,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         </button>
                     </div>
 
-                    {/* Translation */}
+                    {/* Translation Input */}
                     <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
                         <span className="text-xs text-green-400 font-bold px-2">
                             TL
@@ -422,14 +430,14 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                 </div>
             )}
 
-            {/* Marker Content */}
+            {/* Marker Content (for Special Types) */}
             {isSpecialType && (
                 <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20 mb-3">
                     {line.type?.toUpperCase()} MARKER
                 </div>
             )}
 
-            {/* Background Voice Section */}
+            {/* 3. Background Voice Section */}
             {line.background_voice && (
                 <div className="mt-4 p-3 bg-purple-900/10 border border-purple-500/20 rounded-lg relative">
                     <div className="absolute top-0 left-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-br">
@@ -469,7 +477,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                             </div>
                         </div>
 
-                        {/* BG Phrases */}
+                        {/* BG Phrases Flow */}
                         <div className="flex flex-wrap gap-2 items-start flex-1">
                             {line.background_voice.text.map(
                                 (phrase, pIndex) => (
@@ -505,8 +513,9 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                             }
                                         />
                                     </div>
-                                )
+                                ),
                             )}
+                            {/* Add BG Phrase Button */}
                             <button
                                 onClick={addBgPhrase}
                                 className="h-[82px] w-8 flex items-center justify-center border border-dashed border-purple-500/30 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"

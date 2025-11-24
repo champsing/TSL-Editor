@@ -1,4 +1,4 @@
 {
-  "name": "LyricSync Editor",
-  "description": "A visual editor for synchronizing JSON lyrics with YouTube videos, featuring phrase-level timing and translation support."
+    "name": "LyricSync Editor",
+    "description": "A visual editor for synchronizing JSON lyrics with YouTube videos, featuring phrase-level timing and translation support."
 }
