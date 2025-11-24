@@ -8,7 +8,6 @@ import fs from 'fs'; // 引入 Node.js 的 fs 模組
 const packageJson = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
 );
-const APP_VERSION = packageJson.version;
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, ".", "");
@@ -24,8 +23,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         define: {
-          'process.env': env,
-          'import.meta.env.VITE_APP_VERSION': JSON.stringify(APP_VERSION),
+          'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version) || "1.0.0",
         }
     };
 });
