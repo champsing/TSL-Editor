@@ -130,40 +130,40 @@ export const DiffModal: React.FC<DiffModalProps> = ({
                 {/* Diff Viewer */}
                 <div className="flex-1 overflow-y-auto bg-[#1e1e1e] p-4 text-sm font-mono leading-relaxed">
                     <pre className="whitespace-pre-wrap">
-                        {diffResult.length > 0 ? (
-                            diffResult.map((line, index) => {
-                                let colorClass = "text-gray-300"; // 預設
-
-                                if (line.type === "add") {
-                                    colorClass =
-                                        "bg-green-900/40 text-green-400";
-                                } else if (line.type === "delete") {
-                                    colorClass = "bg-red-900/40 text-red-400";
-                                }
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`px-1 rounded ${colorClass} flex`}
-                                        style={{ whiteSpace: "pre-wrap" }}
-                                    >
-                                        {/* 為了美觀，為每一行添加行號占位符。
-                                            注意：這裡的 index 只是 diff 陣列的索引，不是原始文件的行號。
-                                        */}
-                                        <span className="text-gray-600 select-none pr-3 min-w-[30px] text-right">
-                                            {line.type === "equal"
-                                                ? index + 1
-                                                : " "}
-                                        </span>
-                                        {line.content}
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div className="text-gray-500 text-center py-10">
+                        {!diffResult.find(
+                            (x) => x.type == "delete" || x.type == "add",
+                        ) && (
+                            <div className="text-amber-300 bg-emerald-700 rounded-2xl text-center py-4 mb-4">
                                 No differences found between committed and
-                                uncommitted versions. (無差異)
+                                uncommitted versions.
                             </div>
                         )}
+                        {diffResult.map((line, index) => {
+                            let colorClass = "text-gray-300"; // 預設
+
+                            if (line.type === "add") {
+                                colorClass = "bg-green-900/40 text-green-400";
+                            } else if (line.type === "delete") {
+                                colorClass = "bg-red-900/40 text-red-400";
+                            }
+                            return (
+                                <div
+                                    key={index}
+                                    className={`px-1 rounded ${colorClass} flex`}
+                                    style={{ whiteSpace: "pre-wrap" }}
+                                >
+                                    {/* 為了美觀，為每一行添加行號占位符。
+                                            注意：這裡的 index 只是 diff 陣列的索引，不是原始文件的行號。
+                                        */}
+                                    <span className="text-gray-600 select-none pr-3 min-w-[30px] text-right">
+                                        {line.type === "equal"
+                                            ? index + 1
+                                            : " "}
+                                    </span>
+                                    {line.content}
+                                </div>
+                            );
+                        })}
                     </pre>
                 </div>
 
