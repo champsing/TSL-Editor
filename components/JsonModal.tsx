@@ -44,7 +44,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                     </button>
                 </div>
                 <textarea
-                    className="flex-1 bg-[#1e1e1e] text-green-400 font-mono p-4 text-sm resize-none outline-none"
+                    className="flex-1 bg-[#1e1e1e] text-green-400 p-4 text-sm resize-none outline-none"
                     readOnly
                     value={jsonContent}
                 />

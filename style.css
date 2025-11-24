@@ -4,7 +4,10 @@
 @tailwind utilities;
 
 body {
-    font-family: "Poppins", sans-serif;
+    font-family:
+        "Poppins",
+        Noto Sans,
+        sans-serif;
     background-color: #2d3748; /* Fallback */
 }
 /* Custom scrollbar for dark theme */

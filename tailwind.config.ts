@@ -10,7 +10,7 @@ export default {
                 panel: "#3b3a3a",
             },
             fontFamily: {
-                sans: ["Poppins", "sans-serif"],
+                sans: ["Poppins", "Noto Sans", "sans-serif"],
             },
         },
     },
