@@ -47,7 +47,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             />
             <button
                 onClick={onVideoLoad}
-                className="bg-primary hover:bg-teal-300 text-dark px-4 py-1.5 rounded-md font-semibold transition text-sm"
+                className="cursor-pointer bg-primary hover:bg-teal-300 text-dark px-4 py-1.5 rounded-md font-semibold transition text-sm"
             >
                 LOAD
             </button>
@@ -58,7 +58,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             {/* Diff Button */}
             <button
                 onClick={onViewDiff}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
+                className={`cursor-pointer px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                     hasUncommittedChanges
                         ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20"
                         : "bg-gray-700 text-gray-400"
@@ -84,10 +84,10 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <button
                 onClick={discardChanges}
                 disabled={!hasUncommittedChanges}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
+                className={` px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                     hasUncommittedChanges
-                        ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
-                        : "bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
+                        ? " cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                        : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50 "
                 }`}
             >
                 <Undo2 size={16} />
@@ -98,10 +98,10 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <button
                 onClick={commitLyrics}
                 disabled={!hasUncommittedChanges}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
+                className={` px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                     hasUncommittedChanges
-                        ? "bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20"
-                        : "bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
+                        ? "cursor-pointer bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20"
+                        : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50 "
                 }`}
             >
                 <CheckCircle size={16} />

@@ -24,7 +24,7 @@ export const PhraseEditor: React.FC<PhraseEditorProps> = ({
             {/* --- Delete Button --- */}
             <button
                 onClick={onDelete}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
+                className="cursor-pointer absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
             >
                 <X size={12} />
             </button>
@@ -44,7 +44,7 @@ export const PhraseEditor: React.FC<PhraseEditorProps> = ({
                 {/* Kiai Toggle Button */}
                 <button
                     onClick={() => onChange({ ...phrase, kiai: !phrase.kiai })}
-                    className={`ml-1 p-1 rounded-full transition-colors ${
+                    className={`cursor-pointer ml-1 p-1 rounded-full transition-colors ${
                         phrase.kiai
                             ? "text-yellow-400 bg-yellow-400/20"
                             : "text-gray-500 hover:text-gray-300"
@@ -82,7 +82,7 @@ export const PhraseEditor: React.FC<PhraseEditorProps> = ({
                             pncat_forced: !phrase.pncat_forced,
                         })
                     }
-                    className={`ml-1 p-1 rounded-full transition-colors ${
+                    className={`cursor-pointer ml-1 p-1 rounded-full transition-colors ${
                         phrase.pncat_forced
                             ? "text-blue-400 bg-blue-400/20"
                             : "text-gray-500 hover:text-gray-300"

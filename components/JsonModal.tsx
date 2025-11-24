@@ -38,7 +38,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-white"
+                        className="cursor-pointer text-gray-400 hover:text-white"
                     >
                         Close
                     </button>
@@ -51,7 +51,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                 <div className="p-4 border-t border-gray-700 flex justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-gray-300 hover:text-white"
+                        className="cursor-pointer px-4 py-2 text-gray-300 hover:text-white"
                     >
                         Cancel
                     </button>
@@ -60,8 +60,8 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                         className={`
                             ${
                                 isCopied
-                                    ? "bg-green-500 hover:bg-green-400 text-white" // 複製成功狀態
-                                    : "bg-primary hover:bg-teal-300 text-dark" // 原始狀態
+                                    ? "cursor-not-allowed bg-green-500 hover:bg-green-400 text-white" // 複製成功狀態
+                                    : "cursor-pointer bg-primary hover:bg-teal-300 text-dark" // 原始狀態
                             }
                             font-bold px-6 py-2 rounded shadow flex items-center gap-2 transition
                         `}

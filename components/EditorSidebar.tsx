@@ -118,7 +118,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     {/* View JSON Button */}
                     <button
                         onClick={onViewJson}
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition"
+                        className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition"
                     >
                         <FileJson size={16} />
                         View JSON
@@ -129,8 +129,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         className={`
                             ${
                                 isCopied
-                                    ? "bg-green-500 hover:bg-green-400 text-white font-semibold shadow-[0_0_10px_rgba(34,197,94,0.5)]" // 複製成功狀態
-                                    : "bg-primary hover:bg-teal-300 text-dark font-semibold shadow-[0_0_10px_rgba(74,194,215,0.3)]" // 原始狀態
+                                    ? "cursor-not-allowed bg-green-500 hover:bg-green-400 text-white font-semibold shadow-[0_0_10px_rgba(34,197,94,0.5)]" // 複製成功狀態
+                                    : "cursor-pointer bg-primary hover:bg-teal-300 text-dark font-semibold shadow-[0_0_10px_rgba(74,194,215,0.3)]" // 原始狀態
                             }
                             px-4 py-2 rounded-md flex items-center gap-2 text-sm transition
                         `}

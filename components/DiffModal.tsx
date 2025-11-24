@@ -120,7 +120,7 @@ export const DiffModal: React.FC<DiffModalProps> = ({
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 transition"
+                        className="cursor-pointer p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 transition"
                         title="Close"
                     >
                         <X size={20} />
@@ -171,7 +171,7 @@ export const DiffModal: React.FC<DiffModalProps> = ({
                 <div className="p-4 border-t border-gray-700 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="bg-primary hover:bg-teal-300 text-dark font-bold px-6 py-2 rounded shadow transition"
+                        className="cursor-pointer bg-primary hover:bg-teal-300 text-dark font-bold px-6 py-2 rounded shadow transition"
                     >
                         Close
                     </button>

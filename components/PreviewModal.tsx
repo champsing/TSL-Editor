@@ -199,7 +199,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             {/* --- 1. Close Button --- */}
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 bg-black/40 hover:bg-black/60 p-2 rounded-full z-50 transition-colors"
+                className="cursor-pointer absolute top-4 right-4 bg-black/40 hover:bg-black/60 p-2 rounded-full z-50 transition-colors"
             >
                 <X size={24} />
             </button>
@@ -273,7 +273,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
 
                 <button
                     onClick={onPlayPause}
-                    className="bg-primary text-black rounded-full p-3 hover:bg-teal-300 transition-colors shadow-[0_0_15px_rgba(74,194,215,0.4)]"
+                    className="cursor-pointer bg-primary text-black rounded-full p-3 hover:bg-teal-300 transition-colors shadow-[0_0_15px_rgba(74,194,215,0.4)]"
                 >
                     {isPlaying ? (
                         <Pause size={24} fill="black" />

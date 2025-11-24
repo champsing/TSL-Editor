@@ -101,7 +101,7 @@ function App() {
                             {/* Preview Button */}
                             <button
                                 onClick={() => setPreviewModalOpen(true)}
-                                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded flex items-center gap-2 transition shadow-lg shadow-purple-900/20"
+                                className="cursor-pointer bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded flex items-center gap-2 transition shadow-lg shadow-purple-900/20"
                             >
                                 <Play size={18} />
                                 Preview
@@ -109,7 +109,7 @@ function App() {
                             {/* Add Line Button */}
                             <button
                                 onClick={addLine}
-                                className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
+                                className={`cursor-pointer bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
                                     !isPlaying
                                         ? "shadow-lg shadow-green-900/20"
                                         : "opacity-50 cursor-not-allowed shadow-none"
