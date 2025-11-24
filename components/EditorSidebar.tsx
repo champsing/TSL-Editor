@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { Copy, FileJson, MoveRight, Clock, Upload } from "lucide-react";
+import React, { useRef, useState, useCallback } from "react"; // <-- 引入 useState 和 useCallback
+import { Copy, FileJson, MoveRight, Clock, Upload, Check } from "lucide-react"; // <-- 引入 Check
 import { YouTubePlayer, YouTubePlayerHandle } from "./YouTubePlayer";
 
 interface EditorSidebarProps {
@@ -22,6 +22,20 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     onCopyJson,
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isCopied, setIsCopied] = useState(false); // <-- 新增狀態
+
+    // 包裝 onCopyJson 邏輯，加入複製狀態控制
+    const handleCopyJson = useCallback(() => {
+        onCopyJson(); // 執行實際的複製操作
+        setIsCopied(true); // 設定複製成功狀態
+
+        // 數秒後恢復
+        const timer = setTimeout(() => {
+            setIsCopied(false);
+        }, 2000); // 2000 毫秒 (2 秒)
+
+        return () => clearTimeout(timer); // 清除定時器以避免記憶體洩漏
+    }, [onCopyJson]);
 
     return (
         <div className="w-[400px] bg-black flex flex-col border-l border-gray-800 shadow-2xl z-10">
@@ -104,11 +118,20 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                     {/* Copy JSON Button */}
                     <button
-                        onClick={onCopyJson}
-                        className="bg-primary hover:bg-teal-300 text-dark font-semibold px-4 py-2 rounded-md flex items-center gap-2 text-sm shadow-[0_0_10px_rgba(74,194,215,0.3)] transition"
+                        onClick={handleCopyJson} // <-- 使用新的處理函數
+                        className={`
+                            ${
+                                isCopied
+                                    ? "bg-green-500 hover:bg-green-400 text-white font-semibold shadow-[0_0_10px_rgba(34,197,94,0.5)]" // 複製成功狀態
+                                    : "bg-primary hover:bg-teal-300 text-dark font-semibold shadow-[0_0_10px_rgba(74,194,215,0.3)]" // 原始狀態
+                            }
+                            px-4 py-2 rounded-md flex items-center gap-2 text-sm transition
+                        `}
                     >
-                        <Copy size={16} />
-                        Copy JSON
+                        {isCopied ? <Check size={16} /> : <Copy size={16} />}{" "}
+                        {/* <-- 根據狀態切換圖標 */}
+                        {isCopied ? "Copied!" : "Copy JSON"}{" "}
+                        {/* <-- 根據狀態切換文字 */}
                     </button>
                 </div>
             </div>
