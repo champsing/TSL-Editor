@@ -55,7 +55,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
         {/* --- 3. Actions: Commit, Discard, Diff --- */}
         <div className="flex items-center gap-3">
-
             {/* Diff Button */}
             <button
                 onClick={onViewDiff}

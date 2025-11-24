@@ -67,26 +67,33 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <span className="text-white font-bold mx-1">
                             <MoveRight size={12} className="inline" />
                         </span>{" "}
-                        將影片跳轉到該行時間。
-                    </li>
-                    <li>拖動 YouTube 播放器的進度條進行精確定位。</li>
-                    <li>
-                        "Duration" 欄位用於卡拉 OK 視覺效果的持續時間 (近似值)。
+                        將該行起始時間設置為影片當前時間。
                     </li>
                 </ul>
+                <h3 className="text-primary font-bold mb-2 text-lg mt-3">
+                    編輯後可以點擊：
+                </h3>
+                <ul>
+                    <li>
+                        <strong className="text-blue-400">Diff</strong>{" "}
+                        按鈕查看變更內容。
+                    </li>
+                    <li>
+                        <strong className="text-green-400">Commit</strong>{" "}
+                        按鈕提交變更。
+                    </li>
+                    <li>
+                        <strong className="text-red-400">Discard</strong>{" "}
+                        按鈕還原。
+                    </li>
+                </ul>
+
                 <div className="mt-6 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-blue-200">
                     <p>
                         <strong>注意:</strong> 時間格式為 <code>MM:SS.mm</code>
                         。
                     </p>
                     <p>只有當影片暫停時才能新增行。</p>
-                    <p>
-                        編輯後可以點擊{" "}
-                        <strong className="text-red-400">Commit</strong>{" "}
-                        按鈕提交變更；或點擊{" "}
-                        <strong className="text-gray-300">Discard</strong>{" "}
-                        按鈕還原。
-                    </p>
                 </div>
 
                 {/* File/JSON Actions */}
