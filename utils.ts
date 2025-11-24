@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "1.3.1";
+export const VERSION_NUMBER = import.meta.env.VITE_APP_VERSION || "1.0.0";
 
 export const timeToSeconds = (timeStr: string): number => {
     if (!timeStr) return 0;

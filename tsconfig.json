@@ -6,7 +6,7 @@
         "module": "ESNext",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
-        "types": ["node"],
+        "types": ["vite/client"],
         "moduleResolution": "bundler",
         "isolatedModules": true,
         "moduleDetection": "force",
@@ -17,6 +17,7 @@
             "@components/*": ["./components/*"]
         },
         "allowImportingTsExtensions": true,
-        "noEmit": true
-    }
+        "noEmit": true,
+    },
+    "include": ["./**/*.ts", "./**/*.tsx", "./**/*.d.ts"],
 }
