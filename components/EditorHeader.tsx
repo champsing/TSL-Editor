@@ -75,7 +75,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                 disabled={!hasUncommittedChanges}
                 className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                     hasUncommittedChanges
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                        ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
                         : "bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
                 }`}
             >
@@ -89,7 +89,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                 disabled={!hasUncommittedChanges}
                 className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                     hasUncommittedChanges
-                        ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                        ? "bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20"
                         : "bg-gray-700 text-gray-400 cursor-not-allowed"
                 }`}
             >
