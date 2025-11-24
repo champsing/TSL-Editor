@@ -12,6 +12,7 @@ interface PreviewModalProps {
     onPlayPause: () => void;
     currentSongTitle?: string;
     currentSongArtist?: string;
+    onSeek: (seconds: number) => void; // 👈 新增 onSeek 屬性
 }
 
 interface ProcessedLine extends LyricLine {
@@ -145,6 +146,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
     isPlaying,
     onPlayPause,
     currentSongTitle = "Preview Song",
+    onSeek, // 👈 從 props 接收 onSeek
 }) => {
     const processedLyrics = useMemo(() => processLyrics(lyrics), [lyrics]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -182,7 +184,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                   margin: 1.5rem 0;
                   opacity: 0.6;
                   transition: opacity 0.3s, transform 0.3s;
-                  cursor: default;
+                  cursor: pointer; /* 👈 新增點擊游標 */
                 }
                 .preview-lyric-line.is-active-line {
                   opacity: 1;
@@ -196,14 +198,6 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                 }
             `}</style>
 
-            {/* --- 1. Close Button --- */}
-            <button
-                onClick={onClose}
-                className="cursor-pointer absolute top-4 right-4 bg-black/40 hover:bg-black/60 p-2 rounded-full z-50 transition-colors"
-            >
-                <X size={24} />
-            </button>
-
             {/* --- 2. Main Preview Container (Scrollable) --- */}
             <div
                 ref={containerRef}
@@ -214,92 +208,108 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                     const isActiveLine = lIndex === currentLineIndex;
 
                     return (
-                        <div
-                            key={lIndex}
-                            className={`preview-lyric-line flex flex-col items-center text-center max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""}`}
-                        >
-                            {/* Main Text & Karaoke Effect */}
-                            <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap justify-center gap-x-1">
-                                {line.text?.map((phrase, pIndex) => (
-                                    <span
-                                        key={pIndex}
-                                        className="preview-lyric-phrase relative px-0.5"
-                                        style={
-                                            isActiveLine
-                                                ? getPhraseStyle(
-                                                      currentTime,
-                                                      line,
-                                                      pIndex,
-                                                      phrase,
-                                                  )
-                                                : {}
-                                        }
-                                    >
-                                        {/* Pronunciation (Ruby) */}
-                                        {phrase.pronounciation ? (
-                                            <ruby>
-                                                {phrase.phrase}
-                                                <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
-                                                    {phrase.pronounciation}
-                                                </rt>
-                                            </ruby>
-                                        ) : (
-                                            phrase.phrase
-                                        )}
-                                    </span>
-                                ))}
-                            </div>
+                        <>
+                            <button
+                                onClick={() => {
+                                    // 👈 新增點擊事件
+                                    onSeek(line.startTime); // 定位到該行開始時間
+                                }}
+                                key={lIndex}
+                            >
+                                <div
+                                    key={lIndex}
+                                    className={`preview-lyric-line flex flex-col items-center text-center max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""}`}
 
-                            {/* Main Text & Karaoke Effect */}
-                            <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
-                                {line.background_voice?.text.map((phrase, pIndex) => (
-                                    <span
-                                        key={pIndex}
-                                        className="preview-lyric-phrase relative px-0.5"
-                                        style={
-                                            isActiveLine
-                                                ? getPhraseStyle(
-                                                      currentTime,
-                                                      line,
-                                                      pIndex,
-                                                      phrase,
-                                                  )
-                                                : {}
-                                        }
-                                    >
-                                        {/* Pronunciation (Ruby) */}
-                                        {phrase.pronounciation ? (
-                                            <ruby>
-                                                {phrase.phrase}
-                                                <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
-                                                    {phrase.pronounciation}
-                                                </rt>
-                                            </ruby>
-                                        ) : (
-                                            phrase.phrase
-                                        )}
-                                    </span>
-                                ))}
-                            </div>
+                                    // 移除 style 屬性，將 cursor: pointer 移到 style block
+                                >
+                                    {/* Main Text & Karaoke Effect */}
+                                    <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap justify-center gap-x-1">
+                                        {line.text?.map((phrase, pIndex) => (
+                                            <span
+                                                key={pIndex}
+                                                className="preview-lyric-phrase relative px-0.5"
+                                                style={
+                                                    isActiveLine
+                                                        ? getPhraseStyle(
+                                                              currentTime,
+                                                              line,
+                                                              pIndex,
+                                                              phrase,
+                                                          )
+                                                        : {}
+                                                }
+                                            >
+                                                {/* Pronunciation (Ruby) */}
+                                                {phrase.pronounciation ? (
+                                                    <ruby>
+                                                        {phrase.phrase}
+                                                        <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
+                                                            {
+                                                                phrase.pronounciation
+                                                            }
+                                                        </rt>
+                                                    </ruby>
+                                                ) : (
+                                                    phrase.phrase
+                                                )}
+                                            </span>
+                                        ))}
+                                    </div>
 
-                            {/* Translation (Only shown for active line) */}
-                            {line.translation && isActiveLine && (
-                                <div className="mt-4 text-xl text-teal-300 font-medium">
-                                    {line.translation}
+                                    {/* Main Text & Karaoke Effect */}
+                                    <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
+                                        {line.background_voice?.text.map(
+                                            (phrase, pIndex) => (
+                                                <span
+                                                    key={pIndex}
+                                                    className="preview-lyric-phrase relative px-0.5"
+                                                    style={
+                                                        isActiveLine
+                                                            ? getPhraseStyle(
+                                                                  currentTime,
+                                                                  line,
+                                                                  pIndex,
+                                                                  phrase,
+                                                              )
+                                                            : {}
+                                                    }
+                                                >
+                                                    {/* Pronunciation (Ruby) */}
+                                                    {phrase.pronounciation ? (
+                                                        <ruby>
+                                                            {phrase.phrase}
+                                                            <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
+                                                                {
+                                                                    phrase.pronounciation
+                                                                }
+                                                            </rt>
+                                                        </ruby>
+                                                    ) : (
+                                                        phrase.phrase
+                                                    )}
+                                                </span>
+                                            ),
+                                        )}
+                                    </div>
+
+                                    {/* Translation (Only shown for active line) */}
+                                    {line.translation && isActiveLine && (
+                                        <div className="mt-4 text-xl text-teal-300 font-medium">
+                                            {line.translation}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
+                            </button>
+                        </>
                     );
                 })}
             </div>
 
             {/* --- 3. Bottom Controls Overlay --- */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-[#231f1f]/90 px-6 py-4 rounded-xl flex items-center gap-6 shadow-2xl backdrop-blur-sm border border-white/10">
-                <div className="flex flex-col">
-                    <span className="text-white font-bold text-lg">
-                        {currentSongTitle}
-                    </span>
-                </div>
+                <span className="text-white font-bold text-lg">
+                    {currentSongTitle}
+                </span>
 
                 <div className="h-8 w-px bg-gray-600"></div>
 
@@ -319,6 +329,14 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                     {Math.floor(currentTime / 60)}:
                     {(currentTime % 60).toFixed(2).padStart(5, "0")}
                 </div>
+
+                {/* --- Close Button --- */}
+                <button
+                    onClick={onClose}
+                    className="cursor-pointer bg-black/40 hover:bg-black/60 p-2 rounded-full z-50 transition-colors"
+                >
+                    <X size={24} />
+                </button>
             </div>
         </div>
     );

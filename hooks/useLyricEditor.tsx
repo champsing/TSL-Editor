@@ -96,7 +96,17 @@ export const useLyricEditor = () => {
         setVideoId(tempVideoId);
     };
 
-    const handleSeek = (timeStr: string) => {
+    const handleSeek = (timeInput: string | number) => {
+        if (typeof timeInput === "number") {
+            if (playerRef.current) {
+                playerRef.current.seekTo(timeInput);
+                setPlayerTime(timeInput);
+            }
+            return;
+        }
+
+        // 處理字串時間格式
+        const timeStr = timeInput.trim();
         const seconds = timeToSeconds(timeStr);
         if (playerRef.current) {
             playerRef.current.seekTo(seconds);

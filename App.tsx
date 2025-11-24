@@ -187,6 +187,7 @@ function App() {
                     onClose={() => setPreviewModalOpen(false)}
                     isPlaying={isPlaying}
                     onPlayPause={handlePlayPause}
+                    onSeek={handleSeek}
                 />
             )}
 
