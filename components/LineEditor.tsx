@@ -523,8 +523,31 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 <Plus size={16} />
                             </button>
                         </div>
+                        
                     </div>
+                    {/* Translation Input */}
+                        <div className="mt-4 flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
+                            <span className="text-xs text-purple-400 font-bold px-2">
+                                TL
+                            </span>
+                            <input
+                                type="text"
+                                value={line.background_voice.translation || ""}
+                                onChange={(e) =>
+                                    onUpdate(index, {
+                                        ...line,
+                                        background_voice: {
+                                            ...line.background_voice!,
+                                            translation: e.target.value,
+                                        }
+                                    })
+                                }
+                                className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
+                                placeholder="Background Translation..."
+                            />
+                        </div>
                 </div>
+                
             )}
         </div>
     );
