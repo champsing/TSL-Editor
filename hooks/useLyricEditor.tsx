@@ -152,12 +152,22 @@ export const useLyricEditor = () => {
     };
 
     // --- Editor Actions ---
-    const handleStamp = (index: number) => {
+    const handleStamp = (index: number, bg: boolean) => {
         const newLyrics = [...stagedLyrics];
-        newLyrics[index] = {
-            ...newLyrics[index],
-            time: secondsToTime(playerTime, 1),
-        };
+        if (bg) {
+            newLyrics[index] = {
+                ...newLyrics[index],
+                background_voice: {
+                    ...newLyrics[index].background_voice!,
+                    time: secondsToTime(playerTime, 1),
+                },
+            };
+        } else {
+            newLyrics[index] = {
+                ...newLyrics[index],
+                time: secondsToTime(playerTime, 1),
+            };
+        }
         setStagedLyrics(newLyrics);
     };
 

@@ -292,7 +292,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                 {/* Time Control */}
                 <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-gray-600">
                     <button
-                        onClick={() => onStampTime(index)}
+                        onClick={() => onStampTime(index, false)}
                         className="p-1.5 hover:bg-primary hover:text-black rounded text-primary transition-colors"
                         title="Stamp current player time"
                     >
@@ -448,6 +448,15 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         {/* BG Voice Time Control */}
                         <div className="flex flex-col gap-1 pt-2">
                             <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
+                                <button
+                                    onClick={() =>
+                                        onStampTime(index, true)
+                                    }
+                                    className="p-1.5 hover:bg-purple-400 hover:text-black rounded text-purple-400 transition-colors"
+                                    title="On stamp BG time"
+                                >
+                                    <Clock size={15} />
+                                </button>
                                 <input
                                     type="text"
                                     value={line.background_voice.time}
@@ -523,31 +532,28 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 <Plus size={16} />
                             </button>
                         </div>
-                        
                     </div>
                     {/* Translation Input */}
-                        <div className="mt-4 flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
-                            <span className="text-xs text-purple-400 font-bold px-2">
-                                TL
-                            </span>
-                            <input
-                                type="text"
-                                value={line.background_voice.translation || ""}
-                                onChange={(e) =>
-                                    onUpdate(index, {
-                                        ...line,
-                                        background_voice: {
-                                            ...line.background_voice!,
-                                            translation: e.target.value,
-                                        }
-                                    })
-                                }
-                                className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
-                                placeholder="Background Translation..."
-                            />
-                        </div>
+                    <div className="mt-4 flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
+                        <span className="text-xs text-purple-400 font-bold px-2">
+                            TL
+                        </span>
+                        <input
+                            type="text"
+                            value={line.background_voice.translation || ""}
+                            onChange={(e) =>
+                                onUpdate(index, {
+                                    ...line,
+                                    background_voice: {
+                                        translation: e.target.value,
+                                    },
+                                })
+                            }
+                            className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
+                            placeholder="Background Translation..."
+                        />
+                    </div>
                 </div>
-                
             )}
         </div>
     );
