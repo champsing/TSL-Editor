@@ -58,14 +58,14 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <li>
                         點擊{" "}
                         <span className="text-white font-bold mx-1">
-                            <Clock size={12} className="inline" />
+                            <MoveRight size={12} className="inline" />
                         </span>{" "}
-                        將行時間同步到當前播放時間。
+                        將影片跳轉到該時間。
                     </li>
                     <li>
                         點擊{" "}
                         <span className="text-white font-bold mx-1">
-                            <MoveRight size={12} className="inline" />
+                            <Clock size={12} className="inline" />
                         </span>{" "}
                         將該行起始時間設置為影片當前時間。
                     </li>
