@@ -32,7 +32,11 @@ export const INITIAL_JSON_DATA = `[
         "time": "00:01.34",
         "type": "prelude"
     },
-{
+    {
+        "time": "00:13.00",
+        "type": "interlude"
+    },
+    {
         "time": "00:51.56",
         "text": [
             {
@@ -54,18 +58,14 @@ export const INITIAL_JSON_DATA = `[
             "time": "00:52.00",
             "text": [
                 { "phrase": "超", "duration": 80 },
-            { "phrase": "えて ", "duration": 50 },
-            { "phrase": "今", "duration": 50 },
-            { "phrase": "君", "duration": 50 },
-            { "phrase": "の", "duration": 50, "kiai": true },
-            { "phrase": "元", "duration": 50 },
-            { "phrase": "へ", "duration": 50, "kiai": true }
+                { "phrase": "えて ", "duration": 50 },
+                { "phrase": "今", "duration": 50 },
+                { "phrase": "君", "duration": 50 },
+                { "phrase": "の", "duration": 50, "kiai": true },
+                { "phrase": "元", "duration": 50 },
+                { "phrase": "へ", "duration": 50, "kiai": true }
             ]
         }
-    },
-    {
-        "time": "00:13.00",
-        "type": "interlude"
     },
     {
         "time": "03:33.14",

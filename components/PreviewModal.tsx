@@ -12,7 +12,7 @@ interface PreviewModalProps {
     onPlayPause: () => void;
     currentSongTitle?: string;
     currentSongArtist?: string;
-    onSeek: (seconds: number) => void; // 👈 新增 onSeek 屬性
+    onSeek: (seconds: number) => void;
 }
 
 interface ProcessedLine extends LyricLine {
@@ -24,8 +24,6 @@ interface ProcessedLine extends LyricLine {
     bgPhraseDurations?: number[];
 }
 
-// --- Helper: Data Processing ---
-// --- Helper: Data Processing ---
 const processLyrics = (lyrics: LyricData): ProcessedLine[] => {
     return lyrics.map((line) => {
         const startTime = timeToSeconds(line.time); // 主歌詞相關變數
@@ -236,13 +234,10 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                     return (
                         <button
                             onClick={() => {
-                                // 👈 新增點擊事件
                                 onSeek(line.startTime); // 定位到該行開始時間
                             }}
                             key={lIndex}
                             className={`preview-lyric-line flex flex-col items-center text-center max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""}`}
-
-                            // 移除 style 屬性，將 cursor: pointer 移到 style block
                         >
                             {/* Main Text & Karaoke Effect */}
                             <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap justify-center gap-x-1">
