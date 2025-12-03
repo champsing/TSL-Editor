@@ -53,18 +53,31 @@ function App() {
 
     // 自動滾動到當前行 (使用 committed lyrics 的索引)
     useEffect(() => {
-        if (previewModalOpen || diffModalOpen) return; // 避免 Modal 開啟時滾動
+        if (previewModalOpen || diffModalOpen) return;
 
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
-            const currentLine =
-                document.getElementsByClassName("is-current")[0];
+            // 使用 setTimeout 將滾動操作推遲到瀏覽器繪製循環結束後
+            const timeoutId = setTimeout(() => {
+                const currentLine =
+                    document.getElementsByClassName("is-current")[0];
 
-            currentLine?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
+                // 確保找到元素再滾動
+                if (currentLine) {
+                    currentLine.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }
+            }, 0); // 設置 0 毫秒延遲，讓它在當前執行棧結束後執行
+
+            // 清理函數：在組件卸載或依賴項變化前清除定時器
+            return () => clearTimeout(timeoutId);
         }
-    }, [currentLineIndex, previewModalOpen, diffModalOpen]); // 監聽 diffModalOpen 狀態
+        // 如果沒有滾動，也可能需要清理之前的定時器
+        // 這裡我們只在進入滾動邏輯時設置 timeoutId
+        // 也可以 return 一個空的清理函數：
+        return () => {};
+    }, [currentLineIndex, previewModalOpen, diffModalOpen]);
 
     return (
         <div className="flex flex-col h-screen bg-secondary">

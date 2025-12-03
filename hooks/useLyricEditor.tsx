@@ -155,10 +155,11 @@ export const useLyricEditor = () => {
     const handleStamp = (index: number, bg: boolean) => {
         const newLyrics = [...stagedLyrics];
         if (bg) {
+            if (!newLyrics[index].background_voice) return;
             newLyrics[index] = {
                 ...newLyrics[index],
                 background_voice: {
-                    ...newLyrics[index].background_voice!,
+                    ...newLyrics[index].background_voice,
                     time: secondsToTime(playerTime, 1),
                 },
             };

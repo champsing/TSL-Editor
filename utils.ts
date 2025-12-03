@@ -8,13 +8,16 @@ export const timeToSeconds = (timeStr: string): number => {
     return parseInt(minutes) * 60 + parseInt(seconds) + parseInt(ms) / 100;
 };
 
-export const secondsToTime = (totalSeconds: number, fmt: number): string => {
+export const secondsToTime = (
+    totalSeconds: number,
+    decimal: number,
+): string => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = Math.floor(totalSeconds % 60);
     const ms = Math.round((totalSeconds - Math.floor(totalSeconds)) * 100);
 
     const pad = (num: number) => num.toString().padStart(2, "0");
-    if (fmt === 1) return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
+    if (decimal === 1) return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
     else return `${pad(minutes)}:${pad(seconds)}`;
 };
 
@@ -48,7 +51,7 @@ export const INITIAL_JSON_DATA = `[
         ],
         "translation": "我會突破最高速限　奔往你的身旁",
         "background_voice": {
-            "time": "00:52:00",
+            "time": "00:52.00",
             "text": [
                 { "phrase": "超", "duration": 80 },
             { "phrase": "えて ", "duration": 50 },

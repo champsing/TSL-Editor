@@ -19,7 +19,7 @@ interface LineEditorProps {
     onEditStart: () => void;
     onUpdate: (index: number, newLine: LyricLine) => void;
     onDelete: (index: number) => void;
-    onStampTime: (index: number) => void;
+    onStampTime: (index: number, bg: boolean) => void;
     onSeek: (timeStr: string) => void;
 }
 
@@ -84,6 +84,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     const updateBgVoiceTime = (newTime: string) => {
         if (!line.background_voice) return;
+        console.log(newTime);
         onUpdate(index, {
             ...line,
             background_voice: { ...line.background_voice, time: newTime },
@@ -449,9 +450,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         <div className="flex flex-col gap-1 pt-2">
                             <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
                                 <button
-                                    onClick={() =>
-                                        onStampTime(index, true)
-                                    }
+                                    onClick={() => onStampTime(index, true)}
                                     className="p-1.5 hover:bg-purple-400 hover:text-black rounded text-purple-400 transition-colors"
                                     title="On stamp BG time"
                                 >
@@ -545,6 +544,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 onUpdate(index, {
                                     ...line,
                                     background_voice: {
+                                        ...line.background_voice,
                                         translation: e.target.value,
                                     },
                                 })
