@@ -77,6 +77,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                 background_voice: {
                     time: line.time,
                     text: [{ phrase: "", duration: 20 }],
+                    translation: "", // 初始化翻譯
                 },
             });
         }
@@ -84,7 +85,6 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     const updateBgVoiceTime = (newTime: string) => {
         if (!line.background_voice) return;
-        console.log(newTime);
         onUpdate(index, {
             ...line,
             background_voice: { ...line.background_voice, time: newTime },
@@ -125,6 +125,11 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         });
     };
 
+    // --- Handlers: Secondary Vocalist ---
+    const toggleIsSecondary = () => {
+        onUpdate(index, { ...line, is_secondary: !line.is_secondary });
+    };
+
     // --- Logic: Drag and Drop ---
     const handleDragStart = (
         e: React.DragEvent,
@@ -161,8 +166,11 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         let currentList: LyricPhrase[] = [];
         if (targetType === "main") {
             currentList = [...(line.text || [])];
+        } else if (line.background_voice) {
+            currentList = [...(line.background_voice.text || [])];
         } else {
-            currentList = [...(line.background_voice?.text || [])];
+            setDragState(null);
+            return;
         }
 
         // 執行移動
@@ -201,6 +209,15 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     <span className="font-mono text-primary font-bold text-lg">
                         {line.time}
                     </span>
+                    {/* Secondary Vocalist Marker */}
+                    {line.is_secondary && (
+                        <span
+                            className="text-xs font-black italic text-orange-400 bg-orange-900/20 px-1 rounded-sm leading-none"
+                            title="Secondary Vocalist Line"
+                        >
+                            Secondary
+                        </span>
+                    )}
                 </div>
 
                 {/* Content Preview (Click to Edit) */}
@@ -232,19 +249,28 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                         ? "\u00A0"
                                         : p.phrase}
                                 </span>
-                                <span className="text-[10px] text-teal-500/70 font-mono text-right leading-none">
+                                <span className="text-xs text-teal-500/70 font-mono text-right leading-none">
                                     {p.duration}
                                 </span>
                             </div>
                         ))}
                     </div>
 
+                    {/* Translation Preview */}
+                    {line.translation && (
+                        <p className="text-gray-400 text-xs italic mt-1 pt-1 border-t border-white/5">
+                            {line.translation}
+                        </p>
+                    )}
+
                     {/* BG Voice Preview */}
                     {line.background_voice && (
-                        <div className="flex items-center gap-2 pt-1 border-t border-white/5 mt-1">
-                            <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">
-                                BG
-                            </span>
+                        <div className="flex flex-col gap-1 pt-2 border-t border-white/5 mt-2">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-purple-400 font-bold uppercase tracking-wider">
+                                    BG ({line.background_voice.time})
+                                </span>
+                            </div>
                             <div className="flex flex-wrap gap-1">
                                 {line.background_voice.text.map((p, i) => (
                                     <div
@@ -254,12 +280,17 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                         <span className="text-purple-200 text-xs">
                                             {p.phrase || "\u00A0"}
                                         </span>
-                                        <span className="text-[9px] text-purple-400/70 font-mono text-right leading-none">
+                                        <span className="text-xs text-purple-400/70 font-mono text-right leading-none">
                                             {p.duration}
                                         </span>
                                     </div>
                                 ))}
                             </div>
+                            {line.background_voice.translation && (
+                                <span className="text-gray-400 text-xs italic mt-1 pt-1 border-t border-white/5">
+                                    {line.background_voice.translation}
+                                </span>
+                            )}
                         </div>
                     )}
                 </div>
@@ -271,7 +302,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         onEditStart();
                     }}
                     className="absolute top-2 right-2 p-1.5 bg-gray-700 text-white rounded hover:bg-primary hover:text-black transition-all opacity-0 group-hover:opacity-100 shadow-lg z-10"
-                    title="Edit Line"
+                    title="Edit Line" // 編輯行
                 >
                     <Pencil size={16} />
                 </button>
@@ -290,12 +321,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         >
             {/* 1. Toolbar Header (Time & Type & Actions) */}
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-                {/* Time Control */}
+                {/* Time Control (Main) */}
                 <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-gray-600">
                     <button
                         onClick={() => onStampTime(index, false)}
                         className="p-1.5 hover:bg-primary hover:text-black rounded text-primary transition-colors"
-                        title="Stamp current player time"
+                        title="Stamp current player time" // 標記當前播放時間
                     >
                         <Clock size={16} />
                     </button>
@@ -306,11 +337,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                             onUpdate(index, { ...line, time: e.target.value })
                         }
                         className="bg-transparent w-20 text-center font-mono text-lg text-white outline-none focus:text-primary"
+                        title="Main lyrics start time (MM:SS.ss)" // 主歌詞起始時間
                     />
                     <button
                         onClick={() => onSeek(line.time)}
                         className="p-1.5 hover:bg-white/20 rounded text-gray-400 transition-colors"
-                        title="Seek player to this time"
+                        title="Seek player to this time" // 跳轉到該時間點
                     >
                         <MoveRight size={16} />
                     </button>
@@ -343,76 +375,114 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
                 <div className="grow"></div>
 
-                {/* Toggle Background Voice Button */}
-                <button
-                    onClick={toggleBackgroundVoice}
-                    className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
-                        line.background_voice
-                            ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
-                            : "bg-gray-700 text-gray-400 hover:bg-gray-600"
-                    }`}
-                >
-                    <Mic2 size={14} />
-                    {line.background_voice ? "Has BG Voice" : "Add BG Voice"}
-                </button>
+                <div className="flex flex-row gap-2">
+                    {/* Toggle Secondary Vocalist Button */}
+                    {!isSpecialType && (
+                        <button
+                            onClick={toggleIsSecondary}
+                            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
+                                line.is_secondary
+                                    ? "bg-orange-900/40 text-orange-300 border border-orange-500/50"
+                                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                            }`}
+                            title={
+                                line.is_secondary
+                                    ? "Set as Main Vocalist" // 設為主唱
+                                    : "Set as Secondary Vocalist" // 設為副唱
+                            }
+                        >
+                            <span className="text-sm font-black italic">
+                                {line.is_secondary ? "2" : "1"}
+                            </span>
+                            {line.is_secondary ? "Secondary" : "Main"}
+                        </button>
+                    )}
 
-                {/* Delete Line Button */}
-                <button
-                    onClick={() => onDelete(index)}
-                    className="text-red-400 hover:bg-red-400/10 p-2 rounded transition-colors"
-                    title="Delete Line"
-                >
-                    <Trash2 size={18} />
-                </button>
+                    {/* Toggle Background Voice Button */}
+                    <button
+                        onClick={toggleBackgroundVoice}
+                        disabled={line.background_voice ? true : false}
+                        className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors ${
+                            line.background_voice
+                                ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
+                                : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                        }`}
+                        title={
+                            line.background_voice
+                                ? "Remove BG Voice Track" // 移除背景音軌
+                                : "Add BG Voice Track" // 新增背景音軌
+                        }
+                    >
+                        <Mic2 size={14} />
+                        {line.background_voice ? "BG Voice" : "Add BG Voice"}
+                    </button>
+
+                    {/* Delete Line Button */}
+                    <button
+                        onClick={() => onDelete(index)}
+                        className="p-1.5 text-red-400 hover:bg-red-900/40 rounded transition-colors"
+                        title="Delete Line" // 刪除整行
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
             </div>
 
-            {/* 2. Main Lyric Content (Phrases & Translation) */}
+            {/* 2. Main Lyrics Editor */}
+
+            {/* Marker Content (for Special Types) */}
+            {isSpecialType && (
+                <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20 mb-3">
+                    {line.type?.toUpperCase()} MARKER
+                </div>
+            )}
             {!isSpecialType && (
-                <div className="space-y-3">
-                    {/* Phrases Flow */}
-                    <div className="flex flex-wrap gap-2 items-start">
+                <div className="bg-black/20 p-3 rounded-lg border border-gray-700/50">
+                    <div className="flex flex-wrap gap-2">
                         {line.text?.map((phrase, pIndex) => (
                             <div
                                 key={pIndex}
-                                className={`flex items-center gap-0.5 transition-opacity ${
-                                    dragState?.type === "main" &&
-                                    dragState?.index === pIndex
-                                        ? "opacity-40"
-                                        : "opacity-100"
-                                }`}
                                 draggable
                                 onDragStart={(e) =>
                                     handleDragStart(e, "main", pIndex)
                                 }
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, "main", pIndex)}
+                                className={`relative cursor-grab ${
+                                    dragState?.type === "main" &&
+                                    dragState.index === pIndex
+                                        ? "opacity-50 border-2 border-primary"
+                                        : ""
+                                }`}
+                                title="Drag to reorder" // 拖曳以重新排序
                             >
-                                {/* Drag Handle */}
-                                <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-400 -mt-4">
-                                    <GripVertical size={14} />
-                                </div>
-
                                 <PhraseEditor
                                     phrase={phrase}
-                                    onChange={(up) =>
-                                        handlePhraseChange(pIndex, up)
+                                    onChange={(updatedPhrase) =>
+                                        handlePhraseChange(
+                                            pIndex,
+                                            updatedPhrase,
+                                        )
                                     }
                                     onDelete={() => deletePhrase(pIndex)}
                                 />
+                                <GripVertical
+                                    size={16}
+                                    className="absolute top-0.5 left-0.5 text-gray-500/50"
+                                />
                             </div>
                         ))}
-                        {/* Add Phrase Button */}
                         <button
                             onClick={addPhrase}
-                            className="h-[82px] w-10 flex items-center justify-center border border-dashed border-gray-500 rounded-md text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/10 transition-all"
+                            className="flex items-center justify-center h-16 w-16 border border-dashed border-gray-500/50 rounded-md text-gray-500/50 hover:text-primary hover:border-primary hover:bg-white/5 transition-all"
+                            title="Add Phrase" // 新增歌詞片段
                         >
-                            <Plus size={20} />
+                            <Plus size={24} />
                         </button>
                     </div>
-
-                    {/* Translation Input */}
-                    <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
-                        <span className="text-xs text-green-400 font-bold px-2">
+                    {/* Main Translation Input */}
+                    <div className="mt-4 flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
+                        <span className="text-xs text-primary font-bold px-2">
                             TL
                         </span>
                         <input
@@ -424,115 +494,101 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                     translation: e.target.value,
                                 })
                             }
-                            className="w-full bg-transparent outline-none text-gray-300 placeholder-gray-600"
-                            placeholder="Translation..."
+                            className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-500"
+                            placeholder="Main Translation..."
                         />
                     </div>
                 </div>
             )}
 
-            {/* Marker Content (for Special Types) */}
-            {isSpecialType && (
-                <div className="text-gray-500 italic text-center py-2 border border-dashed border-gray-700 rounded bg-black/20 mb-3">
-                    {line.type?.toUpperCase()} MARKER
-                </div>
-            )}
-
-            {/* 3. Background Voice Section */}
+            {/* 3. Background Voice Editor (Conditional) */}
             {line.background_voice && (
-                <div className="mt-4 p-3 bg-purple-900/10 border border-purple-500/20 rounded-lg relative">
-                    <div className="absolute top-0 left-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-br">
-                        BACKGROUND VOICE
-                    </div>
-
-                    <div className="flex items-start gap-4 mt-4">
-                        {/* BG Voice Time Control */}
-                        <div className="flex flex-col gap-1 pt-2">
-                            <div className="flex items-center bg-black/40 rounded border border-purple-500/30 overflow-hidden">
-                                <button
-                                    onClick={() => onStampTime(index, true)}
-                                    className="p-1.5 hover:bg-purple-400 hover:text-black rounded text-purple-400 transition-colors"
-                                    title="On stamp BG time"
-                                >
-                                    <Clock size={15} />
-                                </button>
-                                <input
-                                    type="text"
-                                    value={line.background_voice.time}
-                                    onChange={(e) =>
-                                        updateBgVoiceTime(e.target.value)
-                                    }
-                                    className="w-20 bg-transparent text-xs text-center p-1 outline-none font-mono text-purple-200"
-                                />
-                            </div>
-                            <div className="flex justify-between">
-                                <button
-                                    onClick={() =>
-                                        onSeek(line.background_voice!.time)
-                                    }
-                                    className="text-gray-500 hover:text-purple-300"
-                                    title="Seek to BG time"
-                                >
-                                    <MoveRight size={15} />
-                                </button>
-                                <button
-                                    onClick={toggleBackgroundVoice}
-                                    className="text-red-400/50 hover:text-red-400"
-                                    title="Remove BG Voice"
-                                >
-                                    <Trash2 size={15} />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* BG Phrases Flow */}
-                        <div className="flex flex-wrap gap-2 items-start flex-1">
-                            {line.background_voice.text.map(
-                                (phrase, pIndex) => (
-                                    <div
-                                        key={`bg-${pIndex}`}
-                                        className={`flex items-center gap-0.5 transition-opacity ${
-                                            dragState?.type === "bg" &&
-                                            dragState?.index === pIndex
-                                                ? "opacity-40"
-                                                : "opacity-100"
-                                        }`}
-                                        draggable
-                                        onDragStart={(e) =>
-                                            handleDragStart(e, "bg", pIndex)
-                                        }
-                                        onDragOver={handleDragOver}
-                                        onDrop={(e) =>
-                                            handleDrop(e, "bg", pIndex)
-                                        }
-                                    >
-                                        {/* Drag Handle */}
-                                        <div className="cursor-grab active:cursor-grabbing text-purple-500/40 hover:text-purple-400 -mt-4">
-                                            <GripVertical size={14} />
-                                        </div>
-
-                                        <PhraseEditor
-                                            phrase={phrase}
-                                            onChange={(up) =>
-                                                handleBgPhraseChange(pIndex, up)
-                                            }
-                                            onDelete={() =>
-                                                deleteBgPhrase(pIndex)
-                                            }
-                                        />
-                                    </div>
-                                ),
-                            )}
-                            {/* Add BG Phrase Button */}
+                <div className="bg-purple-900/10 p-3 rounded-lg border border-purple-800/50 mt-4">
+                    <div className="flex items-center gap-2 justify-start mb-2">
+                        <h4 className="text-sm text-purple-300 font-bold">
+                            Background Voice
+                        </h4>
+                        {/* Time Control (BG) */}
+                        <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-purple-600/50">
                             <button
-                                onClick={addBgPhrase}
-                                className="h-[82px] w-8 flex items-center justify-center border border-dashed border-purple-500/30 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"
+                                onClick={() => onStampTime(index, true)}
+                                className="p-1.5 hover:bg-purple-500/50 rounded text-purple-300 transition-colors"
+                                title="Stamp BG time" // 標記背景音軌的當前播放時間
                             >
-                                <Plus size={16} />
+                                <Clock size={16} />
+                            </button>
+                            <input
+                                type="text"
+                                value={line.background_voice.time}
+                                onChange={(e) =>
+                                    updateBgVoiceTime(e.target.value)
+                                }
+                                className="bg-transparent w-20 text-center font-mono text-white outline-none text-sm focus:text-purple-400"
+                                title="BG Voice start time (MM:SS.ss)" // 背景音軌起始時間
+                            />
+                            <button
+                                onClick={() =>
+                                    onSeek(line.background_voice!.time)
+                                }
+                                className="p-1.5 hover:bg-white/20 rounded text-gray-400 transition-colors"
+                                title="Seek player to this time" // 跳轉到該時間點
+                            >
+                                <MoveRight size={16} />
+                            </button>
+                            <button
+                                onClick={toggleBackgroundVoice}
+                                className="p-1.5 text-red-400/50 hover:text-red-400"
+                                title="Remove BG Voice"
+                            >
+                                <Trash2 size={16} />
                             </button>
                         </div>
                     </div>
-                    {/* Translation Input */}
+
+                    <div className="flex flex-wrap gap-2">
+                        {line.background_voice.text.map((phrase, pIndex) => (
+                            <div
+                                key={pIndex}
+                                draggable
+                                onDragStart={(e) =>
+                                    handleDragStart(e, "bg", pIndex)
+                                }
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, "bg", pIndex)}
+                                className={`relative cursor-grab ${
+                                    dragState?.type === "bg" &&
+                                    dragState.index === pIndex
+                                        ? "opacity-50 border-2 border-purple-300"
+                                        : ""
+                                }`}
+                                title="Drag to reorder" // 拖曳以重新排序
+                            >
+                                <PhraseEditor
+                                    phrase={phrase}
+                                    onChange={(updatedPhrase) =>
+                                        handleBgPhraseChange(
+                                            pIndex,
+                                            updatedPhrase,
+                                        )
+                                    }
+                                    onDelete={() => deleteBgPhrase(pIndex)}
+                                />
+                                <GripVertical
+                                    size={16}
+                                    className="absolute top-0.5 left-0.5 text-purple-500/50"
+                                />
+                            </div>
+                        ))}
+                        <button
+                            onClick={addBgPhrase}
+                            className="flex items-center justify-center h-16 w-16 border border-dashed border-purple-500/50 rounded-md text-purple-500/50 hover:text-purple-300 hover:border-purple-400 hover:bg-purple-500/10 transition-all"
+                            title="Add Background Phrase" // 新增背景歌詞片段
+                        >
+                            <Plus size={24} />
+                        </button>
+                    </div>
+
+                    {/* Background Translation Input */}
                     <div className="mt-4 flex items-center gap-3 bg-black/20 p-2 rounded border border-white/5">
                         <span className="text-xs text-purple-400 font-bold px-2">
                             TL
@@ -544,7 +600,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 onUpdate(index, {
                                     ...line,
                                     background_voice: {
-                                        ...line.background_voice,
+                                        ...line.background_voice!,
                                         translation: e.target.value,
                                     },
                                 })

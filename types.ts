@@ -18,6 +18,7 @@ export interface LyricLine {
     text?: LyricPhrase[];
     translation?: string;
     background_voice?: BackgroundVoiceLine; // 新增
+    is_secondary?: boolean;
 }
 
 export type LyricData = LyricLine[];

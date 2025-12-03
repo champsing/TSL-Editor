@@ -220,6 +220,11 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                    font-weight: 700;
                    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
                 }
+
+                /* 調整 secondary vocalist 行的 phrase 容器對齊 */
+                .is-secondary-vocalist .flex-wrap {
+                    justify-content: flex-end;
+                }
             `}</style>
 
             {/* --- 2. Main Preview Container (Scrollable) --- */}
@@ -230,6 +235,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             >
                 {processedLyrics.map((line, lIndex) => {
                     const isActiveLine = lIndex === currentLineIndex;
+                    const isSecondary = line.is_secondary; // 檢查 is_secondary 屬性
 
                     return (
                         <button
@@ -237,7 +243,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                                 onSeek(line.startTime); // 定位到該行開始時間
                             }}
                             key={lIndex}
-                            className={`preview-lyric-line flex flex-col items-center text-center max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""}`}
+                            className={`preview-lyric-line flex flex-col max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""} ${isSecondary ? "is-secondary-vocalist text-right" : ""}`} // 根據 isSecondary 屬性新增 class
                         >
                             {/* Main Text & Karaoke Effect */}
                             <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap justify-center gap-x-1">
