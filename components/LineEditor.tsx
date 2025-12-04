@@ -268,7 +268,10 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         <div className="flex flex-col gap-1 pt-2 border-t border-white/5 mt-2">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-purple-400 font-bold uppercase tracking-wider">
-                                    BG ({line.background_voice.time})
+                                    BG
+                                </span>
+                                <span className="text-sm text-purple-400 font-bold uppercase tracking-wider">
+                                    {line.background_voice.time}
                                 </span>
                             </div>
                             <div className="flex flex-wrap gap-1">
@@ -398,25 +401,6 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         </button>
                     )}
 
-                    {/* Toggle Background Voice Button */}
-                    <button
-                        onClick={toggleBackgroundVoice}
-                        disabled={line.background_voice ? true : false}
-                        className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors ${
-                            line.background_voice
-                                ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
-                                : "bg-gray-700 text-gray-400 hover:bg-gray-600"
-                        }`}
-                        title={
-                            line.background_voice
-                                ? "Remove BG Voice Track" // 移除背景音軌
-                                : "Add BG Voice Track" // 新增背景音軌
-                        }
-                    >
-                        <Mic2 size={14} />
-                        {line.background_voice ? "BG Voice" : "Add BG Voice"}
-                    </button>
-
                     {/* Delete Line Button */}
                     <button
                         onClick={() => onDelete(index)}
@@ -501,13 +485,46 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                 </div>
             )}
 
+            {/* Toggle Background Voice Button */}
+            {!line.background_voice && (
+                <button
+                    onClick={toggleBackgroundVoice}
+                    disabled={line.background_voice ? true : false}
+                    className={`flex items-center gap-2 px-3 py-1 mt-4 rounded text-xs font-bold transition-colors ${
+                        line.background_voice
+                            ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
+                            : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                    }`}
+                    title={
+                        line.background_voice
+                            ? "Remove BG Voice Track" // 移除背景音軌
+                            : "Add BG Voice Track" // 新增背景音軌
+                    }
+                >
+                    <Mic2 size={14} />
+                    Add BG Voice
+                </button>
+            )}
+
             {/* 3. Background Voice Editor (Conditional) */}
             {line.background_voice && (
                 <div className="bg-purple-900/10 p-3 rounded-lg border border-purple-800/50 mt-4">
                     <div className="flex items-center gap-2 justify-start mb-2">
-                        <h4 className="text-sm text-purple-300 font-bold">
-                            Background Voice
-                        </h4>
+                        <div
+                            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors ${
+                                line.background_voice
+                                    ? "bg-purple-900/40 text-purple-300 border border-purple-500/50"
+                                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                            }`}
+                            title={
+                                line.background_voice
+                                    ? "Remove BG Voice Track" // 移除背景音軌
+                                    : "Add BG Voice Track" // 新增背景音軌
+                            }
+                        >
+                            <Mic2 size={14} />
+                            BG Voice
+                        </div>
                         {/* Time Control (BG) */}
                         <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-purple-600/50">
                             <button
