@@ -11,6 +11,7 @@ import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 // --- Constants ---
 const STORAGE_KEY_VIDEO_ID = "sync_editor_video_id";
 const STORAGE_KEY_LYRICS = "sync_editor_lyrics";
+const tenbyouVideoID = "sL-yJIyuEaM";
 
 // --- Helper: Deep Comparison (Simplified) ---
 const areLyricsEqual = (a: LyricData, b: LyricData): boolean => {
@@ -237,6 +238,41 @@ export const useLyricEditor = () => {
         reader.readAsText(file);
     };
 
+    // 🚨 新增 fetch 函式 (使用 useCallback 確保函式穩定性)
+    const fetchTenbyou = React.useCallback(async () => {
+        try {
+            const response = await fetch(
+                "https://raw.githubusercontent.com/champsing/Time-synced-lyrics/refs/heads/master/mappings/Mrs%20Green%20Apple%2C%20Sonoko%20Inoue%20-%20Tenbyouno%20Uta/original.json",
+            );
+            const mapping = await response.json();
+            // 🚨 這裡直接使用 setVideoId，而不是 setTempVideoId
+
+            setVideoId(tenbyouVideoID);
+            setTempVideoId(tenbyouVideoID); // 確保 tempVideoId 也更新
+            setLyrics(mapping);
+            setStagedLyrics(mapping); // 確保 stagedLyrics 也更新
+            sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, tenbyouVideoID);
+            sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(mapping));
+            console.log(
+                "Successfully fetched Mrs. GREEN APPLE feat. Sonoko Inoue - Tenbyounouta's mapping file.",
+            );
+        } catch (e) {
+            console.error(
+                "Couldn't fetch Mrs. GREEN APPLE feat. Sonoko Inoue - Tenbyounouta's mapping file, using fallback initial data.",
+                e,
+            );
+        }
+    }, [setVideoId, setTempVideoId, setLyrics, setStagedLyrics]);
+
+    useEffect(() => {
+        // 檢查 tempVideoId 是否為預設值
+        if (!tempVideoId || tempVideoId === DEFAULT_VIDEO_ID) {
+            console.log("No lyrics loaded, attempting to fetch example data.");
+            fetchTenbyou();
+            handleVideoLoad();
+        }
+    }, [fetchTenbyou]); // 依賴 fetchTenbyou (它是一個穩定的 useCallback 函式)
+
     return {
         // Refs
         playerRef,
@@ -275,5 +311,6 @@ export const useLyricEditor = () => {
         addLine,
         copyJson,
         handleFileUpload,
+        fetchTenbyou,
     };
 };
