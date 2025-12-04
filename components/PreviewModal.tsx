@@ -246,7 +246,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                             className={`preview-lyric-line flex flex-col max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""} ${isSecondary ? "is-secondary-vocalist text-right" : ""}`} // 根據 isSecondary 屬性新增 class
                         >
                             {/* Main Text & Karaoke Effect */}
-                            <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap justify-center gap-x-1">
+                            <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap align-bottom gap-x-1">
                                 {line.text?.map((phrase, pIndex) => (
                                     <span
                                         key={pIndex + "-main"}
@@ -265,16 +265,18 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                                                 : {}
                                         }
                                     >
-                                        {/* Pronunciation (Ruby) */}
+                                        {/* Pronunciation */}
                                         {phrase.pronounciation ? (
-                                            <ruby>
-                                                {phrase.phrase}
-                                                <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
+                                            <div className="flex flex-col gap-0">
+                                                <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
                                                     {phrase.pronounciation}
-                                                </rt>
-                                            </ruby>
+                                                </span>
+                                                <span>{phrase.phrase}</span>
+                                            </div>
                                         ) : (
-                                            phrase.phrase
+                                            <div className="flex flex-col gap-0">
+                                                <span>{phrase.phrase}</span>
+                                            </div>
                                         )}
                                     </span>
                                 ))}
@@ -304,14 +306,14 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                                                     : {}
                                             }
                                         >
-                                            {/* Pronunciation (Ruby) */}
+                                            {/* Pronunciation */}
                                             {phrase.pronounciation ? (
-                                                <ruby>
-                                                    {phrase.phrase}
-                                                    <rt className="text-sm font-normal text-gray-300 opacity-80 mb-1 block">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
                                                         {phrase.pronounciation}
-                                                    </rt>
-                                                </ruby>
+                                                    </span>
+                                                    <span>{phrase.phrase}</span>
+                                                </div>
                                             ) : (
                                                 phrase.phrase
                                             )}
