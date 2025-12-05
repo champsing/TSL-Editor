@@ -24,7 +24,7 @@ export const secondsToTime = (
 export const formatDuration = (val: number) => `${val}`;
 
 // Default YouTube Video ID
-export const DEFAULT_VIDEO_ID = "NxRTkmu2l9g"; // yutori - Speed
+export const DEFAULT_VIDEO_ID = "sL-yJIyuEaM"; // yutori - Speed
 
 // Default Initial Data
 export const INITIAL_JSON_DATA = `[
