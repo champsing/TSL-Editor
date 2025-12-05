@@ -29,6 +29,7 @@ function App() {
         editingLineIndex,
         setEditingLineIndex,
         currentLineIndex,
+        activeLineIndices, // 👈 從 Hook 取得 activeLineIndices
         hasUncommittedChanges,
         // Refs
         playerRef,
@@ -156,7 +157,10 @@ function App() {
                                     key={index}
                                     index={index}
                                     line={line}
-                                    isCurrent={index === currentLineIndex}
+                                    // 👇 修改這裡：判斷 index 是否在活躍列表中
+                                    isCurrent={activeLineIndices.includes(
+                                        index,
+                                    )}
                                     isEditing={index === editingLineIndex}
                                     onEditStart={() =>
                                         setEditingLineIndex(index)

@@ -72,19 +72,56 @@ export const useLyricEditor = () => {
     }, [videoId]);
 
     // --- Computed Values ---
-    // 找出當前正在播放的行 (使用已提交的 lyrics)
-    const currentLineIndex = useMemo(() => {
-        let index = -1;
-        for (let i = 0; i < lyrics.length; i++) {
-            const lineTime = timeToSeconds(lyrics[i].time);
-            if (playerTime >= lineTime) {
-                index = i;
-            } else {
-                break;
+    // 1. 預處理：為每行歌詞計算精確的「結束時間」
+    // 這樣不用每次 playerTime 變更時都重新 reduce 陣列，節省效能
+    const linesWithTiming = useMemo(() => {
+        return lyrics.map((line) => {
+            const startTime = timeToSeconds(line.time);
+            let totalDuration = 0;
+
+            // 計算該行的總持續時間 (根據 text 內的 phrase duration 加總)
+            if (line.text && Array.isArray(line.text)) {
+                totalDuration = line.text.reduce((sum, phrase) => {
+                    // 假設 duration 是 centiseconds (10ms)，轉為秒
+                    return sum + (phrase.duration || 0) / 100;
+                }, 0);
             }
-        }
-        return index;
-    }, [playerTime, lyrics]);
+
+            // 防呆：如果算出 0，給個預設值 (例如 3秒) 避免瞬間消失
+            if (totalDuration === 0) totalDuration = 3.0;
+
+            return {
+                startTime,
+                computedEndTime: startTime + totalDuration,
+            };
+        });
+    }, [lyrics]);
+
+    // 2. 核心邏輯：找出所有「現在應該顯示」的行數索引 (多行支援)
+    const activeLineIndices = useMemo(() => {
+        const activeIndices: number[] = [];
+        const startOffset = 0.3; // 提早顯示
+        const endBuffer = 0.2; // 延後消失
+
+        linesWithTiming.forEach((line, index) => {
+            const start = line.startTime - startOffset;
+            const end = line.computedEndTime + endBuffer;
+
+            // 判斷當前時間是否落在 [開始-0.3, 結束+0.2] 區間內
+            if (playerTime >= start && playerTime < end) {
+                activeIndices.push(index);
+            }
+        });
+
+        return activeIndices;
+    }, [playerTime, linesWithTiming]);
+
+    // 3. 定義當前行 (用於自動滾動)
+    // 為了相容原本的邏輯，我們取活躍行中的「最後一行」作為主要滾動目標
+    const currentLineIndex = useMemo(() => {
+        if (activeLineIndices.length === 0) return -1;
+        return activeLineIndices[activeLineIndices.length - 1];
+    }, [activeLineIndices]);
 
     // 檢查是否有未提交的變更
     const hasUncommittedChanges = useMemo(() => {
@@ -299,6 +336,7 @@ export const useLyricEditor = () => {
         setEditingLineIndex,
         // Computed Values
         currentLineIndex,
+        activeLineIndices, // 👈 新增導出這個陣列
         hasUncommittedChanges,
         // Actions
         handleSeek,

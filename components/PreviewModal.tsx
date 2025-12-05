@@ -175,16 +175,47 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
     const processedLyrics = useMemo(() => processLyrics(lyrics), [lyrics]);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // 找出當前行 (Active Line)
-    const currentLineIndex = useMemo(() => {
-        // 簡單的倒敘搜尋，與播放器邏輯保持一致 (提早 0.3 秒開始高亮)
-        for (let i = processedLyrics.length - 1; i >= 0; i--) {
-            if (currentTime >= processedLyrics[i].startTime - 0.3) {
-                return i;
+    // 1. 預處理：算出每行的結束時間 (基於 processedLyrics)
+    const linesWithEndTime = useMemo(() => {
+        return processedLyrics.map((line) => {
+            // 計算總時長：將所有 phraseDurations 加總
+            const totalDuration = line.phraseDurations.reduce(
+                (a, b) => a + b,
+                0,
+            );
+
+            // 處理 duration 防呆 (如果是 0，給個預設值，例如 3秒)
+            const validDuration = totalDuration > 0 ? totalDuration : 3.0;
+
+            return {
+                ...line,
+                computedEndTime: line.startTime + validDuration,
+            };
+        });
+    }, [processedLyrics]);
+
+    // 2. 核心邏輯：找出所有活躍行
+    const activeLineIndices = useMemo(() => {
+        const activeIndices: number[] = [];
+        const startOffset = 0.3;
+        const endBuffer = 0.2;
+
+        linesWithEndTime.forEach((line, index) => {
+            const start = line.startTime - startOffset;
+            const end = line.computedEndTime + endBuffer;
+
+            if (currentTime >= start && currentTime < end) {
+                activeIndices.push(index);
             }
-        }
-        return -1;
-    }, [currentTime, processedLyrics]);
+        });
+        return activeIndices;
+    }, [currentTime, linesWithEndTime]);
+
+    // 3. 定義 currentLineIndex (用於滾動定位，取最後一個活躍行)
+    const currentLineIndex = useMemo(() => {
+        if (activeLineIndices.length === 0) return -1;
+        return activeLineIndices[activeLineIndices.length - 1];
+    }, [activeLineIndices]);
 
     // 自動滾動效果
     useEffect(() => {
@@ -234,16 +265,18 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                 style={{ scrollbarWidth: "none" }}
             >
                 {processedLyrics.map((line, lIndex) => {
-                    const isActiveLine = lIndex === currentLineIndex;
+                    // 👇 修改這裡：檢查 index 是否在活躍陣列中
+                    const isActiveLine = activeLineIndices.includes(lIndex);
                     const isSecondary = line.is_secondary; // 檢查 is_secondary 屬性
 
                     return (
                         <button
                             onClick={() => {
-                                onSeek(line.startTime); // 定位到該行開始時間
+                                onSeek(line.startTime);
                             }}
                             key={lIndex}
-                            className={`preview-lyric-line flex flex-col max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""} ${isSecondary ? "is-secondary-vocalist text-right" : ""}`} // 根據 isSecondary 屬性新增 class
+                            // 這裡 isActiveLine 會決定是否加上 .is-active-line
+                            className={`preview-lyric-line flex flex-col max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""} ${isSecondary ? "is-secondary-vocalist text-right" : ""}`}
                         >
                             {/* Main Text & Karaoke Effect */}
                             <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap align-bottom gap-x-1">
