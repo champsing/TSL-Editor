@@ -424,26 +424,22 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     )}
 
                     {/* NEW: Toggle Together Button */}
-                    {!isSpecialType && (
-                        <button
-                            onClick={toggleIsTogether}
-                            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
-                                line.is_together // 假設 line.is_together 存在
-                                    ? "bg-blue-900/40 text-blue-300 border border-blue-500/50"
-                                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
-                            }`}
-                            title={
-                                line.is_together
-                                    ? "Set as Primary/Secondary" // 設為主唱/副唱
-                                    : "Set as Together" // 設為合唱
-                            }
-                        >
-                            <span className="text-sm font-black italic">
-                                1/2
-                            </span>
-                            Together
-                        </button>
-                    )}
+                    <button
+                        onClick={toggleIsTogether}
+                        className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
+                            line.is_together // 假設 line.is_together 存在
+                                ? "bg-blue-900/40 text-blue-300 border border-blue-500/50"
+                                : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                        }`}
+                        title={
+                            line.is_together
+                                ? "Set as Primary/Secondary" // 設為主唱/副唱
+                                : "Set as Together" // 設為合唱
+                        }
+                    >
+                        <span className="text-sm font-black italic">1/2</span>
+                        Together
+                    </button>
 
                     {/* Delete Line Button */}
                     <button
