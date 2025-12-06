@@ -127,7 +127,7 @@ def convert_xml_file_to_json(input_filename, output_filename):
 
 # --- 主程式執行區 ---
 if __name__ == "__main__":
-    INPUT_FILE = os.path.join(os.path.dirname(__file__), 'py_output', '001_xml_to_json', 'input.txt')
+    INPUT_FILE = os.path.join(os.path.dirname(__file__), 'py_output', '001_xml_to_json', 'input.xml')
     OUTPUT_FILE = os.path.join(os.path.dirname(__file__), 'py_output', '001_xml_to_json', 'output.json')
     
     convert_xml_file_to_json(INPUT_FILE, OUTPUT_FILE)
