@@ -93,8 +93,55 @@ const getJsonDiff = (originalJson: string, newJson: string): DiffLine[] => {
         if (j < linesB.length) j++;
     }
 
-    return finalDiff;
+    const rawDiff = finalDiff;
+
+    // --- 新增後處理邏輯：合併連續的 'modify' 區塊 ---
+    const MIN_ALTERNATING_LINES = 5; // 您要求的 '5個以上'，代表 >= 5 行
+    const processedDiff: DiffLine[] = [];
+    let currentChunk: DiffLine[] = [];
+
+    for (const line of rawDiff) {
+        // 1. 如果當前行是 'equal'
+        if (line.type === "equal") {
+            // 處理累積的 currentChunk
+            if (currentChunk.length > 0) {
+                // 檢查是否達到重排門檻
+                if (currentChunk.length >= MIN_ALTERNATING_LINES) {
+                    // 重排：將 delete 和 add 分開
+                    const deletes = currentChunk.filter(
+                        (l) => l.type === "delete",
+                    );
+                    const adds = currentChunk.filter((l) => l.type === "add");
+                    processedDiff.push(...deletes, ...adds);
+                } else {
+                    // 未達門檻：保留原始的交錯順序
+                    processedDiff.push(...currentChunk);
+                }
+                currentChunk = []; // 清空區塊
+            }
+            // 推入當前的 'equal' 行
+            processedDiff.push(line);
+        } else {
+            // 2. 如果當前行是 'add' 或 'delete'，則加入當前區塊
+            currentChunk.push(line);
+        }
+    }
+
+    // 3. 循環結束後，處理最後一個累積的 currentChunk
+    if (currentChunk.length > 0) {
+        if (currentChunk.length >= MIN_ALTERNATING_LINES) {
+            const deletes = currentChunk.filter((l) => l.type === "delete");
+            const adds = currentChunk.filter((l) => l.type === "add");
+            processedDiff.push(...deletes, ...adds);
+        } else {
+            processedDiff.push(...currentChunk);
+        }
+    }
+
+    // 將 finalDiff 替換為 processedDiff
+    return processedDiff;
 };
+
 
 export const DiffModal: React.FC<DiffModalProps> = ({
     committedJson,
