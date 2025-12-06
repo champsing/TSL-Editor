@@ -13,7 +13,7 @@ dist-ssr
 .env
 *.local
 py_output
-.prettierrc.json
+.prettierrc
 
 # Editor directories and files
 .vscode/*
