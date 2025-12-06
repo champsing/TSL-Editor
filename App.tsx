@@ -199,7 +199,7 @@ function App() {
             {/* Preview Modal */}
             {previewModalOpen && (
                 <PreviewModal
-                    lyrics={lyrics}
+                    lyrics={stagedLyrics}
                     currentTime={playerTime}
                     onClose={() => setPreviewModalOpen(false)}
                     isPlaying={isPlaying}
