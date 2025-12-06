@@ -25,7 +25,7 @@ interface ProcessedLine extends LyricLine {
 }
 
 const processLyrics = (lyrics: LyricData): ProcessedLine[] => {
-    return lyrics.map((line) => {
+    return lyrics.map((line, index) => {
         const startTime = timeToSeconds(line.time); // 主歌詞相關變數
         let currentDelay = 0;
         const phraseDelays: number[] = [];
@@ -34,16 +34,68 @@ const processLyrics = (lyrics: LyricData): ProcessedLine[] => {
         let bgStartTime: number | undefined = undefined; // 初始化為 undefined
         let bgCurrentDelay = 0;
         let bgPhraseDelays: number[] = [];
-        let bgPhraseDurations: number[] = []; // 1. 處理主歌詞 (Main Text)
+        let bgPhraseDurations: number[] = [];
 
-        if (line.text) {
-            line.text.forEach((phrase) => {
-                phraseDelays.push(currentDelay); // 假設編輯器中的 duration 是 centiseconds (10ms)
+        // 🚨 1. 處理主歌詞 (Main Text) 的修改邏輯 🚨
+        let processedLineText: LyricPhrase[] | undefined = line.text;
+
+        // 如果是 prelude 或 interlude
+        if (line.type === "prelude" || line.type === "interlude") {
+            let totalLineDurationSec: number;
+            const nextLine = lyrics[index + 1];
+
+            // 1.1. 計算總時長 (Total Duration)
+            if (nextLine) {
+                const nextStartTime = timeToSeconds(nextLine.time);
+                // 總時長 = 下一行開始時間 - 當前行開始時間
+                totalLineDurationSec = nextStartTime - startTime;
+            } else {
+                // 如果是最後一行，給予一個合理的預設值，例如 3 秒
+                totalLineDurationSec = 3.0;
+            }
+
+            // 確保時長是正數，且至少有 0.1 秒
+            if (totalLineDurationSec <= 0) {
+                totalLineDurationSec = 0.1;
+            }
+
+            // 1.2. 計算每個短語的時長 (Duration Per Phrase)
+            // 將秒數轉換為 centiseconds (10ms)
+            const totalLineDurationMs = totalLineDurationSec * 100;
+            const durationPerPhraseMs = Math.round(totalLineDurationMs / 3);
+
+            // 1.3. 建立三個 ● 短語
+            processedLineText = [
+                {
+                    phrase: "●",
+                    duration: durationPerPhraseMs,
+                    pronounciation: "",
+                },
+                {
+                    phrase: " ● ",
+                    duration: durationPerPhraseMs,
+                    pronounciation: "",
+                },
+                {
+                    phrase: "●",
+                    duration: durationPerPhraseMs,
+                    pronounciation: "",
+                },
+            ];
+        }
+
+        if (processedLineText) {
+            // 使用 processedLineText 來計算延遲和時長
+            processedLineText.forEach((phrase) => {
+                phraseDelays.push(currentDelay);
+                // 假設編輯器中的 duration 是 centiseconds (10ms)，轉換為秒
                 const durSec = (phrase.duration || 0) / 100;
                 phraseDurations.push(durSec);
                 currentDelay += durSec;
             });
-        } // 2. 處理背景歌詞 (Background Voice)
+        }
+
+        // 2. 處理背景歌詞 (Background Voice)
 
         if (line.background_voice) {
             bgStartTime = timeToSeconds(line.background_voice.time);
@@ -59,6 +111,7 @@ const processLyrics = (lyrics: LyricData): ProcessedLine[] => {
 
         const baseResult: ProcessedLine = {
             ...line,
+            text: processedLineText,
             startTime,
             phraseDelays, // 總是包含主歌詞的數據
             phraseDurations, // 總是包含主歌詞的數據
