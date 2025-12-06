@@ -231,18 +231,44 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
     // 1. 預處理：算出每行的結束時間 (基於 processedLyrics)
     const linesWithEndTime = useMemo(() => {
         return processedLyrics.map((line) => {
-            // 計算總時長：將所有 phraseDurations 加總
-            const totalDuration = line.phraseDurations.reduce(
+            // 計算主歌詞的總時長
+            const mainTotalDuration = line.phraseDurations.reduce(
                 (a, b) => a + b,
                 0,
             );
 
+            // 主歌詞的結束時間 (預設使用主歌詞的 startTime + mainTotalDuration)
+            let maxEndTime = line.startTime + mainTotalDuration;
+
             // 處理 duration 防呆 (如果是 0，給個預設值，例如 3秒)
-            const validDuration = totalDuration > 0 ? totalDuration : 3.0;
+            const validDuration =
+                mainTotalDuration > 0 ? mainTotalDuration : 3.0;
+
+            // 🚨 新增邏輯：檢查背景和聲的結束時間 🚨
+            if (line.bgStartTime !== undefined && line.bgPhraseDurations) {
+                // 計算背景和聲的總時長
+                const bgTotalDuration = line.bgPhraseDurations.reduce(
+                    (a, b) => a + b,
+                    0,
+                );
+
+                // 背景和聲的實際結束時間
+                const bgEndTime = line.bgStartTime + bgTotalDuration;
+
+                // 取主歌詞結束時間 和 背景和聲結束時間 兩者的最大值
+                maxEndTime = Math.max(maxEndTime, bgEndTime);
+            }
+
+            // 如果 maxEndTime <= line.startTime (例如主歌詞 totalDuration 也是 0 的情況)
+            // 則使用 validDuration 作為安全預設值
+            const finalEndTime =
+                maxEndTime > line.startTime
+                    ? maxEndTime
+                    : line.startTime + validDuration;
 
             return {
                 ...line,
-                computedEndTime: line.startTime + validDuration,
+                computedEndTime: finalEndTime,
             };
         });
     }, [processedLyrics]);
