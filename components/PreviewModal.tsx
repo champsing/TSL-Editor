@@ -232,7 +232,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
     }, [currentLineIndex]);
 
     return (
-        <div className="fixed inset-0 z-100 bg-[#102f2c] flex flex-col items-center justify-center text-white overflow-hidden font-sans">
+        <div className="fixed inset-0 z-100 bg-[#102f2c] text-white overflow-hidden font-sans">
             {/* 樣式模擬 (模擬 style.css) */}
             <style>{`
                 .preview-lyric-line {
@@ -267,7 +267,6 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                 {processedLyrics.map((line, lIndex) => {
                     // 👇 修改這裡：檢查 index 是否在活躍陣列中
                     const isActiveLine = activeLineIndices.includes(lIndex);
-                    const isSecondary = line.is_secondary; // 檢查 is_secondary 屬性
 
                     return (
                         <button
@@ -276,62 +275,52 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                             }}
                             key={lIndex}
                             // 這裡 isActiveLine 會決定是否加上 .is-active-line
-                            className={`preview-lyric-line flex flex-col max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""} ${isSecondary ? "is-secondary-vocalist text-right" : ""}`}
+                            className={`preview-lyric-line max-w-4xl px-4 ${isActiveLine ? "is-active-line" : ""}`}
                         >
-                            {/* Main Text & Karaoke Effect */}
-                            <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap align-bottom gap-x-1">
-                                {line.text?.map((phrase, pIndex) => (
+                            {/* Vocalist Marker */}
+                            <div
+                                className={`w-full flex mb-2 ${line.is_together ? "is-together justify-center" : line.is_secondary ? "is-secondary-vocalist justify-end" : "is-primary-vocalist justify-start"}`}
+                            >
+                                {line.is_together ? (
                                     <span
-                                        key={pIndex + "-main"}
-                                        className="preview-lyric-phrase relative px-0.5"
-                                        style={
-                                            isActiveLine
-                                                ? getPhraseStyle(
-                                                      currentTime,
-                                                      line.startTime,
-                                                      line.phraseDelays[pIndex],
-                                                      line.phraseDurations[
-                                                          pIndex
-                                                      ],
-                                                      phrase,
-                                                  )
-                                                : {}
-                                        }
+                                        className="text-xs font-black italic text-blue-400 bg-blue-900/80 px-2 rounded-xl leading-none"
+                                        title="Together Vocalist Line"
                                     >
-                                        {/* Pronunciation */}
-                                        {phrase.pronounciation ? (
-                                            <div className="flex flex-col gap-0">
-                                                <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
-                                                    {phrase.pronounciation}
-                                                </span>
-                                                <span>{phrase.phrase}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col gap-0">
-                                                <span>{phrase.phrase}</span>
-                                            </div>
-                                        )}
+                                        T
                                     </span>
-                                ))}
+                                ) : line.is_secondary ? (
+                                    <span
+                                        className="text-xs font-black italic text-orange-400 bg-orange-900/80 px-2 rounded-xl leading-none"
+                                        title="Secondary Vocalist Line"
+                                    >
+                                        2
+                                    </span>
+                                ) : (
+                                    <span
+                                        className="text-xs font-black italic text-neutral-400 bg-neutral-900/80 px-2 rounded-xl leading-none"
+                                        title="Primary Vocalist Line"
+                                    >
+                                        1
+                                    </span>
+                                )}
                             </div>
 
-                            {/* BG Text & Karaoke Effect */}
-                            <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
-                                {line.background_voice?.text.map(
-                                    (phrase, pIndex) => (
+                            <div className="flex flex-col">
+                                {/* Main Text & Karaoke Effect */}
+                                <div className="text-3xl md:text-4xl leading-relaxed flex flex-wrap align-bottom gap-x-1">
+                                    {line.text?.map((phrase, pIndex) => (
                                         <span
-                                            key={pIndex + "-bg"}
+                                            key={pIndex + "-main"}
                                             className="preview-lyric-phrase relative px-0.5"
                                             style={
                                                 isActiveLine
                                                     ? getPhraseStyle(
                                                           currentTime,
-                                                          line.bgStartTime,
-                                                          line.bgPhraseDelays[
+                                                          line.startTime,
+                                                          line.phraseDelays[
                                                               pIndex
                                                           ],
-                                                          line
-                                                              .bgPhraseDurations[
+                                                          line.phraseDurations[
                                                               pIndex
                                                           ],
                                                           phrase,
@@ -341,32 +330,79 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                                         >
                                             {/* Pronunciation */}
                                             {phrase.pronounciation ? (
-                                                <div className="flex flex-col gap-1">
+                                                <div className="flex flex-col gap-0">
                                                     <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
                                                         {phrase.pronounciation}
                                                     </span>
                                                     <span>{phrase.phrase}</span>
                                                 </div>
                                             ) : (
-                                                phrase.phrase
+                                                <div className="flex flex-col gap-0">
+                                                    <span>{phrase.phrase}</span>
+                                                </div>
                                             )}
                                         </span>
-                                    ),
-                                )}
-                            </div>
-
-                            {/* Translation (Only shown for active line) */}
-                            {line.translation && isActiveLine && (
-                                <div className="mt-4 text-xl text-teal-300 font-medium">
-                                    {line.translation}
+                                    ))}
                                 </div>
-                            )}
-                            {line.background_voice?.translation &&
-                                isActiveLine && (
-                                    <div className="mt-4 text-xl text-teal-300 font-medium">
-                                        {line.background_voice?.translation}
+
+                                {/* BG Text & Karaoke Effect */}
+                                <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
+                                    {line.background_voice?.text.map(
+                                        (phrase, pIndex) => (
+                                            <span
+                                                key={pIndex + "-bg"}
+                                                className="preview-lyric-phrase relative px-0.5"
+                                                style={
+                                                    isActiveLine
+                                                        ? getPhraseStyle(
+                                                              currentTime,
+                                                              line.bgStartTime,
+                                                              line
+                                                                  .bgPhraseDelays[
+                                                                  pIndex
+                                                              ],
+                                                              line
+                                                                  .bgPhraseDurations[
+                                                                  pIndex
+                                                              ],
+                                                              phrase,
+                                                          )
+                                                        : {}
+                                                }
+                                            >
+                                                {/* Pronunciation */}
+                                                {phrase.pronounciation ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
+                                                            {
+                                                                phrase.pronounciation
+                                                            }
+                                                        </span>
+                                                        <span>
+                                                            {phrase.phrase}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    phrase.phrase
+                                                )}
+                                            </span>
+                                        ),
+                                    )}
+                                </div>
+
+                                {/* Translation (Only shown for active line) */}
+                                {line.translation && isActiveLine && (
+                                    <div className="mt-2 text-xl text-teal-300 font-medium">
+                                        {line.translation}
                                     </div>
                                 )}
+                                {line.background_voice?.translation &&
+                                    isActiveLine && (
+                                        <div className="mt-2 text-xl text-teal-300 font-medium">
+                                            {line.background_voice?.translation}
+                                        </div>
+                                    )}
+                            </div>
                         </button>
                     );
                 })}
