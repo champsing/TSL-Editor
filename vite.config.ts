@@ -2,11 +2,11 @@ import path from "path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import fs from 'fs'; // 引入 Node.js 的 fs 模組
+import fs from "fs"; // 引入 Node.js 的 fs 模組
 
 // 讀取 package.json 的版本號
 const packageJson = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
+    fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8"),
 );
 
 export default defineConfig(() => {
@@ -22,7 +22,8 @@ export default defineConfig(() => {
             },
         },
         define: {
-          'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version) || "1.0.0",
-        }
+            "import.meta.env.VITE_APP_VERSION":
+                JSON.stringify(packageJson.version) || "1.0.0",
+        },
     };
 });

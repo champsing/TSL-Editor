@@ -128,7 +128,8 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                             className="text-red-400 shrink-0"
                         />
                         <span className="font-semibold text-sm">
-                            應用前請務必確保 JSON 格式正確，或先將重要更動提交，否則將可能會造成
+                            應用前請務必確保 JSON
+                            格式正確，或先將重要更動提交，否則將可能會造成
                             <span className="text-lg">災難性後果</span>！
                         </span>
                     </div>

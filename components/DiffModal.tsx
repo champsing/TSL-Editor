@@ -142,7 +142,6 @@ const getJsonDiff = (originalJson: string, newJson: string): DiffLine[] => {
     return processedDiff;
 };
 
-
 export const DiffModal: React.FC<DiffModalProps> = ({
     committedJson,
     uncommittedJson,

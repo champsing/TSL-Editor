@@ -1,4 +1,4 @@
-import React, { useRef } from "react"; // <-- 移除 useState 和 useCallback
+import React from "react"; // <-- 移除 useState 和 useCallback
 import { MoveRight, Clock } from "lucide-react"; // <-- 移除 Copy, FileJson, Upload, Check
 import { YouTubePlayer, YouTubePlayerHandle } from "./YouTubePlayer";
 import { JsonButtons } from "./JsonButtons"; // <-- 引入新的 JsonButtons
@@ -22,9 +22,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     onIsPlayingChange,
     onFileUpload,
     onViewJson,
-    
 }) => {
-
     return (
         <div className="w-[400px] bg-black flex flex-col border-l border-gray-800 shadow-2xl z-10">
             {/* YouTube Player */}

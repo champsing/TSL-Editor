@@ -17,7 +17,7 @@
             "@components/*": ["./components/*"]
         },
         "allowImportingTsExtensions": true,
-        "noEmit": true,
+        "noEmit": true
     },
-    "include": ["./**/*.ts", "./**/*.tsx", "./**/*.d.ts"],
+    "include": ["./**/*.ts", "./**/*.tsx", "./**/*.d.ts"]
 }
