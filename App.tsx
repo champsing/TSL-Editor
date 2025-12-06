@@ -183,7 +183,7 @@ function App() {
                     onIsPlayingChange={setIsPlaying}
                     onFileUpload={handleFileUpload}
                     onViewJson={() => setJsonModalOpen(true)}
-                    onCopyJson={copyJson}
+                    lyrics={lyrics}
                 />
             </div>
 

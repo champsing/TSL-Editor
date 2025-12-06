@@ -1,41 +1,41 @@
-import React, { useRef, useState, useCallback } from "react"; // <-- 引入 useState 和 useCallback
-import { Copy, FileJson, MoveRight, Clock, Upload, Check } from "lucide-react"; // <-- 引入 Check
+import React, { useRef } from "react"; // <-- 移除 useState 和 useCallback
+import { MoveRight, Clock } from "lucide-react"; // <-- 移除 Copy, FileJson, Upload, Check
 import { YouTubePlayer, YouTubePlayerHandle } from "./YouTubePlayer";
+import { JsonButtons } from "./JsonButtons"; // <-- 引入新的 JsonButtons
+import { LyricData } from "../types"; // <-- 假設 LyricData 的型別需要在這裡引入
 
 interface EditorSidebarProps {
     videoId: string;
     playerRef: React.RefObject<YouTubePlayerHandle>;
+    lyrics: LyricData; // <-- 新增 lyrics 屬性 (用於傳給 JsonButtons 下載)
     onTimeUpdate: (time: number) => void;
     onIsPlayingChange: (isPlaying: boolean) => void;
     onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onViewJson: () => void;
-    onCopyJson: () => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     videoId,
     playerRef,
+    lyrics, // <-- 接收 lyrics
     onTimeUpdate,
     onIsPlayingChange,
     onFileUpload,
     onViewJson,
-    onCopyJson,
+    // onCopyJson, // <-- 不再需要
 }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [isCopied, setIsCopied] = useState(false); // <-- 新增狀態
+    // const fileInputRef = useRef<HTMLInputElement>(null); // <-- 不再需要
+    // const [isCopied, setIsCopied] = useState(false); // <-- 不再需要
 
-    // 包裝 onCopyJson 邏輯，加入複製狀態控制
-    const handleCopyJson = useCallback(() => {
-        onCopyJson(); // 執行實際的複製操作
-        setIsCopied(true); // 設定複製成功狀態
-
-        // 數秒後恢復
-        const timer = setTimeout(() => {
-            setIsCopied(false);
-        }, 2000); // 2000 毫秒 (2 秒)
-
-        return () => clearTimeout(timer); // 清除定時器以避免記憶體洩漏
-    }, [onCopyJson]);
+    // // 包裝 onCopyJson 邏輯，加入複製狀態控制 // <-- 不再需要
+    // const handleCopyJson = useCallback(() => {
+    //     onCopyJson();
+    //     setIsCopied(true);
+    //     const timer = setTimeout(() => {
+    //         setIsCopied(false);
+    //     }, 2000);
+    //     return () => clearTimeout(timer);
+    // }, [onCopyJson]);
 
     return (
         <div className="w-[400px] bg-black flex flex-col border-l border-gray-800 shadow-2xl z-10">
@@ -96,51 +96,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <p>只有當影片暫停時才能新增行。</p>
                 </div>
 
-                {/* File/JSON Actions */}
-                <div className="flex gap-2 mt-10">
-                    {/* Import Button */}
-                    <label className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition">
-                        <Upload size={16} />
-                        Import
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            className="hidden"
-                            accept=".json"
-                            onChange={(e) => {
-                                onFileUpload(e);
-                                if (fileInputRef.current) {
-                                    fileInputRef.current.value = ""; // 重設 input 以允許重新上傳相同檔案
-                                }
-                            }}
-                        />
-                    </label>
-                    {/* View JSON Button */}
-                    <button
-                        onClick={onViewJson}
-                        className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center gap-2 text-sm transition"
-                    >
-                        <FileJson size={16} />
-                        View JSON
-                    </button>
-                    {/* Copy JSON Button */}
-                    <button
-                        onClick={handleCopyJson} // <-- 使用新的處理函數
-                        className={`
-                            ${
-                                isCopied
-                                    ? "cursor-not-allowed bg-green-500 hover:bg-green-400 text-white font-semibold shadow-[0_0_10px_rgba(34,197,94,0.5)]" // 複製成功狀態
-                                    : "cursor-pointer bg-primary hover:bg-teal-300 text-dark font-semibold shadow-[0_0_10px_rgba(74,194,215,0.3)]" // 原始狀態
-                            }
-                            px-4 py-2 rounded-md flex items-center gap-2 text-sm transition
-                        `}
-                    >
-                        {isCopied ? <Check size={16} /> : <Copy size={16} />}{" "}
-                        {/* <-- 根據狀態切換圖標 */}
-                        {isCopied ? "Copied!" : "Copy JSON"}{" "}
-                        {/* <-- 根據狀態切換文字 */}
-                    </button>
-                </div>
+                {/* File/JSON Actions - 使用新組件 */}
+                <JsonButtons
+                    lyrics={lyrics} // 傳入已提交的歌詞
+                    onFileUpload={onFileUpload}
+                    onViewJson={onViewJson}
+                />
             </div>
         </div>
     );
