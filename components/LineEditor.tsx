@@ -130,6 +130,11 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         onUpdate(index, { ...line, is_secondary: !line.is_secondary });
     };
 
+    // --- NEW Handler: Together Vocalist ---
+    const toggleIsTogether = () => {
+        onUpdate(index, { ...line, is_together: !line.is_together });
+    };
+
     // --- Logic: Drag and Drop ---
     const handleDragStart = (
         e: React.DragEvent,
@@ -216,6 +221,15 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                             title="Secondary Vocalist Line"
                         >
                             Secondary
+                        </span>
+                    )}
+                    {/* NEW: Together Vocalist Marker */}
+                    {line.is_together && (
+                        <span
+                            className="text-xs font-black italic text-blue-400 bg-blue-900/20 px-1 rounded-sm leading-none"
+                            title="Together Vocalist Line"
+                        >
+                            Together
                         </span>
                     )}
                 </div>
@@ -383,21 +397,51 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     {!isSpecialType && (
                         <button
                             onClick={toggleIsSecondary}
+                            disabled={line.is_together}
                             className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
                                 line.is_secondary
                                     ? "bg-orange-900/40 text-orange-300 border border-orange-500/50"
                                     : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                            }
+                            ${
+                                line.is_together
+                                    ? "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50"
+                                    : ""
                             }`}
                             title={
-                                line.is_secondary
-                                    ? "Set as Main Vocalist" // 設為主唱
-                                    : "Set as Secondary Vocalist" // 設為副唱
+                                line.is_together
+                                    ? "Not adjustable when set to Together"
+                                    : line.is_secondary
+                                      ? "Set as Primary Vocalist" // 設為主唱
+                                      : "Set as Secondary Vocalist" // 設為副唱
                             }
                         >
                             <span className="text-sm font-black italic">
                                 {line.is_secondary ? "2" : "1"}
                             </span>
-                            {line.is_secondary ? "Secondary" : "Main"}
+                            {line.is_secondary ? "Secondary" : "Primary"}
+                        </button>
+                    )}
+
+                    {/* NEW: Toggle Together Button */}
+                    {!isSpecialType && (
+                        <button
+                            onClick={toggleIsTogether}
+                            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-bold transition-colors mr-2 ${
+                                line.is_together // 假設 line.is_together 存在
+                                    ? "bg-blue-900/40 text-blue-300 border border-blue-500/50"
+                                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                            }`}
+                            title={
+                                line.is_together
+                                    ? "Set as Primary/Secondary" // 設為主唱/副唱
+                                    : "Set as Together" // 設為合唱
+                            }
+                        >
+                            <span className="text-sm font-black italic">
+                                1/2
+                            </span>
+                            Together
                         </button>
                     )}
 

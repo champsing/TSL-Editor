@@ -49,8 +49,8 @@ export const EditActions: React.FC<EditActionsProps> = ({
             disabled={!hasUncommittedChanges}
             className={` px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
                 hasUncommittedChanges
-                    ? " cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
-                    : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50 "
+                    ? "cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                    : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50"
             }`}
         >
             <Undo2 size={16} />
