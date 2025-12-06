@@ -22,20 +22,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     onIsPlayingChange,
     onFileUpload,
     onViewJson,
-    // onCopyJson, // <-- 不再需要
+    
 }) => {
-    // const fileInputRef = useRef<HTMLInputElement>(null); // <-- 不再需要
-    // const [isCopied, setIsCopied] = useState(false); // <-- 不再需要
-
-    // // 包裝 onCopyJson 邏輯，加入複製狀態控制 // <-- 不再需要
-    // const handleCopyJson = useCallback(() => {
-    //     onCopyJson();
-    //     setIsCopied(true);
-    //     const timer = setTimeout(() => {
-    //         setIsCopied(false);
-    //     }, 2000);
-    //     return () => clearTimeout(timer);
-    // }, [onCopyJson]);
 
     return (
         <div className="w-[400px] bg-black flex flex-col border-l border-gray-800 shadow-2xl z-10">

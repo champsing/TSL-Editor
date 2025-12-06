@@ -18,6 +18,7 @@ function App() {
         setTempVideoId,
         stagedLyrics,
         lyrics,
+        setStagedLyrics,
         playerTime,
         setPlayerTime,
         isPlaying,
@@ -190,9 +191,11 @@ function App() {
             {/* JSON Modal */}
             {jsonModalOpen && (
                 <JsonModal
-                    jsonContent={JSON.stringify(lyrics, null, 4)}
+                    committedJson={JSON.stringify(lyrics, null, 4)}
+                    uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
                     onClose={() => setJsonModalOpen(false)}
                     onCopy={copyJson}
+                    onUpdateUncommitted={() => setStagedLyrics}
                 />
             )}
 
