@@ -45,7 +45,7 @@ export const useLyricEditor = () => {
             }
         }
         try {
-            return JSON.parse(INITIAL_JSON_DATA);
+            return INITIAL_JSON_DATA;
         } catch (e) {
             console.error("Failed to parse initial data");
             return [];
