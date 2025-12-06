@@ -15,7 +15,7 @@ export const PhraseEditor: React.FC<PhraseEditorProps> = ({
 }) => {
     return (
         <div
-            className={`flex flex-col p-2 rounded-md border min-w-40 relative group transition-all duration-200 ${
+            className={`flex flex-col p-2 pt-6 rounded-md border min-w-40 relative group transition-all duration-200 ${
                 phrase.kiai
                     ? "bg-yellow-900/20 border-yellow-600/50 shadow-[0_0_10px_rgba(234,179,8,0.1)]"
                     : "bg-gray-700/50 border-gray-600"
