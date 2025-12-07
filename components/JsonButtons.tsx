@@ -3,7 +3,7 @@ import { Download, FileJson, Upload, Check } from "lucide-react"; // 引入 Down
 import { LyricData } from "../types"; // 假設 LyricData 的型別是從上一層目錄引入的
 
 // --- Helper Function: Download JSON ---
-const downloadJson = (data: LyricData, filename = "lyrics_data.json") => {
+const downloadJson = (data: LyricData, filename = "original.json") => {
     const jsonStr = JSON.stringify(data, null, 4);
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
