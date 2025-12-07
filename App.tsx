@@ -8,6 +8,7 @@ import { EditorSidebar } from "./components/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
 import { Plus, Play } from "lucide-react";
 import { secondsToTime } from "./utils";
+import { LyricData } from "./types";
 
 // --- Main App Component ---
 function App() {
@@ -195,7 +196,21 @@ function App() {
                     uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
                     onClose={() => setJsonModalOpen(false)}
                     onCopy={copyJson}
-                    onUpdateUncommitted={() => setStagedLyrics}
+                    onUpdateUncommitted={(newJson) => {
+                        try {
+                            // 1. 嘗試將 JSON 字串解析為 LyricData 物件
+                            const parsedData = JSON.parse(newJson) as LyricData;
+
+                            // 2. 如果解析成功，更新 stagedLyrics 狀態
+                            setStagedLyrics(parsedData);
+                        } catch (error) {
+                            // 3. 如果解析失敗 (例如 JSON 格式錯誤)
+                            console.error(
+                                "Failed to parse JSON for uncommitted data:",
+                                error,
+                            );
+                        }
+                    }}
                 />
             )}
 

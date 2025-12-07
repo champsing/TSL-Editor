@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { AlertTriangle, Check, X } from "lucide-react"; // 引入 X 用於關閉按鈕
+import { LyricData } from "@/types";
 
 // 定義分頁類型
 type Tab = "committed" | "uncommitted";
@@ -18,7 +19,6 @@ export const JsonModal: React.FC<JsonModalProps> = ({
     committedJson,
     uncommittedJson,
     onClose,
-    onCopy,
     onUpdateUncommitted, // 接收新的更新函數
 }) => {
     const [isCopied, setIsCopied] = useState(false);
@@ -52,7 +52,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
         try {
             if (window.confirm("您確定要將JSON更動應用於尚未提交的歌詞嗎？")) {
                 // 嘗試解析 JSON 以確保格式正確
-                JSON.parse(editableJson);
+                JSON.parse(editableJson) as LyricData;
                 // 如果解析成功，則調用外部更新函數
                 onUpdateUncommitted(editableJson);
                 // 關閉 Modal 或給出成功提示 (這裡選擇關閉)
@@ -105,7 +105,13 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                                     : "text-gray-400 hover:text-white"
                             }`}
                         >
-                            Committed Lyrics (Read-Only)
+                            <div className="flex flex-row gap-2 items-center">
+                                <span>Committed Lyrics</span>
+                                {/* ✨ 優化後的 Read-Only 標籤設計 */}
+                                <span className="text-emerald-300 bg-emerald-900/40 rounded-2xl px-2 text-xs font-semibold border border-emerald-700">
+                                    Read-Only
+                                </span>
+                            </div>
                         </button>
                         <button
                             onClick={() => setActiveTab("uncommitted")}
@@ -115,7 +121,13 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                                     : "text-gray-400 hover:text-white"
                             }`}
                         >
-                            Uncommitted Changes (Editable)
+                            <div className="flex flex-row gap-2 items-center">
+                                <span>Uncommitted Lyrics</span>
+                                {/* ✨ 優化後的 Editable 標籤設計 */}
+                                <span className="text-yellow-300 bg-yellow-900/40 rounded-2xl px-2 text-xs font-semibold border border-yellow-700">
+                                    Editable
+                                </span>
+                            </div>
                         </button>
                     </div>
                 </div>
