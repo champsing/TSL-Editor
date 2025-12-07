@@ -166,13 +166,28 @@ export const useLyricEditor = () => {
     const commitLyrics = () => {
         if (!hasUncommittedChanges) return;
 
-        const newStagedLyrics = JSON.parse(JSON.stringify(stagedLyrics));
-        setLyrics(newStagedLyrics);
+        // 1. 複製並確保是新的陣列實例
+        let newStagedLyrics = JSON.parse(JSON.stringify(stagedLyrics));
+
+        // 2. 🚨 新增：根據 line.time 進行排序
+        newStagedLyrics.sort((a, b) => {
+            const timeA = timeToSeconds(a.time);
+            const timeB = timeToSeconds(b.time);
+            return timeA - timeB; // 升序排列 (時間早的在前)
+        });
+
+        // 3. 更新 lyrics 狀態
+        setStagedLyrics(newStagedLyrics);
+        setLyrics(newStagedLyrics);        
+
+        // 4. 將排序後的結果儲存到 sessionStorage
         sessionStorage.setItem(
             STORAGE_KEY_LYRICS,
             JSON.stringify(newStagedLyrics),
         );
-        console.log("Lyrics committed and saved to sessionStorage!");
+        console.log(
+            "Lyrics committed, sorted by time, and saved to sessionStorage!",
+        );
     };
 
     const discardChanges = () => {
