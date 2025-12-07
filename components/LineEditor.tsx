@@ -375,6 +375,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         onChange={(e) =>
                             onUpdate(index, {
                                 ...line,
+                                text: e.target.value === "normal"
+                                        ? line.text
+                                        : undefined,
+                                translation: e.target.value === "normal"
+                                        ? line.translation
+                                        : undefined,
                                 type:
                                     e.target.value === "normal"
                                         ? undefined
