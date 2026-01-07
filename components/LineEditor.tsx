@@ -205,8 +205,8 @@ export const LineEditor: React.FC<LineEditorProps> = ({
             <div
                 className={`mb-2 p-4 rounded-2xl border transition-all duration-300 bg-white/5 border-white/10 relative group flex items-start gap-4 ${
                     isCurrent
-                        ? "bg-dark/80 border-primary shadow-[0_0_10px_rgba(74,194,215,0.2)]"
-                        : "bg-panel border-gray-700 hover:border-gray-600"
+                        ? "bg-white/10 border-primary/50 border-2 shadow-2xl scale-[1.01]"
+                        : "bg-white/5 border-primary/40 hover:border-gray-600"
                 }`}
             >
                 {/* Time Stamp */}
