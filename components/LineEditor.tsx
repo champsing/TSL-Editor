@@ -93,7 +93,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     const handleBgPhraseChange = (
         pIndex: number,
-        updatedPhrase: LyricPhrase,
+        updatedPhrase: LyricPhrase
     ) => {
         if (!line.background_voice) return;
         const newText = [...line.background_voice.text];
@@ -117,7 +117,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const deleteBgPhrase = (pIndex: number) => {
         if (!line.background_voice) return;
         const newText = line.background_voice.text.filter(
-            (_, i) => i !== pIndex,
+            (_, i) => i !== pIndex
         );
         onUpdate(index, {
             ...line,
@@ -139,7 +139,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const handleDragStart = (
         e: React.DragEvent,
         type: "main" | "bg",
-        idx: number,
+        idx: number
     ) => {
         setDragState({ type, index: idx });
         e.dataTransfer.effectAllowed = "move";
@@ -153,7 +153,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const handleDrop = (
         e: React.DragEvent,
         targetType: "main" | "bg",
-        targetIndex: number,
+        targetIndex: number
     ) => {
         e.preventDefault();
 
@@ -203,10 +203,10 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     if (!isEditing) {
         return (
             <div
-                className={`mb-2 p-4 rounded-2xl border transition-all duration-300 bg-white/5 border-white/10 relative group flex items-start gap-4 ${
+                className={`mb-2 p-4 rounded-2xl transition-all relative group flex items-start gap-4 hover:border-gray-600s ${
                     isCurrent
-                        ? "bg-white/10 border-primary/50 border-2 shadow-2xl scale-[1.01]"
-                        : "bg-white/5 border-primary/40 hover:border-gray-600"
+                        ? "bg-white/20 border-primary border-2 shadow-2xl scale-[1.01] duration-50"
+                        : "bg-white/5 border-white/10 border duration-300"
                 }`}
             >
                 {/* Time Stamp */}
@@ -243,7 +243,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     {/* Main Text / Special Type */}
                     <div className="flex flex-wrap gap-1">
                         {isSpecialType && (
-                            <span className="text-base text-gray-500 uppercase border border-gray-700 px-1 rounded">
+                            <span className="text-base text-gray-500 uppercase border border-gray-700/10 px-1 rounded">
                                 {line.type}
                             </span>
                         )}
@@ -330,16 +330,16 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     // --- Render: Editing Mode ---
     return (
         <div
-            className={`mb-4 p-4 rounded-lg border transition-all duration-300 ${
+            className={`mb-4 p-4 rounded-lg border transition-all duration-300 bg-white/10 ${
                 isCurrent
-                    ? "is-current bg-dark/80 border-primary shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]"
-                    : "bg-panel border-gray-700 hover:border-gray-500"
+                    ? "is-current border-primary  shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]"
+                    : " border-gray-700 hover:border-gray-500"
             }`}
         >
             {/* 1. Toolbar Header (Time & Type & Actions) */}
             <div className="flex items-center gap-3 mb-3 flex-wrap">
                 {/* Time Control (Main) */}
-                <div className="bg-black/30 rounded p-1 flex items-center gap-2 border border-gray-600">
+                <div className="bg-black/40 rounded p-1 flex items-center gap-2 border border-gray-600">
                     <button
                         onClick={() => onStampTime(index, false)}
                         className="p-1.5 hover:bg-primary hover:text-black rounded text-primary transition-colors"
@@ -375,10 +375,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         onChange={(e) =>
                             onUpdate(index, {
                                 ...line,
-                                text: e.target.value === "normal"
+                                text:
+                                    e.target.value === "normal"
                                         ? line.text
                                         : undefined,
-                                translation: e.target.value === "normal"
+                                translation:
+                                    e.target.value === "normal"
                                         ? line.translation
                                         : undefined,
                                 type:
@@ -493,7 +495,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                     onChange={(updatedPhrase) =>
                                         handlePhraseChange(
                                             pIndex,
-                                            updatedPhrase,
+                                            updatedPhrase
                                         )
                                     }
                                     onDelete={() => deletePhrase(pIndex)}
@@ -515,7 +517,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                             e.dataTransfer.setDragImage(
                                                 parentCard,
                                                 0,
-                                                0,
+                                                0
                                             );
                                         }
 
@@ -665,7 +667,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                     onChange={(updatedPhrase) =>
                                         handleBgPhraseChange(
                                             pIndex,
-                                            updatedPhrase,
+                                            updatedPhrase
                                         )
                                     }
                                     onDelete={() => deleteBgPhrase(pIndex)}
@@ -687,7 +689,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                             e.dataTransfer.setDragImage(
                                                 parentCard,
                                                 0,
-                                                0,
+                                                0
                                             );
                                         }
 
