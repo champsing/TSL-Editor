@@ -212,55 +212,6 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         e.dataTransfer.dropEffect = "move";
     };
 
-    const handleDrop = (
-        e: React.DragEvent,
-        targetType: "main" | "bg",
-        targetIndex: number,
-    ) => {
-        e.preventDefault();
-
-        if (!dragState || dragState.type !== targetType) {
-            setDragState(null);
-            return;
-        }
-
-        if (dragState.index === targetIndex) {
-            setDragState(null);
-            return;
-        }
-
-        // 獲取當前列表的副本
-        let currentList: LyricPhrase[] = [];
-        if (targetType === "main") {
-            currentList = [...(line.text || [])];
-        } else if (line.background_voice) {
-            currentList = [...(line.background_voice.text || [])];
-        } else {
-            setDragState(null);
-            return;
-        }
-
-        // 執行移動
-        const itemToMove = currentList[dragState.index];
-        currentList.splice(dragState.index, 1);
-        currentList.splice(targetIndex, 0, itemToMove);
-
-        // 更新狀態
-        if (targetType === "main") {
-            onUpdate(index, { ...line, text: currentList });
-        } else {
-            onUpdate(index, {
-                ...line,
-                background_voice: {
-                    ...line.background_voice!,
-                    text: currentList,
-                },
-            });
-        }
-
-        setDragState(null);
-    };
-
     // --- Render: Preview Mode ---
     if (!isEditing) {
         return (
@@ -536,18 +487,11 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                         {line.text?.map((phrase, pIndex) => (
                             <div
                                 key={pIndex}
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, "main", pIndex)}
                                 className={`relative transition-all ${
                                     // 鍵盤模式高亮
                                     kbFocus?.type === "main" &&
                                     kbFocus.index === pIndex
                                         ? "ring-4 ring-yellow-400 z-20 scale-105"
-                                        : ""
-                                } ${
-                                    dragState?.type === "main" &&
-                                    dragState.index === pIndex
-                                        ? "opacity-50 border-2 border-primary"
                                         : ""
                                 }`}
                             >
@@ -575,7 +519,8 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                         )
                                     }
                                     className={`absolute top-0.5 left-0.5 cursor-move p-1 rounded transition-colors z-10 ${
-                                        kbFocus?.index === pIndex
+                                        kbFocus?.index === pIndex &&
+                                        kbFocus.type === "main"
                                             ? "bg-yellow-500 text-black"
                                             : "bg-black/20 text-gray-500 hover:text-white"
                                     }`}
@@ -699,22 +644,14 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                        {line.background_voice.text?.map((phrase, pIndex) => (
+                        {line.background_voice?.text.map((phrase, pIndex) => (
                             <div
                                 key={pIndex}
-                                // --- 修改 1: 移除外層的 draggable 和 onDragStart ---
-                                // 這裡不再設定 draggable={true}，讓瀏覽器恢復預設行為（允許文字選取）
-
-                                // --- 保留放置目標 (Drop Target) 的功能 ---
-                                // 這樣您仍然可以將其他項目「放」到這個區塊上來進行交換
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, "bg", pIndex)}
-                                // --- 修改 2: 調整樣式 ---
-                                // 移除了 'cursor-grab'，因為現在只有手柄可以抓取
-                                className={`relative ${
-                                    dragState?.type === "bg" &&
-                                    dragState.index === pIndex
-                                        ? "opacity-50 border-2 border-primary"
+                                className={`relative transition-all ${
+                                    // 鍵盤模式高亮
+                                    kbFocus?.type === "bg" &&
+                                    kbFocus.index === pIndex
+                                        ? "ring-4 ring-yellow-400 z-20 scale-105"
                                         : ""
                                 }`}
                             >
@@ -729,39 +666,35 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                     onDelete={() => deleteBgPhrase(pIndex)}
                                 />
 
-                                {/* --- 修改 3: 建立專用的拖曳手柄 (Drag Handle) --- */}
-                                <div
-                                    // 將 draggable 屬性移到這個包裝 div 上
-                                    draggable={true}
-                                    // 綁定拖曳開始事件
-                                    onDragStart={(e) => {
-                                        // (選擇性) 設定拖曳時的殘影為整個區塊，而不僅僅是那個小圖示
-                                        // 這樣視覺上會覺得是在拖曳整張卡片
-                                        const target =
-                                            e.currentTarget as HTMLElement;
-                                        const parentCard =
-                                            target.closest(".relative");
-                                        if (parentCard) {
-                                            e.dataTransfer.setDragImage(
-                                                parentCard,
-                                                0,
-                                                0,
-                                            );
-                                        }
-
-                                        // 呼叫原本的處理函數
-                                        handleDragStart(e, "bg", pIndex);
-                                    }}
-                                    // 將原本在 GripVertical 上的樣式移到這個 div，並加入 cursor-grab
-                                    className="absolute top-0.5 left-0.5 p-1 cursor-grab active:cursor-grabbing hover:bg-black/10 rounded transition-colors z-10"
-                                    title="Drag to reorder" // 拖曳以重新排序
+                                {/* --- NEW: 鍵盤移動模式開關 --- */}
+                                <button
+                                    onClick={() =>
+                                        setKbFocus(
+                                            kbFocus?.index === pIndex
+                                                ? null
+                                                : {
+                                                      type: "bg",
+                                                      index: pIndex,
+                                                  },
+                                        )
+                                    }
+                                    className={`absolute top-0.5 left-0.5 cursor-move p-1 rounded transition-colors z-10 ${
+                                        kbFocus?.index === pIndex &&
+                                        kbFocus.type === "bg"
+                                            ? "bg-yellow-500 text-black"
+                                            : "bg-black/20 text-gray-500 hover:text-white"
+                                    }`}
+                                    title="Use arrow keys to move"
                                 >
-                                    <GripVertical
-                                        size={16}
-                                        // 圖示本身只需負責顏色
-                                        className="text-gray-500/50 hover:text-gray-300"
+                                    <ArrowLeftRight
+                                        size={14}
+                                        className={
+                                            kbFocus?.index === pIndex
+                                                ? "animate-pulse"
+                                                : ""
+                                        }
                                     />
-                                </div>
+                                </button>
                             </div>
                         ))}
                         <button
