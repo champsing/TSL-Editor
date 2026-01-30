@@ -166,6 +166,7 @@ function App() {
                                     isEditing={index === editingLineIndex}
                                     onEditStart={() =>
                                         setEditingLineIndex(index)
+
                                     }
                                     onUpdate={updateLine}
                                     onDelete={deleteLine}

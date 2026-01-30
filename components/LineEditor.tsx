@@ -7,7 +7,6 @@ import {
     Trash2,
     MoveRight,
     Mic2,
-    GripVertical,
     Pencil,
     ArrowLeftRight,
 } from "lucide-react";
@@ -35,12 +34,6 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     onStampTime,
     onSeek,
 }) => {
-    // --- State: Drag and Drop ---
-    const [dragState, setDragState] = useState<{
-        type: "main" | "bg";
-        index: number;
-    } | null>(null);
-
     // --- NEW State: 鍵盤移動模式 ---
     // 記錄目前正在用鍵盤移動哪一個 (main 或 bg) 以及其 index
     const [kbFocus, setKbFocus] = useState<{
@@ -84,7 +77,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
 
     // --- NEW Effect: 監聽鍵盤 ---
     React.useEffect(() => {
-        if (!kbFocus) return;
+        if (!kbFocus || !isEditing) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "ArrowLeft") {
@@ -101,6 +94,12 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [kbFocus, line]); // 當 kbFocus 存在時才掛載監聽
+
+    React.useEffect(() => {
+        if (!isEditing && kbFocus) {
+            setKbFocus(null);
+        }
+    }, [isEditing, kbFocus]);
 
     const isSpecialType = !!line.type && line.type !== "normal";
 
@@ -195,21 +194,6 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     // --- NEW Handler: Together Vocalist ---
     const toggleIsTogether = () => {
         onUpdate(index, { ...line, is_together: !line.is_together });
-    };
-
-    // --- Logic: Drag and Drop ---
-    const handleDragStart = (
-        e: React.DragEvent,
-        type: "main" | "bg",
-        idx: number,
-    ) => {
-        setDragState({ type, index: idx });
-        e.dataTransfer.effectAllowed = "move";
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
     };
 
     // --- Render: Preview Mode ---
@@ -510,7 +494,8 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 <button
                                     onClick={() =>
                                         setKbFocus(
-                                            kbFocus?.index === pIndex
+                                            isEditing &&
+                                                kbFocus?.index === pIndex
                                                 ? null
                                                 : {
                                                       type: "main",
@@ -670,7 +655,8 @@ export const LineEditor: React.FC<LineEditorProps> = ({
                                 <button
                                     onClick={() =>
                                         setKbFocus(
-                                            kbFocus?.index === pIndex
+                                            isEditing &&
+                                                kbFocus?.index === pIndex
                                                 ? null
                                                 : {
                                                       type: "bg",
