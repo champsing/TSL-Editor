@@ -96,7 +96,7 @@ const getJsonDiff = (originalJson: string, newJson: string): DiffLine[] => {
     const rawDiff = finalDiff;
 
     // --- 新增後處理邏輯：合併連續的 'modify' 區塊 ---
-    const MIN_ALTERNATING_LINES = 5; // 您要求的 '5個以上'，代表 >= 5 行
+    const MIN_ALTERNATING_LINES = 3; // 您要求的 '3個以上'，代表 >= 3 行
     const processedDiff: DiffLine[] = [];
     let currentChunk: DiffLine[] = [];
 
