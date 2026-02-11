@@ -23,3 +23,53 @@ export interface LyricLine {
 }
 
 export type LyricData = LyricLine[];
+
+export interface Song {
+    song_id: number;
+    available: boolean;
+    hidden: boolean;
+    folder: string | "";
+    art: string;
+    artist: string;
+    lyricist: string;
+    title: string | "";
+    subtitle: string;
+    album: Album | null;
+    versions: Version[];
+    is_duet: boolean;
+    furigana: boolean | null;
+    translation: Translation;
+    updated_at: string;
+    lang: string;
+    credits: Credits;
+    display_artist?: string;
+    display_lyricist?: string;
+}
+
+export interface Translation {
+    available: boolean | false;
+    author: string;
+    cite: string;
+}
+
+export interface Album {
+    name: string;
+    link: string;
+}
+export interface Credits {
+    performance: Contributor[];
+    song_writing: Contributor[];
+    engineering: Contributor[];
+}
+
+export interface Contributor {
+    name: string;
+    contribution: string[];
+}
+
+export interface Version {
+    default?: boolean;
+    version: string;
+    link: string;
+    duration: string;
+}

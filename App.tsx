@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { LineEditor } from "./components/LineEditor";
 import { PreviewModal } from "./components/PreviewModal";
 import { JsonModal } from "./components/JsonModal"; // 新增 Modal 組件 (如下)
 import { DiffModal } from "./components/DiffModal"; // 匯入新的 DiffModal 組件
 import { EditorHeader } from "./components/EditorHeader";
 import { EditorSidebar } from "./components/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
-import { Plus, Play } from "lucide-react";
-import { secondsToTime } from "./utils";
-import { LyricData } from "./types";
+import { LyricData, Song } from "./types";
+import { Music, FileText } from "lucide-react"; // 導入圖標
+import { LyricsEditorTab } from "./components/LyricsEditorTab";
+import { SongMetaEditorTab } from "./components/SongMetaEditorTab";
 
 // --- Main App Component ---
 function App() {
@@ -54,6 +54,31 @@ function App() {
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    const [activeTab, setActiveTab] = React.useState<"lyrics" | "meta">("meta");
+
+    // 假設這是從伺服器取得或初始化歌曲資料
+    const [songData, setSongData] = React.useState<Song>({
+        song_id: 1867354081,
+        available: true,
+        hidden: false,
+        folder: "Mrs GREEN APPLE - lulu",
+        art: "https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/c6/37/51/c6375129-a4a6-6fca-fd1b-bd02b788b58f/Joba6e2e2f2-78fa-4fc7-b378-6362ebfb8e21-213296121-PreviewImage_Preview_Image_Intermediate_nonvideo_sdr_417683161_2502934387-Time1767836143126.png/900x900bb.webp",
+        artist: "96222103300",
+        lyricist: "1360524149",
+        title: "lulu.",
+        subtitle: "",
+        album: null,
+        versions: [
+            { version: "original", link: "4REuyY89tfw", duration: "4:30" },
+        ], // 這裡對應一下你 types.ts 的 Version 結構
+        is_duet: false,
+        furigana: false,
+        translation: { available: false, author: "", cite: "" },
+        updated_at: "2026-01-30",
+        lang: "ja",
+        credits: { performance: [], song_writing: [], engineering: [] },
+    });
+
     // 自動滾動到當前行 (使用 committed lyrics 的索引)
     useEffect(() => {
         if (previewModalOpen || diffModalOpen) return;
@@ -95,88 +120,30 @@ function App() {
                 onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
             />
 
-            {/* Main Content (主要內容) */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Left Panel: Editor (左側面板：編輯器) */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#2d3748]">
-                    {/* Editor Toolbar (編輯器工具列) */}
-                    <div className="bg-panel px-6 py-3 border-b border-gray-700 flex items-center justify-between sticky top-0 z-10">
-                        <div className="flex items-center gap-4">
-                            <div className="text-3xl font-mono text-primary font-bold tabular-nums">
-                                {/* 顯示當前時間 */}
-                                {isPlaying
-                                    ? secondsToTime(playerTime, 0)
-                                    : secondsToTime(playerTime, 1)}
-                            </div>
-                            <div className="h-8 w-px bg-gray-600 mx-2"></div>
-                            <div className="text-sm text-gray-400">
-                                {stagedLyrics.length} lines total
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            {/* Preview Button */}
-                            <button
-                                onClick={() => setPreviewModalOpen(true)}
-                                className="cursor-pointer bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded flex items-center gap-2 transition shadow-lg shadow-purple-900/20"
-                            >
-                                <Play size={18} />
-                                Preview
-                            </button>
-                            {/* Add Line Button */}
-                            <button
-                                onClick={addLine}
-                                className={`cursor-pointer bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${
-                                    !isPlaying
-                                        ? "shadow-lg shadow-green-900/20"
-                                        : "opacity-50 cursor-not-allowed shadow-none"
-                                }`}
-                                disabled={isPlaying}
-                            >
-                                <Plus size={18} />
-                                Add Line at{" "}
-                                {isPlaying
-                                    ? "--:--.--"
-                                    : secondsToTime(playerTime, 1)}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Scrollable List (可滾動清單) */}
-                    <div
-                        ref={scrollContainerRef}
-                        className="flex-1 overflow-y-auto p-6 scroll-smooth pb-32"
-                    >
-                        <div className="max-w-4xl mx-auto">
-                            {stagedLyrics.length === 0 && (
-                                <div className="text-center text-gray-500 mt-20">
-                                    No lyrics loaded. Import a file or add a
-                                    line.
-                                </div>
-                            )}
-                            {/* 清單使用 stagedLyrics 進行渲染 */}
-                            {stagedLyrics.map((line, index) => (
-                                <LineEditor
-                                    key={index}
-                                    index={index}
-                                    line={line}
-                                    // 👇 修改這裡：判斷 index 是否在活躍列表中
-                                    isCurrent={activeLineIndices.includes(
-                                        index,
-                                    )}
-                                    isEditing={index === editingLineIndex}
-                                    onEditStart={() =>
-                                        setEditingLineIndex(index)
-
-                                    }
-                                    onUpdate={updateLine}
-                                    onDelete={deleteLine}
-                                    onStampTime={handleStamp}
-                                    onSeek={handleSeek}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* 根據 Tab 切換顯示的組件 */}
+                {activeTab === "lyrics" ? (
+                    <LyricsEditorTab
+                        isPlaying={isPlaying}
+                        playerTime={playerTime}
+                        stagedLyrics={stagedLyrics}
+                        activeLineIndices={activeLineIndices}
+                        editingLineIndex={editingLineIndex}
+                        setEditingLineIndex={setEditingLineIndex}
+                        addLine={addLine}
+                        updateLine={updateLine}
+                        deleteLine={deleteLine}
+                        handleStamp={handleStamp}
+                        handleSeek={handleSeek}
+                        setPreviewModalOpen={setPreviewModalOpen}
+                        scrollContainerRef={scrollContainerRef}
+                    />
+                ) : (
+                    <SongMetaEditorTab
+                        songData={songData}
+                        setSongData={setSongData}
+                    />
+                )}
 
                 {/* Right Panel: Fixed Player - 拆分到 EditorSidebar */}
                 <EditorSidebar
@@ -214,6 +181,48 @@ function App() {
                     }}
                 />
             )}
+
+            {/* 底部導航切換器 (玻璃質感版本) */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 saturate-150 ring-1 ring-white/5">
+                <button
+                    onClick={() => setActiveTab("meta")}
+                    className={`
+            flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 group
+            ${
+                activeTab === "meta"
+                    ? "bg-primary text-black font-bold shadow-[0_0_20px_rgba(74,194,215,0.4)]"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+            }
+        `}
+                >
+                    <Music
+                        size={18}
+                        className={`transition-transform duration-300 ${activeTab === "meta" ? "scale-110" : "group-hover:scale-110"}`}
+                    />
+                    <span className="tracking-wide text-sm">Song Info</span>
+                </button>
+
+                {/* 分隔線 (選擇性) */}
+                <div className="w-px h-4 bg-white/10 mx-1" />
+
+                <button
+                    onClick={() => setActiveTab("lyrics")}
+                    className={`
+            flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 group
+            ${
+                activeTab === "lyrics"
+                    ? "bg-primary text-black font-bold shadow-[0_0_20px_rgba(74,194,215,0.4)]"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+            }
+        `}
+                >
+                    <FileText
+                        size={18}
+                        className={`transition-transform duration-300 ${activeTab === "lyrics" ? "scale-110" : "group-hover:scale-110"}`}
+                    />
+                    <span className="tracking-wide text-sm">Lyrics Editor</span>
+                </button>
+            </div>
 
             {/* Preview Modal */}
             {previewModalOpen && (

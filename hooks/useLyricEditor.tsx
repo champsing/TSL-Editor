@@ -178,7 +178,7 @@ export const useLyricEditor = () => {
 
         // 3. 更新 lyrics 狀態
         setStagedLyrics(newStagedLyrics);
-        setLyrics(newStagedLyrics);        
+        setLyrics(newStagedLyrics);
 
         // 4. 將排序後的結果儲存到 sessionStorage
         sessionStorage.setItem(
