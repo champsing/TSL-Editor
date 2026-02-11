@@ -37,7 +37,7 @@ export const SongSelectionModal: React.FC<{
     );
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-51 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div className="bg-[#1a202c] border border-white/10 w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col shadow-2xl">
                 <div className="p-6 border-b border-white/10 flex justify-between items-center">
                     <h3 className="text-xl font-bold text-white">
