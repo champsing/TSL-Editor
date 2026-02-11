@@ -74,7 +74,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Column: Basic Info */}
-                    <div className={`${sectionClass} lg:col-span-2 space-y-6`}>
+                    <div className={`${sectionClass} lg:col-span-3 space-y-6`}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className={labelClass}>
@@ -169,7 +169,79 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* --- 新增：Versions Management 區塊 --- */}
+
+
+                    {/* Right Column: System & Status */}
+                    <div className="space-y-6">
+                        <div className={sectionClass}>
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <Globe size={16} className="text-primary" />
+                                System Settings
+                            </h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className={labelClass}>
+                                        Language Code
+                                    </label>
+                                    <input
+                                        value={songData.lang}
+                                        onChange={(e) =>
+                                            handleChange("lang", e.target.value)
+                                        }
+                                        className={`${inputClass} font-mono`}
+                                        placeholder="ja / en / zh"
+                                    />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>
+                                        Folder Path
+                                    </label>
+                                    <input
+                                        value={songData.folder}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "folder",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={`${inputClass} font-mono text-sm`}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Toggle Switches */}
+                    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
+                        <ToggleItem
+                            icon={<CheckCircle2 size={18} />}
+                            label="Available"
+                            checked={!!songData.available}
+                            onChange={(val) =>
+                                handleChange("available", val ? 1 : 0)
+                            }
+                            color="text-green-400"
+                        />
+                        <ToggleItem
+                            icon={<Users size={18} />}
+                            label="Duet Mode"
+                            checked={!!songData.is_duet}
+                            onChange={(val) =>
+                                handleChange("is_duet", val ? 1 : 0)
+                            }
+                            color="text-blue-400"
+                        />
+                        <ToggleItem
+                            icon={<Languages size={18} />}
+                            label="Furigana"
+                            checked={!!songData.furigana}
+                            onChange={(val) =>
+                                handleChange("furigana", val ? 1 : 0)
+                            }
+                            color="text-purple-400"
+                        />
+                    </div>
+
+                                        {/* --- 新增：Versions Management 區塊 --- */}
                     <div className="pt-6 border-t border-white/5">
                         <div className="flex items-center justify-between mb-4">
                             <label className={labelClass}>
@@ -373,77 +445,9 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         </p>
                     </div>
                     {/* --- Versions 區塊結束 --- */}
-
-                    {/* Right Column: System & Status */}
-                    <div className="space-y-6">
-                        <div className={sectionClass}>
-                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                                <Globe size={16} className="text-primary" />
-                                System Settings
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className={labelClass}>
-                                        Language Code
-                                    </label>
-                                    <input
-                                        value={songData.lang}
-                                        onChange={(e) =>
-                                            handleChange("lang", e.target.value)
-                                        }
-                                        className={`${inputClass} font-mono`}
-                                        placeholder="ja / en / zh"
-                                    />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>
-                                        Folder Path
-                                    </label>
-                                    <input
-                                        value={songData.folder}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "folder",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className={`${inputClass} font-mono text-sm`}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/* Toggle Switches */}
-                    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
-                        <ToggleItem
-                            icon={<CheckCircle2 size={18} />}
-                            label="Available"
-                            checked={!!songData.available}
-                            onChange={(val) =>
-                                handleChange("available", val ? 1 : 0)
-                            }
-                            color="text-green-400"
-                        />
-                        <ToggleItem
-                            icon={<Users size={18} />}
-                            label="Duet Mode"
-                            checked={!!songData.is_duet}
-                            onChange={(val) =>
-                                handleChange("is_duet", val ? 1 : 0)
-                            }
-                            color="text-blue-400"
-                        />
-                        <ToggleItem
-                            icon={<Languages size={18} />}
-                            label="Furigana"
-                            checked={!!songData.furigana}
-                            onChange={(val) =>
-                                handleChange("furigana", val ? 1 : 0)
-                            }
-                            color="text-purple-400"
-                        />
-                    </div>
                 </div>
+
+
 
                 {/* Footer: Date Editor & Meta */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl">
