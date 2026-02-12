@@ -90,7 +90,7 @@ function App() {
         setSongData(selectedSong);
 
         // 2. 取得預設版本 (如果沒有就用 original)
-        const defaultVersion = selectedSong.versions.filter((v: Version) => {
+        const defaultVersion = selectedSong.versions?.filter((v: Version) => {
             if (v.default) return v.default === true;
             else return v.version === "original";
         })[0];
