@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, Music2, Undo2, GitCompare } from "lucide-react";
+import { CheckCircle, Music2, Undo2, GitCompare, Search } from "lucide-react";
 import { VERSION_NUMBER } from "../utils";
 import { EditActions } from "./EditActions";
 
@@ -11,6 +11,7 @@ interface EditorHeaderProps {
     commitLyrics: () => void;
     discardChanges: () => void;
     onViewDiff: () => void;
+    onOpenSongSelect: () => void; // 🚨 新增此 Prop
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -21,6 +22,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
     commitLyrics,
     discardChanges,
     onViewDiff,
+    onOpenSongSelect, // 🚨 解構此 Prop
 }) => (
     <header className="bg-dark shadow-lg z-20 px-6 py-3 flex items-center justify-between border-b border-gray-800">
         {/* --- 1. Logo --- */}
@@ -34,24 +36,38 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <sup className="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
         </div>
 
-        {/* --- 2. YouTube ID Input --- */}
-        <div className="flex items-center gap-4 bg-panel p-1.5 rounded-lg border border-gray-700">
-            <span className="pl-2 text-xs text-gray-400 font-bold tracking-wide">
-                YOUTUBE ID
-            </span>
-            <input
-                type="text"
-                value={tempVideoId}
-                onChange={(e) => setTempVideoId(e.target.value)}
-                placeholder="Enter YouTube ID"
-                className="bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm w-48 focus:ring-2 focus:ring-primary focus:border-primary border border-transparent outline-none transition"
-            />
+        <div className="flex gap-3">
+            {/* 🚨 新增：選擇歌曲按鈕 */}
             <button
-                onClick={onVideoLoad}
-                className="cursor-pointer bg-primary hover:bg-teal-300 text-dark px-4 py-1.5 rounded-md font-semibold transition text-sm"
+                onClick={onOpenSongSelect}
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
             >
-                LOAD
+                <Search
+                    size={16}
+                    className="text-primary group-hover:scale-110 transition-transform"
+                />
+                <span className="text-sm font-semibold">SELECT SONG</span>
             </button>
+
+            {/* --- 2. YouTube ID Input --- */}
+            <div className="flex items-center gap-4 bg-panel p-1.5 rounded-lg border border-gray-700">
+                <span className="pl-2 text-xs text-gray-400 font-bold tracking-wide">
+                    YOUTUBE ID
+                </span>
+                <input
+                    type="text"
+                    value={tempVideoId}
+                    onChange={(e) => setTempVideoId(e.target.value)}
+                    placeholder="Enter YouTube ID"
+                    className="bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm w-48 focus:ring-2 focus:ring-primary focus:border-primary border border-transparent outline-none transition"
+                />
+                <button
+                    onClick={onVideoLoad}
+                    className="cursor-pointer bg-primary hover:bg-teal-300 text-dark px-4 py-1.5 rounded-md font-semibold transition text-sm"
+                >
+                    LOAD
+                </button>
+            </div>
         </div>
 
         {/* --- 3. Actions: Commit, Discard, Diff --- */}

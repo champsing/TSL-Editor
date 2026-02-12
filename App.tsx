@@ -5,10 +5,11 @@ import { DiffModal } from "./components/DiffModal"; // 匯入新的 DiffModal �
 import { EditorHeader } from "./components/EditorHeader";
 import { EditorSidebar } from "./components/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
-import { LyricData, Song } from "./types";
+import { LyricData, Song, Version } from "./types";
 import { Music, FileText } from "lucide-react"; // 導入圖標
 import { LyricsEditorTab } from "./components/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/SongMetaEditorTab";
+import { SongSelectionModal } from "./components/SongSelectionModal";
 
 // --- Main App Component ---
 function App() {
@@ -47,6 +48,8 @@ function App() {
         addLine,
         copyJson,
         handleFileUpload,
+        setVideoId,
+        loadLyricsByPath, // 👈 取得新函式
     } = useLyricEditor();
 
     // 新增用於控制 Diff Modal 開啟/關閉的 state
@@ -55,6 +58,8 @@ function App() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const [activeTab, setActiveTab] = React.useState<"lyrics" | "meta">("meta");
+
+    const [isSongModalOpen, setIsSongModalOpen] = React.useState(false); // 控制 Modal
 
     // 假設這是從伺服器取得或初始化歌曲資料
     const [songData, setSongData] = React.useState<Song>({
@@ -78,6 +83,28 @@ function App() {
         lang: "ja",
         credits: { performance: [], song_writing: [], engineering: [] },
     });
+
+    // 🚨 處理歌曲選取的核心邏輯
+    const handleSongSelect = async (selectedSong: Song) => {
+        // 1. 更新歌曲元數據
+        setSongData(selectedSong);
+
+        // 2. 取得預設版本 (如果沒有就用 original)
+        const defaultVersion = selectedSong.versions.filter((v: Version) => {
+            if (v.default) return v.default === true;
+            else return v.version === "original";
+        })[0];
+
+        if (defaultVersion) {
+            // 3. 更新影片 ID (這會讓播放器切換)
+            setVideoId(defaultVersion.link);
+            setTempVideoId(defaultVersion.link);
+
+            // 4. 從 GitHub 抓取歌詞
+            // 假設 selectedSong.folder 已經是 "Artist - Title" 的格式
+            await loadLyricsByPath(selectedSong.folder, defaultVersion.version);
+        }
+    };
 
     // 自動滾動到當前行 (使用 committed lyrics 的索引)
     useEffect(() => {
@@ -118,6 +145,7 @@ function App() {
                 commitLyrics={commitLyrics}
                 discardChanges={discardChanges}
                 onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
+                onOpenSongSelect={() => setIsSongModalOpen(true)} // 🚨 傳遞控制 Modal 的函式
             />
 
             <div className="flex flex-1 overflow-hidden relative">
@@ -246,6 +274,13 @@ function App() {
                     onClose={() => setDiffModalOpen(false)}
                 />
             )}
+
+            {/* 歌曲選擇 Modal */}
+            <SongSelectionModal
+                isOpen={isSongModalOpen}
+                onClose={() => setIsSongModalOpen(false)}
+                onSelect={handleSongSelect}
+            />
         </div>
     );
 }

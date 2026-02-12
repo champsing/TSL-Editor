@@ -66,6 +66,35 @@ export const useLyricEditor = () => {
         null,
     );
 
+    // 🚨 新增：根據路徑抓取歌詞的通用函式
+    const loadLyricsByPath = async (folder: string, version: string) => {
+        try {
+            // 編碼 URL 以防資料夾名稱有空格或特殊字元
+            const encodedFolder = encodeURIComponent(folder);
+            const url = `https://raw.githubusercontent.com/champsing/Time-synced-lyrics/master/mappings/${encodedFolder}/${version}.json`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const mapping = await response.json();
+
+            // 更新所有相關狀態
+            setLyrics(mapping);
+            setStagedLyrics(mapping);
+            setEditingLineIndex(null);
+            
+            // 同步到 sessionStorage
+            sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(mapping));
+            
+            console.log(`Successfully loaded lyrics: ${folder}/${version}`);
+            return true;
+        } catch (e) {
+            console.error("Failed to fetch lyrics:", e);
+            alert("無法載入歌詞檔案，請檢查 GitHub 儲存庫路徑是否存在。");
+            return false;
+        }
+    };
+
     // --- Effects: Storage Sync ---
     useEffect(() => {
         sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, videoId);
@@ -365,5 +394,7 @@ export const useLyricEditor = () => {
         copyJson,
         handleFileUpload,
         fetchTenbyou,
+        loadLyricsByPath, // 👈 導出此函式
+        setVideoId,       // 確保有導出此項以更新影片
     };
 };
