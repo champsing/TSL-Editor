@@ -92,8 +92,11 @@ function App() {
             return;
         }
 
+        const response = await fetch(`https://api.timesl.online/songs/${selectedSong.song_id}`)
+        const fullSongData = await response.json();
+
         // 1. 更新歌曲元數據
-        setSongData(selectedSong);
+        setSongData(fullSongData);
 
         // 🚨 2. 安全地取得版本列表，若無則預設為空陣列
         const versions = selectedSong.versions || [];
