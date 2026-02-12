@@ -99,7 +99,7 @@ function App() {
         setSongData(fullSongData);
 
         // 🚨 2. 安全地取得版本列表，若無則預設為空陣列
-        const versions = selectedSong.versions || [];
+        const versions = fullSongData.versions || [];
 
         // 3. 取得預設版本：
         // 先找 default 為 true 的，找不到再找 version 為 "original" 的，最後取第一個
@@ -115,9 +115,9 @@ function App() {
             setActiveTab("lyrics"); // 自動切換到歌詞編輯模式
 
             // 從 GitHub 抓取歌詞（確保 folder 存在）
-            if (selectedSong.folder) {
+            if (fullSongData.folder) {
                 await loadLyricsByPath(
-                    selectedSong.folder,
+                    fullSongData.folder,
                     defaultVersion.version,
                 );
             } else {
