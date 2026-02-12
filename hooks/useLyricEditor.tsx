@@ -323,7 +323,7 @@ export const useLyricEditor = () => {
     const fetchTenbyou = React.useCallback(async () => {
         try {
             const response = await fetch(
-                "https://raw.githubusercontent.com/champsing/Time-synced-lyrics/refs/heads/master/mappings/Mrs%20Green%20Apple%2C%20Sonoko%20Inoue%20-%20Tenbyouno%20Uta/original.json",
+                "https://raw.githubusercontent.com/champsing/Time-synced-lyrics/master/mappings/Mrs%20Green%20Apple%2C%20Sonoko%20Inoue%20-%20Tenbyouno%20Uta/original.json",
             );
             const mapping = await response.json();
             // 🚨 這裡直接使用 setVideoId，而不是 setTempVideoId

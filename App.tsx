@@ -109,6 +109,7 @@ function App() {
             // 更新影片 ID
             setVideoId(defaultVersion.link);
             setTempVideoId(defaultVersion.link);
+            setActiveTab("lyrics"); // 自動切換到歌詞編輯模式
 
             // 從 GitHub 抓取歌詞（確保 folder 存在）
             if (selectedSong.folder) {
