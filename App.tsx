@@ -74,7 +74,7 @@ function App() {
         subtitle: "",
         album: null,
         versions: [
-            { version: "original", link: "4REuyY89tfw", duration: "4:30" },
+            { version: "original", id: "4REuyY89tfw", duration: "4:30" },
         ], // 這裡對應一下你 types.ts 的 Version 結構
         is_duet: false,
         furigana: false,
@@ -103,15 +103,15 @@ function App() {
 
         // 3. 取得預設版本：
         // 先找 default 為 true 的，找不到再找 version 為 "original" 的，最後取第一個
-        const defaultVersion =
+        const defaultVersion: Version =
             versions.find((v: Version) => v.default === true) ||
             versions.find((v: Version) => v.version === "original") ||
             versions[0];
 
         if (defaultVersion) {
             // 更新影片 ID
-            setVideoId(defaultVersion.link);
-            setTempVideoId(defaultVersion.link);
+            setVideoId(defaultVersion.id);
+            setTempVideoId(defaultVersion.id);
             setActiveTab("lyrics"); // 自動切換到歌詞編輯模式
 
             // 從 GitHub 抓取歌詞（確保 folder 存在）

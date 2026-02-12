@@ -13,7 +13,7 @@ export const SongVersionsModal: React.FC<{
     const addVersion = () => {
         onUpdate([
             ...versions,
-            { version: "New Version", link: "", duration: "0:00", default: false },
+            { version: "New Version", id: "", duration: "0:00", default: false },
         ]);
     };
 
@@ -63,7 +63,7 @@ export const SongVersionsModal: React.FC<{
                             <tr className="text-[10px] uppercase tracking-widest text-gray-500 font-black px-4">
                                 <th className="pb-2 pl-4 w-12 text-center">Def.</th>
                                 <th className="pb-2">Version Name</th>
-                                <th className="pb-2">YouTube ID / Link</th>
+                                <th className="pb-2">YouTube ID</th>
                                 <th className="pb-2 w-28">Duration</th>
                                 <th className="pb-2 pr-4 w-12"></th>
                             </tr>
@@ -90,8 +90,8 @@ export const SongVersionsModal: React.FC<{
                                     </td>
                                     <td className="py-3">
                                         <input
-                                            value={v.link}
-                                            onChange={(e) => updateVersion(idx, "link", e.target.value)}
+                                            value={v.id}
+                                            onChange={(e) => updateVersion(idx, "id", e.target.value)}
                                             className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-blue-300 font-mono focus:border-primary/50 outline-none w-11/12"
                                             placeholder="Video ID"
                                         />

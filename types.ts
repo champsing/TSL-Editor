@@ -70,6 +70,6 @@ export interface Contributor {
 export interface Version {
     default?: boolean;
     version: string;
-    link: string;
+    id: string;
     duration: string;
 }
