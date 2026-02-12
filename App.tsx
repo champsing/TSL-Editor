@@ -86,23 +86,43 @@ function App() {
 
     // 🚨 處理歌曲選取的核心邏輯
     const handleSongSelect = async (selectedSong: Song) => {
+        // 🚨 增加防呆：確保選中的歌曲物件存在
+        if (!selectedSong) {
+            console.error("No song selected");
+            return;
+        }
+
         // 1. 更新歌曲元數據
         setSongData(selectedSong);
 
-        // 2. 取得預設版本 (如果沒有就用 original)
-        const defaultVersion = selectedSong.versions?.filter((v: Version) => {
-            if (v.default) return v.default === true;
-            else return v.version === "original";
-        })[0];
+        // 🚨 2. 安全地取得版本列表，若無則預設為空陣列
+        const versions = selectedSong.versions || [];
+
+        // 3. 取得預設版本：
+        // 先找 default 為 true 的，找不到再找 version 為 "original" 的，最後取第一個
+        const defaultVersion =
+            versions.find((v: Version) => v.default === true) ||
+            versions.find((v: Version) => v.version === "original") ||
+            versions[0];
 
         if (defaultVersion) {
-            // 3. 更新影片 ID (這會讓播放器切換)
+            // 更新影片 ID
             setVideoId(defaultVersion.link);
             setTempVideoId(defaultVersion.link);
 
-            // 4. 從 GitHub 抓取歌詞
-            // 假設 selectedSong.folder 已經是 "Artist - Title" 的格式
-            await loadLyricsByPath(selectedSong.folder, defaultVersion.version);
+            // 從 GitHub 抓取歌詞（確保 folder 存在）
+            if (selectedSong.folder) {
+                await loadLyricsByPath(
+                    selectedSong.folder,
+                    defaultVersion.version,
+                );
+            } else {
+                console.warn(
+                    "Song folder is missing, cannot fetch lyrics from GitHub.",
+                );
+            }
+        } else {
+            console.warn("This song has no versions available.");
         }
     };
 
