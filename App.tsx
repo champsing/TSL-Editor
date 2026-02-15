@@ -164,10 +164,10 @@ function App() {
         <div className="flex flex-col h-screen bg-secondary">
             {/* Header (標頭) - 拆分到 EditorHeader */}
             <EditorHeader
-                tempVideoId={tempVideoId}
-                setTempVideoId={setTempVideoId}
-                onVideoLoad={handleVideoLoad}
-                onOpenSongSelect={() => setIsSongModalOpen(true)} // 🚨 傳遞控制 Modal 的函式
+                onOpenSongSelect={() => setIsSongModalOpen(true)}
+                onFileUpload={handleFileUpload}
+                onViewJson={() => setJsonModalOpen(true)}
+                lyrics={lyrics}
             />
 
             <div className="flex flex-1 overflow-hidden relative">
@@ -205,9 +205,9 @@ function App() {
                     playerRef={playerRef}
                     onTimeUpdate={setPlayerTime}
                     onIsPlayingChange={setIsPlaying}
-                    onFileUpload={handleFileUpload}
-                    onViewJson={() => setJsonModalOpen(true)}
-                    lyrics={lyrics}
+                    tempVideoId={tempVideoId}
+                    setTempVideoId={setTempVideoId}
+                    onVideoLoad={handleVideoLoad}
                 />
             </div>
 

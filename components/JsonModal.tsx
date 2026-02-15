@@ -78,7 +78,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
         activeTab === "committed" ? committedJson : editableJson;
 
     return (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-10 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/80 z-52 flex items-center justify-center p-10 backdrop-blur-sm">
             <div className="bg-panel w-full max-w-5xl h-[90vh] rounded-xl shadow-2xl flex flex-col border border-gray-600">
                 {/* 標頭與分頁 */}
                 <div className="p-4 border-b border-gray-700">

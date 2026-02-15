@@ -1,69 +1,70 @@
-import React from "react";
-import { CheckCircle, Music2, Undo2, GitCompare, Search } from "lucide-react";
+import React, { useState } from "react";
+import { HelpCircle, Music2, Search } from "lucide-react";
 import { VERSION_NUMBER } from "../utils";
-import { EditActions } from "./EditActions";
+import { LyricData } from "@/types";
+import { JsonButtons } from "./JsonButtons";
+import { HelpModal } from "./HelpModal";
 
 interface EditorHeaderProps {
-    tempVideoId: string;
-    setTempVideoId: (id: string) => void;
-    onVideoLoad: () => void;
-
-    onOpenSongSelect: () => void; // 🚨 新增此 Prop
+    onOpenSongSelect: () => void;
+    lyrics: LyricData;
+    onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onViewJson: () => void;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
-    tempVideoId,
-    setTempVideoId,
-    onVideoLoad,
+    onOpenSongSelect,
+    lyrics,
+    onFileUpload,
+    onViewJson,
+}) => {
+    const [isHelpOpen, setIsHelpOpen] = useState(false); // 控制 Modal 狀態
 
-    onOpenSongSelect, // 🚨 解構此 Prop
-}) => (
-    <header className="bg-dark shadow-lg z-20 px-6 py-3 flex items-center justify-between border-b border-gray-800">
-        {/* --- 1. Logo --- */}
-        <div className="flex items-center gap-3">
-            <div className="bg-primary p-2 rounded-lg">
-                <Music2 className="text-dark" size={24} />
-            </div>
-            <h1 className="text-2xl font-playfair font-bold text-white">
-                <span className="text-primary">TSL</span>Editor
-            </h1>
-            <sup className="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
-        </div>
-
-        <div className="flex gap-3">
-            {/* 🚨 新增：選擇歌曲按鈕 */}
-            <button
-                onClick={onOpenSongSelect}
-                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
-            >
-                <Search
-                    size={16}
-                    className="text-primary group-hover:scale-110 transition-transform"
-                />
-                <span className="text-sm font-semibold">SELECT SONG</span>
-            </button>
-
-            {/* --- 2. YouTube ID Input --- */}
-            <div className="flex items-center gap-4 bg-panel p-1.5 rounded-lg border border-gray-700">
-                <span className="pl-2 text-xs text-gray-400 font-bold tracking-wide">
-                    YOUTUBE ID
-                </span>
-                <input
-                    type="text"
-                    value={tempVideoId}
-                    onChange={(e) => setTempVideoId(e.target.value)}
-                    placeholder="Enter YouTube ID"
-                    className="bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm w-48 focus:ring-2 focus:ring-primary focus:border-primary border border-transparent outline-none transition"
-                />
+    return (
+        <header className="bg-dark shadow-lg px-6 py-3 flex items-center justify-between border-b border-gray-800">
+            {/* --- 1. Logo --- */}
+            <div className="flex items-center gap-3">
+                <div className="bg-primary p-2 rounded-lg">
+                    <Music2 className="text-dark" size={24} />
+                </div>
+                <h1 className="text-2xl font-playfair font-bold text-white">
+                    <span className="text-primary">TSL</span>Editor
+                </h1>
+                <sup className="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
                 <button
-                    onClick={onVideoLoad}
-                    className="cursor-pointer bg-primary hover:bg-teal-300 text-dark px-4 py-1.5 rounded-md font-semibold transition text-sm"
+                    onClick={onOpenSongSelect}
+                    className="ml-4 flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
                 >
-                    LOAD
+                    <Search
+                        size={16}
+                        className="text-primary group-hover:scale-110 transition-transform"
+                    />
+                    <span className="text-sm font-semibold">SELECT SONG</span>
                 </button>
             </div>
-        </div>
 
-        
-    </header>
-);
+            <div className="flex items-center gap-4">
+                {/* File/JSON Actions */}
+                <JsonButtons
+                    lyrics={lyrics}
+                    onFileUpload={onFileUpload}
+                    onViewJson={onViewJson}
+                />
+
+                {/* 幫助按鈕 */}
+                <button
+                    onClick={() => setIsHelpOpen(true)}
+                    className="text-gray-400 hover:text-primary transition-colors p-1"
+                    title="操作說明"
+                >
+                    <HelpCircle size={22} />
+                </button>
+            </div>
+
+            <HelpModal
+                isOpen={isHelpOpen}
+                onClose={() => setIsHelpOpen(false)}
+            />
+        </header>
+    );
+};

@@ -47,29 +47,20 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         <div className="flex-1 bg-[#1a202c] overflow-y-auto p-8 custom-scrollbar">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header Section */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-6">
+                <div className="flex items-center justify-baseline border-b border-white/10 pb-6 gap-4">
                     <div>
                         <h2 className="text-3xl font-black text-white flex items-center gap-3">
                             <Music className="text-primary" size={32} />
                             Song Metadata
                         </h2>
-                        <p className="text-gray-400 mt-1">
-                            Configure core information and display settings.
-                        </p>
                     </div>
                     {/* 修改後的 ID 按鈕 */}
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 hover:scale-105 active:scale-95 transition-all group"
-                    >
+                    <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20">
                         <Hash size={16} className="text-primary" />
                         <span className="font-mono text-primary font-bold">
                             {songData.song_id || "SELECT SONG"}
                         </span>
-                        <div className="ml-1 pl-2 border-l border-primary/30 text-[10px] text-primary/60 font-black uppercase tracking-tighter group-hover:text-primary">
-                            Change
-                        </div>
-                    </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
