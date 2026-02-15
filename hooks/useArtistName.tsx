@@ -37,7 +37,7 @@ export const useArtistNames = () => {
             .finally(() => {
                 setLoading(false);
             });
-    });
+    },[]);
 
     /**
      * 格式化顯示名稱

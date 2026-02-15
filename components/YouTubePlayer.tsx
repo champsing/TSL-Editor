@@ -156,6 +156,7 @@ export const YouTubePlayer = forwardRef<
             playerInstanceRef.current.loadVideoById
         ) {
             playerInstanceRef.current.loadVideoById(videoId);
+            playerInstanceRef.current.setVolume(60);
         }
     }, [videoId]);
 

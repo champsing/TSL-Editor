@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇 Modal 組件
 import { SongVersionsModal } from "./SongVersionsModal";
-import { X, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import { useArtistNames } from "@/hooks/useArtistName";
 
 interface Props {
