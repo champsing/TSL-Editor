@@ -1,3 +1,4 @@
+import { useArtistNames } from "@/hooks/useArtistName";
 import { Song } from "@/types";
 import { Search, X } from "lucide-react";
 import React from "react";
@@ -8,75 +9,8 @@ export const SongSelectionModal: React.FC<{
     onClose: () => void;
     onSelect: (song: Song) => void;
 }> = ({ isOpen, onClose, onSelect }) => {
-    const [songs, setSongs] = React.useState<Song[]>([]);
-    const [artistLookup, setArtistLookup] = React.useState<
-        Record<number, string>
-    >({});
-    const [loading, setLoading] = React.useState(false);
+    const { songs, loading,  formatArtistNames } = useArtistNames();
     const [search, setSearch] = React.useState("");
-
-    React.useEffect(() => {
-        if (isOpen) {
-            setLoading(true);
-            fetch("https://api.timesl.online/songs")
-                .then((res) => res.json())
-                .then((data) => {
-                    // 假設 API 回傳的是歌曲陣列，若在 data.songs 則需調整
-                    setSongs(Array.isArray(data) ? data : data.songs || []);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Failed to fetch songs:", err);
-                    setLoading(false);
-                });
-        }
-    }, [isOpen]);
-
-    React.useEffect(() => {
-        if (isOpen) {
-            setLoading(true);
-            // 同時抓取歌曲與藝人對照字典
-            Promise.all([
-                fetch("https://api.timesl.online/songs").then((res) =>
-                    res.json(),
-                ),
-                fetch("https://api.timesl.online/artists/").then((res) =>
-                    res.json(),
-                ),
-            ])
-                .then(([songData, artistData]) => {
-                    // 處理歌曲清單
-                    setSongs(
-                        Array.isArray(songData)
-                            ? songData
-                            : songData.songs || [],
-                    );
-
-                    const lookup = artistData.artists || artistData || {};
-
-                    setArtistLookup(lookup);
-
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Fetch error:", err);
-                    setLoading(false);
-                });
-        }
-    }, [isOpen]);
-
-    // 格式化顯示名稱的輔助函數
-    const formatArtistNames = (artistField: string | number) => {
-        if (!artistField) return "Unknown Artist";
-
-        // 將 "1,2,3" 轉為 [1, 2, 3]
-        const ids = String(artistField)
-            .split(",")
-            .map((id) => id.trim());
-
-        // 直接從 lookup 字典中讀取
-        return ids.map((id) => artistLookup[id] || `ID: ${id}`).join(", ");
-    };
 
     if (!isOpen) return null;
 
@@ -136,7 +70,7 @@ export const SongSelectionModal: React.FC<{
                                         {song.title}
                                     </div>
                                     <div className="text-xs text-gray-400">
-                                        Artist: {formatArtistNames(song.artist)}
+                                        {formatArtistNames(song.artist)}
                                     </div>
                                 </div>
                                 <div className="font-mono text-xs text-primary bg-primary/10 px-2 py-1 rounded">

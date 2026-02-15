@@ -18,6 +18,7 @@ import {
 import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇 Modal 組件
 import { SongVersionsModal } from "./SongVersionsModal";
 import { X, ChevronDown } from "lucide-react";
+import { useArtistNames } from "@/hooks/useArtistName";
 
 interface Props {
     songData: Song;
@@ -36,32 +37,18 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         setSongData({ ...songData, [field]: value });
     };
 
-    // 新增狀態：存放已解析的藝人名稱、所有可選藝人、以及下拉選單顯示開關
-    const [artistMap, setArtistMap] = React.useState<Record<number, string>>(
-        {},
-    );
     const [allArtists, setAllArtists] = React.useState<Artist[]>([]);
     const [showArtistDropdown, setShowArtistDropdown] = React.useState(false);
 
-    // 1. 初始化：獲取所有藝人清單（供下拉選單使用）
-    React.useEffect(() => {
-        fetch("https://api.timesl.online/artists/")
-            .then((res) => res.json())
-            .then((data) =>
-                setAllArtists(Array.isArray(data) ? data : data.artists || []),
-            );
-    }, []);
+    const { artistLookup } = useArtistNames();
 
-    // 2. 當 songData.artist 變動時，確保我們有這些 ID 對應的名稱
-    // 假設 artist 欄位格式為 "1,2,3" 或 [1,2,3]
+    // 取得當前已選擇的 ID 陣列
     const currentArtistIds = React.useMemo(() => {
         if (!songData.artist) return [];
-        return typeof songData.artist === "string"
-            ? songData.artist
-                  .split(",")
-                  .map(Number)
-                  .filter((id) => !isNaN(id))
-            : [Number(songData.artist)];
+        return String(songData.artist)
+            .split(",")
+            .map((id) => id.trim())
+            .map(Number);
     }, [songData.artist]);
 
     // 處理新增/移除藝人
@@ -70,7 +57,8 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     };
 
     const removeArtist = (idToRemove: number) => {
-        updateArtists(currentArtistIds.filter((id) => id !== idToRemove));
+        const removeList = currentArtistIds.filter((id) => id !== idToRemove);
+        updateArtists(removeList);
     };
 
     const addArtist = (idToAdd: number) => {
@@ -151,9 +139,9 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                 >
                                     {/* 顯示已選擇的 Chips */}
                                     {currentArtistIds.map((id) => {
+                                        // 直接從 lookup 讀取，如果找不到就顯示 ID
                                         const artistName =
-                                            allArtists.find((a) => a.id === id)
-                                                ?.original_name || `ID: ${id}`;
+                                            artistLookup[id] || `ID: ${id}`;
                                         return (
                                             <div
                                                 key={id}
@@ -163,7 +151,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                                 <button
                                                     onClick={() =>
                                                         removeArtist(id)
-                                                    }
+                                                    } // 注意類型轉換
                                                     className="hover:bg-primary/30 rounded-full p-0.5 transition-colors"
                                                 >
                                                     <X size={14} />
