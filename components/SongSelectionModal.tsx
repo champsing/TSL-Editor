@@ -35,7 +35,7 @@ export const SongSelectionModal: React.FC<{
     React.useEffect(() => {
         if (isOpen) {
             setLoading(true);
-            // 同時抓取歌曲與藝人對照清單
+            // 同時抓取歌曲與藝人對照字典
             Promise.all([
                 fetch("https://api.timesl.online/songs").then((res) =>
                     res.json(),
@@ -43,27 +43,38 @@ export const SongSelectionModal: React.FC<{
                 fetch("https://api.timesl.online/artists/").then((res) =>
                     res.json(),
                 ),
-            ]).then(([songData, artistData]) => {
-                setSongs(
-                    Array.isArray(songData) ? songData : songData.songs || [],
-                );
+            ])
+                .then(([songData, artistData]) => {
+                    // 處理歌曲清單
+                    setSongs(
+                        Array.isArray(songData)
+                            ? songData
+                            : songData.songs || [],
+                    );
 
-                const artists = Array.isArray(artistData)
-                    ? artistData
-                    : artistData.artists || [];
-                const lookup: Record<number, string> = {};
-                artists.forEach((a: any) => lookup[a.id]);
-                setArtistLookup(lookup);
+                    const lookup = artistData.artists || artistData || {};
 
-                setLoading(false);
-            });
+                    setArtistLookup(lookup);
+
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Fetch error:", err);
+                    setLoading(false);
+                });
         }
     }, [isOpen]);
 
     // 格式化顯示名稱的輔助函數
     const formatArtistNames = (artistField: string | number) => {
         if (!artistField) return "Unknown Artist";
-        const ids = String(artistField).split(",").map(Number);
+
+        // 將 "1,2,3" 轉為 [1, 2, 3]
+        const ids = String(artistField)
+            .split(",")
+            .map((id) => id.trim());
+
+        // 直接從 lookup 字典中讀取
         return ids.map((id) => artistLookup[id] || `ID: ${id}`).join(", ");
     };
 
