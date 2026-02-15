@@ -10,6 +10,7 @@ export interface YouTubePlayerHandle {
     seekTo: (seconds: number) => void;
     playVideo: () => void;
     pauseVideo: () => void;
+    setVolume: (volume: number) => void;
 }
 
 // --- YouTube Player Props Interface ---
@@ -50,6 +51,9 @@ export const YouTubePlayer = forwardRef<
             ) {
                 playerInstanceRef.current.pauseVideo();
             }
+        },
+        setVolume(volume: number) {
+            playerInstanceRef.current.setVolume(volume);
         },
     }));
 

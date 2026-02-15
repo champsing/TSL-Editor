@@ -25,3 +25,40 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #718096;
 }
+
+.volume-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px; /* Apple Music 風格通常偏細 */
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    background: linear-gradient(
+        to right,
+        var(--fill) 0%,
+        var(--fill) calc(var(--value) * 1%),
+        var(--empty) calc(var(--value) * 1%),
+        var(--empty) 100%
+    );
+    transition: height 0.1s ease;
+}
+
+/* 隱藏原生 Thumb */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 0;
+    height: 0;
+    border: none;
+    background: transparent;
+}
+
+/* 互動效果：滑鼠移上去稍微變粗 */
+.volume-slider:hover {
+    height: 8px;
+}

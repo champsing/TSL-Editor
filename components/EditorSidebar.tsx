@@ -1,6 +1,7 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { YouTubePlayer, YouTubePlayerHandle } from "./YouTubePlayer";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // 建議安裝 lucide-react 圖標庫，或使用自訂 SVG
+// 引入 Volume2 圖標
+import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 
 interface EditorSidebarProps {
     videoId: string;
@@ -21,29 +22,45 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     setTempVideoId,
     onVideoLoad,
 }) => {
-    // 1. 新增收合狀態
     const [isOpen, setIsOpen] = useState(true);
+    // 1. 新增音量狀態，預設與 YouTubePlayer 邏輯一致（例如 60）
+    const [volume, setVolume] = useState(60);
+
+    // 2. 音量更動處理函式
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVolume = parseInt(e.target.value, 10);
+        setVolume(newVolume);
+
+        // 透過 ref 呼叫 YouTubePlayer 的 setVolume
+        if (playerRef.current) {
+            playerRef.current.setVolume(newVolume);
+        }
+    };
 
     return (
-        /* 2. 外部容器：控制整體寬度與動畫 */
-        <div 
+        <div
             className={`relative h-full transition-all duration-300 ease-in-out border-l border-gray-800 shadow-2xl z-10 bg-black
-                ${isOpen ? "w-[400px]" : "w-0"}`} // 這裡的寬度可依需求調整
+                ${isOpen ? "w-[400px]" : "w-0"}`}
         >
-            {/* 3. 扣環按鈕 (Toggle Button) */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-gray-800 border border-gray-700 text-white p-1 rounded-l-md hover:bg-primary hover:text-dark transition-colors"
                 title={isOpen ? "收合" : "展開"}
             >
-                {isOpen ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+                {isOpen ? (
+                    <ChevronRight size={24} />
+                ) : (
+                    <ChevronLeft size={24} />
+                )}
             </button>
 
-            {/* 4. 內容遮罩：當 w-0 時隱藏溢出內容，避免文字擠壓 */}
-            <div className={`h-full flex flex-col overflow-hidden ${!isOpen && "invisible"}`}>
+            <div
+                className={`h-full flex flex-col overflow-hidden ${!isOpen && "invisible"}`}
+            >
                 <div className="p-4 flex-1 bg-dark text-gray-300 text-sm overflow-y-auto">
+                    {/* YouTube ID Input */}
                     <div className="flex gap-3">
-                        <div className="flex items-center gap-4 bg-panel p-1.5 pl-0 rounded-lg border border-gray-700">
+                        <div className="flex items-center gap-4 bg-panel p-1.5 pl-0 rounded-lg border border-gray-700 w-full">
                             <span className="pl-2 text-xs text-gray-400 font-bold tracking-wide">
                                 YOUTUBE ID
                             </span>
@@ -71,6 +88,32 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                             onTimeUpdate={onTimeUpdate}
                             onIsPlayingChange={onIsPlayingChange}
                         />
+                    </div>
+
+                    {/* 3. 新增音量控制 UI */}
+                    <div className="mt-6 px-2">
+                        <div className="flex items-center gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                            <Volume2 size={18} className="text-gray-400" />
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={volume}
+                                onChange={handleVolumeChange}
+                                className="volume-slider"
+                                style={
+                                    {
+                                        // 將 React 狀態傳遞給 CSS 變數
+                                        "--value": volume,
+                                        "--fill": "#59bf22", // primary
+                                        "--empty": "rgba(255, 255, 255, 0.1)",
+                                    } as React.CSSProperties
+                                }
+                            />
+                            <span className="text-xs font-mono text-gray-400 w-8 text-right">
+                                {volume}%
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
