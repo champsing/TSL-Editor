@@ -37,7 +37,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         setSongData({ ...songData, [field]: value });
     };
 
-    const [allArtists, setAllArtists] = React.useState<Artist[]>([]);
     const [showArtistDropdown, setShowArtistDropdown] = React.useState(false);
 
     const { artistLookup } = useArtistNames();
@@ -176,27 +175,49 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                 {/* 下拉選單本體 */}
                                 {showArtistDropdown && (
                                     <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
-                                        {allArtists
+                                        {Object.entries(artistLookup)
+                                            // 過濾掉已經在 currentArtistIds 裡的藝人
+                                            // 注意：Object.entries 的 key 是 string，所以用 String(id) 確保比對正確
                                             .filter(
-                                                (a) =>
+                                                ([id]) =>
                                                     !currentArtistIds.includes(
-                                                        a.id,
+                                                        Number(id),
                                                     ),
                                             )
-                                            .map((artist) => (
+                                            .map(([id, name]) => (
                                                 <button
-                                                    key={artist.id}
+                                                    key={id}
                                                     onClick={() =>
-                                                        addArtist(artist.id)
-                                                    }
+                                                        addArtist(Number(id))
+                                                    } // 傳入 id 進行更新
                                                     className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-primary/20 hover:text-primary transition-all border-b border-white/5 last:border-0"
                                                 >
-                                                    {artist.original_name}
+                                                    {name}
                                                     <span className="ml-2 text-xs opacity-50 font-mono">
-                                                        #{artist.id}
+                                                        #{id}
                                                     </span>
                                                 </button>
                                             ))}
+
+                                        {/* 如果讀取中顯示提示 */}
+                                        {Object.keys(artistLookup).length ===
+                                            0 && (
+                                            <div className="px-4 py-3 text-sm text-gray-500 italic">
+                                                Loading artists...
+                                            </div>
+                                        )}
+
+                                        {/* 如果完全沒有符合搜尋或過濾的結果 */}
+                                        {Object.entries(artistLookup).filter(
+                                            ([id]) =>
+                                                !currentArtistIds.includes(
+                                                    Number(id),
+                                                ),
+                                        ).length === 0 && (
+                                            <div className="px-4 py-3 text-sm text-gray-500 italic">
+                                                No more artists available
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
