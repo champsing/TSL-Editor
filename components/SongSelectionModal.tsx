@@ -1,4 +1,5 @@
 import { Song } from "@/types";
+import { Search, X } from "lucide-react";
 import React from "react";
 
 // 輔助組件：歌曲選擇 Modal
@@ -40,14 +41,20 @@ export const SongSelectionModal: React.FC<{
         <div className="fixed inset-0 z-51 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div className="bg-[#1a202c] border border-white/10 w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col shadow-2xl">
                 <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">
+                    <h3 className="text-xl font-bold text-white flex gap-4 items-center">
+                        <div>
+                            <Search
+                                size={22}
+                                className="text-primary transition-transform"
+                            />
+                        </div>{" "}
                         Select a Song
                     </h3>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-white transition-colors"
                     >
-                        ✕
+                        <X size={20} />
                     </button>
                 </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HelpCircle, Music2, Search } from "lucide-react";
+import { HelpCircle, Music2, RefreshCcw } from "lucide-react";
 import { VERSION_NUMBER } from "../utils";
 import { LyricData } from "@/types";
 import { JsonButtons } from "./JsonButtons";
@@ -35,11 +35,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                     onClick={onOpenSongSelect}
                     className="ml-4 flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
                 >
-                    <Search
+                    <RefreshCcw
                         size={16}
                         className="text-primary group-hover:scale-110 transition-transform"
                     />
-                    <span className="text-sm font-semibold">SELECT SONG</span>
+                    <span className="text-sm font-semibold">CHANGE SONG</span>
                 </button>
             </div>
 

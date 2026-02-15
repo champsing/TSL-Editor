@@ -58,7 +58,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20">
                         <Hash size={16} className="text-primary" />
                         <span className="font-mono text-primary font-bold">
-                            {songData.song_id || "SELECT SONG"}
+                            {songData.song_id}
                         </span>
                     </div>
                 </div>
