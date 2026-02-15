@@ -48,12 +48,11 @@ export const SongSelectionModal: React.FC<{
                     Array.isArray(songData) ? songData : songData.songs || [],
                 );
 
-                // 建立對照表 { id: original_name }
                 const artists = Array.isArray(artistData)
                     ? artistData
                     : artistData.artists || [];
                 const lookup: Record<number, string> = {};
-                artists.forEach((a: any) => (lookup[a.id] = a.original_name));
+                artists.forEach((a: any) => lookup[a.id]);
                 setArtistLookup(lookup);
 
                 setLoading(false);
