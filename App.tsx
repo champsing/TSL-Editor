@@ -190,7 +190,8 @@ function App() {
                         hasUncommittedChanges={hasUncommittedChanges}
                         commitLyrics={commitLyrics}
                         discardChanges={discardChanges}
-                        onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
+                        onViewDiff={() => setDiffModalOpen(true)}
+                        onPlayPause={handlePlayPause}
                     />
                 ) : (
                     <SongMetaEditorTab

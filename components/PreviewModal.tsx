@@ -497,12 +497,32 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
 
                 <button
                     onClick={onPlayPause}
-                    className="cursor-pointer bg-primary text-black rounded-full p-3 hover:bg-teal-300 transition-colors shadow-[0_0_15px_rgba(74,194,215,0.4)]"
+                    className={`
+                        group relative flex items-center justify-center w-11 h-11 
+                        rounded-xl border transition-all duration-200 active:scale-95
+                        ${
+                            isPlaying
+                                ? "bg-amber-400/10 border-amber-400/30 text-amber-400 hover:bg-amber-400/20"
+                                : "bg-white/5 border-white/20 text-gray-300 hover:bg-white/10 hover:text-white"
+                        }
+                    `}
                 >
+                    {/* 懸停時的微光背景擴散 */}
+                    <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-5 blur-md transition-opacity" />
+
                     {isPlaying ? (
-                        <Pause size={24} fill="black" />
+                        <Pause
+                            size={18}
+                            fill="currentColor"
+                            strokeWidth={2.5}
+                        />
                     ) : (
-                        <Play size={24} fill="black" />
+                        <Play
+                            size={18}
+                            fill="currentColor"
+                            strokeWidth={2.5}
+                            className="ml-0.5"
+                        />
                     )}
                 </button>
 

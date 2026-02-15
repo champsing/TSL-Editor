@@ -1,6 +1,6 @@
 // components/LyricsEditorTab.tsx
 import React from "react";
-import { Plus, Play } from "lucide-react";
+import { Plus, Play, Pause } from "lucide-react";
 import { LineEditor } from "./LineEditor";
 import { secondsToTime } from "../utils";
 import { LyricLine } from "../types";
@@ -23,6 +23,7 @@ interface Props {
     commitLyrics: () => void;
     discardChanges: () => void;
     onViewDiff: () => void;
+    onPlayPause: () => void;
     scrollContainerRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -43,6 +44,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
         commitLyrics,
         discardChanges,
         onViewDiff,
+        onPlayPause,
         setPreviewModalOpen,
         scrollContainerRef,
     } = props;
@@ -55,6 +57,36 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
             <div className="bg-[#2d3748]/80 backdrop-blur-md px-6 py-4 border-b border-gray-700/50 flex items-center justify-between sticky top-0 z-20 shadow-sm">
                 {/* 左側：狀態與時間 */}
                 <div className="flex items-center gap-6">
+                    <button
+                        onClick={onPlayPause}
+                        className={`
+                            group relative flex items-center justify-center w-11 h-11 
+                            rounded-xl border transition-all duration-200 active:scale-95
+                            ${
+                                isPlaying
+                                    ? "bg-amber-400/10 border-amber-400/30 text-amber-400 hover:bg-amber-400/20"
+                                    : "bg-white/5 border-white/20 text-gray-300 hover:bg-white/10 hover:text-white"
+                            }
+                        `}
+                    >
+                        {/* 懸停時的微光背景擴散 */}
+                        <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-5 blur-md transition-opacity" />
+
+                        {isPlaying ? (
+                            <Pause
+                                size={18}
+                                fill="currentColor"
+                                strokeWidth={2.5}
+                            />
+                        ) : (
+                            <Play
+                                size={18}
+                                fill="currentColor"
+                                strokeWidth={2.5}
+                                className="ml-0.5"
+                            />
+                        )}
+                    </button>
                     <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
                             Current Time
@@ -63,9 +95,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             {secondsToTime(playerTime, isPlaying ? 0 : 1)}
                         </div>
                     </div>
-
                     <div className="h-10 w-px bg-gray-700"></div>
-
                     <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
                             Total Lines
