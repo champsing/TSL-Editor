@@ -72,20 +72,20 @@ export const useLyricEditor = () => {
             // 編碼 URL 以防資料夾名稱有空格或特殊字元
             const encodedFolder = encodeURIComponent(folder);
             const url = `https://raw.githubusercontent.com/champsing/Time-synced-lyrics/master/mappings/${encodedFolder}/${version}.json`;
-            
+
             const response = await fetch(url);
             if (!response.ok) throw new Error("Network response was not ok");
-            
+
             const mapping = await response.json();
 
             // 更新所有相關狀態
             setLyrics(mapping);
             setStagedLyrics(mapping);
             setEditingLineIndex(null);
-            
+
             // 同步到 sessionStorage
             sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(mapping));
-            
+
             console.log(`Successfully loaded lyrics: ${folder}/${version}`);
             return true;
         } catch (e) {
@@ -343,14 +343,20 @@ export const useLyricEditor = () => {
         }
     }, [setVideoId, setTempVideoId, setLyrics, setStagedLyrics]);
 
+    // --- Effects: Storage Sync ---
+    const hasInitialized = useRef(false);
+
     useEffect(() => {
-        // 檢查 tempVideoId 是否為預設值
-        if (!tempVideoId || tempVideoId === DEFAULT_VIDEO_ID) {
-            console.log("No lyrics loaded, attempting to fetch example data.");
+        // 只在第一次載入且沒有影片 ID 時執行
+        if (
+            !hasInitialized.current &&
+            (!tempVideoId || tempVideoId === DEFAULT_VIDEO_ID)
+        ) {
+            hasInitialized.current = true;
             fetchTenbyou();
             handleVideoLoad();
         }
-    }, [fetchTenbyou]); // 依賴 fetchTenbyou (它是一個穩定的 useCallback 函式)
+    }, [fetchTenbyou, tempVideoId]);
 
     return {
         // Refs
@@ -393,6 +399,6 @@ export const useLyricEditor = () => {
         handleFileUpload,
         fetchTenbyou,
         loadLyricsByPath, // 👈 導出此函式
-        setVideoId,       // 確保有導出此項以更新影片
+        setVideoId, // 確保有導出此項以更新影片
     };
 };
