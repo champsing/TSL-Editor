@@ -7,10 +7,7 @@ interface EditorHeaderProps {
     tempVideoId: string;
     setTempVideoId: (id: string) => void;
     onVideoLoad: () => void;
-    hasUncommittedChanges: boolean;
-    commitLyrics: () => void;
-    discardChanges: () => void;
-    onViewDiff: () => void;
+
     onOpenSongSelect: () => void; // 🚨 新增此 Prop
 }
 
@@ -18,10 +15,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
     tempVideoId,
     setTempVideoId,
     onVideoLoad,
-    hasUncommittedChanges,
-    commitLyrics,
-    discardChanges,
-    onViewDiff,
+
     onOpenSongSelect, // 🚨 解構此 Prop
 }) => (
     <header className="bg-dark shadow-lg z-20 px-6 py-3 flex items-center justify-between border-b border-gray-800">
@@ -70,12 +64,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             </div>
         </div>
 
-        {/* --- 3. Actions: Commit, Discard, Diff --- */}
-        <EditActions
-            hasUncommittedChanges={hasUncommittedChanges}
-            commitLyrics={commitLyrics}
-            discardChanges={discardChanges}
-            onViewDiff={onViewDiff}
-        />
+        
     </header>
 );

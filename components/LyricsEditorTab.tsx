@@ -4,6 +4,7 @@ import { Plus, Play } from "lucide-react";
 import { LineEditor } from "./LineEditor";
 import { secondsToTime } from "../utils";
 import { LyricLine } from "../types";
+import { EditActions } from "./EditActions";
 
 interface Props {
     isPlaying: boolean;
@@ -18,6 +19,10 @@ interface Props {
     handleStamp: any;
     handleSeek: any;
     setPreviewModalOpen: (open: boolean) => void;
+    hasUncommittedChanges: boolean;
+    commitLyrics: () => void;
+    discardChanges: () => void;
+    onViewDiff: () => void;
     scrollContainerRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -34,66 +39,123 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
         deleteLine,
         handleStamp,
         handleSeek,
+        hasUncommittedChanges,
+        commitLyrics,
+        discardChanges,
+        onViewDiff,
         setPreviewModalOpen,
         scrollContainerRef,
     } = props;
 
     return (
-        <div className="flex-1 flex flex-col min-w-0 bg-[#2d3748]">
-            <div className="bg-panel px-6 py-3 border-b border-gray-700 flex items-center justify-between sticky top-0 z-10">
-                <div className="flex items-center gap-4">
-                    <div className="text-3xl font-mono text-primary font-bold tabular-nums">
-                        {isPlaying
-                            ? secondsToTime(playerTime, 0)
-                            : secondsToTime(playerTime, 1)}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#1a202c]">
+            {" "}
+            {/* 稍微加深背景色對比 */}
+            {/* Header 佈局優化 */}
+            <div className="bg-[#2d3748]/80 backdrop-blur-md px-6 py-4 border-b border-gray-700/50 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+                {/* 左側：狀態與時間 */}
+                <div className="flex items-center gap-6">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+                            Current Time
+                        </span>
+                        <div className="text-3xl font-mono text-emerald-400 font-bold tabular-nums leading-none">
+                            {secondsToTime(playerTime, isPlaying ? 0 : 1)}
+                        </div>
                     </div>
-                    <div className="h-8 w-px bg-gray-600 mx-2"></div>
-                    <div className="text-sm text-gray-400">
-                        {stagedLyrics.length} lines total
+
+                    <div className="h-10 w-px bg-gray-700"></div>
+
+                    <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+                            Total Lines
+                        </span>
+                        <div className="text-xl font-semibold text-gray-300">
+                            {stagedLyrics.length}
+                        </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setPreviewModalOpen(true)}
-                        className="cursor-pointer bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded flex items-center gap-2 transition shadow-lg shadow-purple-900/20"
-                    >
-                        <Play size={18} /> Preview
-                    </button>
-                    <button
-                        onClick={addLine}
-                        disabled={isPlaying}
-                        className={`cursor-pointer bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 transition ${!isPlaying ? "shadow-lg shadow-green-900/20" : "opacity-50 cursor-not-allowed shadow-none"}`}
-                    >
-                        <Plus size={18} /> Add Line at{" "}
-                        {isPlaying ? "--:--.--" : secondsToTime(playerTime, 1)}
-                    </button>
+
+                {/* 右側：按鈕群組化 */}
+                <div className="flex items-center gap-3">
+                    {/* 主要操作組 */}
+                    <div className="flex bg-gray-800/50 p-1 rounded-lg border border-gray-700">
+                        <button
+                            onClick={() => setPreviewModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium text-purple-300 hover:bg-purple-500/10 transition-all active:scale-95"
+                        >
+                            <Play
+                                size={16}
+                                fill="currentColor"
+                                className="opacity-70"
+                            />
+                            Preview
+                        </button>
+
+                        <div className="w-px h-6 bg-gray-700 my-auto"></div>
+
+                        <button
+                            onClick={addLine}
+                            disabled={isPlaying}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all active:scale-95
+                                ${
+                                    !isPlaying
+                                        ? "text-emerald-400 hover:bg-emerald-500/10"
+                                        : "text-gray-600 cursor-not-allowed opacity-50"
+                                }`}
+                        >
+                            <Plus size={18} />
+                            Add Line
+                        </button>
+                    </div>
+
+                    {/* 分隔線 */}
+                    <div className="w-2"></div>
+
+                    {/* 變更管理組 (EditActions 如果可以自定義樣式，建議傳入 className) */}
+                    <div className="flex items-center gap-2 border-l border-gray-700 pl-4">
+                        <EditActions
+                            hasUncommittedChanges={hasUncommittedChanges}
+                            commitLyrics={commitLyrics}
+                            discardChanges={discardChanges}
+                            onViewDiff={onViewDiff}
+                        />
+                    </div>
                 </div>
             </div>
-
+            {/* 內容區：增加一個優雅的漸層陰影 */}
             <div
                 ref={scrollContainerRef}
-                className="flex-1 overflow-y-auto p-6 scroll-smooth pb-32"
+                className="flex-1 overflow-y-auto p-8 scroll-smooth pb-32 relative custom-scrollbar"
             >
-                <div className="max-w-4xl mx-auto">
-                    {stagedLyrics.length === 0 && (
-                        <div className="text-center text-gray-500 mt-20">
-                            No lyrics loaded.
+                <div className="max-w-4xl mx-auto space-y-4">
+                    {stagedLyrics.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center mt-32 text-gray-600 border-2 border-dashed border-gray-800 rounded-2xl py-20">
+                            <div className="bg-gray-800/50 p-4 rounded-full mb-4">
+                                <Plus size={32} />
+                            </div>
+                            <p className="text-lg">No lyrics loaded yet.</p>
+                            <p className="text-sm">
+                                Click "Add Line" or import a file to get
+                                started.
+                            </p>
                         </div>
+                    ) : (
+                        stagedLyrics.map((line, index) => (
+                            <LineEditor
+                                key={index}
+                                index={index}
+                                line={line}
+                                isCurrent={activeLineIndices.includes(index)}
+                                isEditing={index === editingLineIndex}
+                                onEditStart={() => setEditingLineIndex(index)}
+                                onUpdate={updateLine}
+                                onDelete={deleteLine}
+                                onStampTime={handleStamp}
+                                onSeek={handleSeek}
+                            />
+                        ))
                     )}
-                    {stagedLyrics.map((line, index) => (
-                        <LineEditor
-                            key={index}
-                            index={index}
-                            line={line}
-                            isCurrent={activeLineIndices.includes(index)}
-                            isEditing={index === editingLineIndex}
-                            onEditStart={() => setEditingLineIndex(index)}
-                            onUpdate={updateLine}
-                            onDelete={deleteLine}
-                            onStampTime={handleStamp}
-                            onSeek={handleSeek}
-                        />
-                    ))}
                 </div>
             </div>
         </div>

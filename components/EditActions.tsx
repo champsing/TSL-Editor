@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, Undo2, GitCompare } from "lucide-react";
+import { Check, RotateCcw, GitCompare, AlertCircle } from "lucide-react";
 
 interface EditActionsProps {
     hasUncommittedChanges: boolean;
@@ -14,59 +14,57 @@ export const EditActions: React.FC<EditActionsProps> = ({
     discardChanges,
     onViewDiff,
 }) => (
-    /* --- 3. Actions: Commit, Discard, Diff --- */
-    <div className="flex items-center gap-3">
-        {/* Diff Button */}
+    <div className="flex items-center gap-2">
+        {/* 整合後的 Diff 狀態按鈕 */}
         <button
             onClick={onViewDiff}
-            className={`cursor-pointer px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
-                hasUncommittedChanges
-                    ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20"
-                    : "bg-gray-700 text-gray-400"
-            }`}
-        >
-            <GitCompare size={16} />
-            Diff
-            <span
-                className={`w-3 h-3 rounded-full ml-1 ${
+            disabled={!hasUncommittedChanges}
+            className={`group relative flex items-center gap-2.5 px-4 py-1.5 border transition-all duration-300 active:scale-95relative z-10 inset-0 rounded-md
+                ${
                     hasUncommittedChanges
-                        ? "bg-red-400 animate-pulse"
-                        : "bg-green-400"
+                        ? "text-amber-400 animate-pulse bg-amber-400/20 hover:bg-orange-500/10 hover:border-orange-500/50"
+                        : " text-gray-700 bg-emerald-500/20 border border-emerald-500/30 cursor-not-allowed"
                 }`}
-                title={
-                    hasUncommittedChanges
-                        ? "Uncommitted Changes (未提交變更)"
-                        : "Committed (已提交)"
-                }
-            ></span>
+            title={
+                hasUncommittedChanges ? "View Changes" : "No changes detected"
+            }
+        >
+            <GitCompare
+                size={16}
+                className={`transition-transform duration-300 ${hasUncommittedChanges ? "opacity-100 group-hover:rotate-12" : "opacity-30"}`}
+            />
+
+            <span className="text-sm font-semibold tracking-wide">Diff</span>
         </button>
 
         {/* Discard Button */}
         <button
             onClick={discardChanges}
             disabled={!hasUncommittedChanges}
-            className={` px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
-                hasUncommittedChanges
-                    ? "cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
-                    : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50"
-            }`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all active:scale-95
+                ${
+                    hasUncommittedChanges
+                        ? "text-red-400 hover:bg-red-500/10"
+                        : "text-gray-700 cursor-not-allowed opacity-80"
+                }`}
         >
-            <Undo2 size={16} />
-            Discard
+            <RotateCcw size={16} />
+            <span>Discard</span>
         </button>
 
-        {/* Commit Button */}
+        {/* Commit Button - 主要行動按鈕 */}
         <button
             onClick={commitLyrics}
             disabled={!hasUncommittedChanges}
-            className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm transition font-semibold ${
-                hasUncommittedChanges
-                    ? "cursor-pointer bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20"
-                    : "cursor-not-allowed bg-gray-700 text-gray-400 opacity-50 "
-            }`}
+            className={`flex items-center gap-2 px-5 py-1.5 rounded-md text-sm font-bold shadow-sm transition-all"
+                ${
+                    hasUncommittedChanges
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20active:scale-95"
+                        : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                }`}
         >
-            <CheckCircle size={16} />
-            Commit
+            <Check size={18} strokeWidth={3} />
+            <span>Commit</span>
         </button>
     </div>
 );

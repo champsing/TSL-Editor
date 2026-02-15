@@ -92,7 +92,9 @@ function App() {
             return;
         }
 
-        const response = await fetch(`https://api.timesl.online/songs/${selectedSong.song_id}`)
+        const response = await fetch(
+            `https://api.timesl.online/songs/${selectedSong.song_id}`,
+        );
         const fullSongData = await response.json();
 
         // 1. 更新歌曲元數據
@@ -165,10 +167,6 @@ function App() {
                 tempVideoId={tempVideoId}
                 setTempVideoId={setTempVideoId}
                 onVideoLoad={handleVideoLoad}
-                hasUncommittedChanges={hasUncommittedChanges}
-                commitLyrics={commitLyrics}
-                discardChanges={discardChanges}
-                onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
                 onOpenSongSelect={() => setIsSongModalOpen(true)} // 🚨 傳遞控制 Modal 的函式
             />
 
@@ -189,6 +187,10 @@ function App() {
                         handleSeek={handleSeek}
                         setPreviewModalOpen={setPreviewModalOpen}
                         scrollContainerRef={scrollContainerRef}
+                        hasUncommittedChanges={hasUncommittedChanges}
+                        commitLyrics={commitLyrics}
+                        discardChanges={discardChanges}
+                        onViewDiff={() => setDiffModalOpen(true)} // 連接 Diff 按鈕到新的 state
                     />
                 ) : (
                     <SongMetaEditorTab
