@@ -1,6 +1,6 @@
 // components/SongMetaEditorTab.tsx
 import React from "react";
-import { Song } from "../types";
+import { Artist, Song } from "../types";
 import {
     Music,
     User,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇 Modal 組件
 import { SongVersionsModal } from "./SongVersionsModal";
+import { X, ChevronDown } from "lucide-react";
 
 interface Props {
     songData: Song;
@@ -33,6 +34,50 @@ export const SongMetaEditorTab: React.FC<Props> = ({
 
     const handleChange = (field: keyof Song, value: any) => {
         setSongData({ ...songData, [field]: value });
+    };
+
+    // 新增狀態：存放已解析的藝人名稱、所有可選藝人、以及下拉選單顯示開關
+    const [artistMap, setArtistMap] = React.useState<Record<number, string>>(
+        {},
+    );
+    const [allArtists, setAllArtists] = React.useState<Artist[]>([]);
+    const [showArtistDropdown, setShowArtistDropdown] = React.useState(false);
+
+    // 1. 初始化：獲取所有藝人清單（供下拉選單使用）
+    React.useEffect(() => {
+        fetch("https://api.timesl.online/artists/")
+            .then((res) => res.json())
+            .then((data) =>
+                setAllArtists(Array.isArray(data) ? data : data.artists || []),
+            );
+    }, []);
+
+    // 2. 當 songData.artist 變動時，確保我們有這些 ID 對應的名稱
+    // 假設 artist 欄位格式為 "1,2,3" 或 [1,2,3]
+    const currentArtistIds = React.useMemo(() => {
+        if (!songData.artist) return [];
+        return typeof songData.artist === "string"
+            ? songData.artist
+                  .split(",")
+                  .map(Number)
+                  .filter((id) => !isNaN(id))
+            : [Number(songData.artist)];
+    }, [songData.artist]);
+
+    // 處理新增/移除藝人
+    const updateArtists = (newIds: number[]) => {
+        handleChange("artist", newIds.join(","));
+    };
+
+    const removeArtist = (idToRemove: number) => {
+        updateArtists(currentArtistIds.filter((id) => id !== idToRemove));
+    };
+
+    const addArtist = (idToAdd: number) => {
+        if (!currentArtistIds.includes(idToAdd)) {
+            updateArtists([...currentArtistIds, idToAdd]);
+        }
+        setShowArtistDropdown(false);
     };
 
     // 延續 LineEditor 的設計風格
@@ -94,18 +139,80 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                     placeholder="Live version / Remix..."
                                 />
                             </div>
-                            <div>
+
+                            {/* 把原本 Artist 的 Input 替換為以下內容 */}
+                            <div className="relative">
                                 <label className={labelClass}>
-                                    <User size={14} /> Artist
+                                    <User size={14} /> Artist (Multi-select)
                                 </label>
-                                <input
-                                    value={songData.artist}
-                                    onChange={(e) =>
-                                        handleChange("artist", e.target.value)
-                                    }
-                                    className={inputClass}
-                                />
+
+                                <div
+                                    className={`${inputClass} flex flex-wrap gap-2 min-h-[46px] items-center`}
+                                >
+                                    {/* 顯示已選擇的 Chips */}
+                                    {currentArtistIds.map((id) => {
+                                        const artistName =
+                                            allArtists.find((a) => a.id === id)
+                                                ?.original_name || `ID: ${id}`;
+                                        return (
+                                            <div
+                                                key={id}
+                                                className="flex items-center gap-1.5 bg-primary/20 text-primary text-sm font-bold px-2 py-1 rounded-md border border-primary/30 group"
+                                            >
+                                                {artistName}
+                                                <button
+                                                    onClick={() =>
+                                                        removeArtist(id)
+                                                    }
+                                                    className="hover:bg-primary/30 rounded-full p-0.5 transition-colors"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+
+                                    {/* 下拉選單按鈕 */}
+                                    <button
+                                        onClick={() =>
+                                            setShowArtistDropdown(
+                                                !showArtistDropdown,
+                                            )
+                                        }
+                                        className="ml-auto text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        <Plus size={20} />
+                                    </button>
+                                </div>
+
+                                {/* 下拉選單本體 */}
+                                {showArtistDropdown && (
+                                    <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
+                                        {allArtists
+                                            .filter(
+                                                (a) =>
+                                                    !currentArtistIds.includes(
+                                                        a.id,
+                                                    ),
+                                            )
+                                            .map((artist) => (
+                                                <button
+                                                    key={artist.id}
+                                                    onClick={() =>
+                                                        addArtist(artist.id)
+                                                    }
+                                                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-primary/20 hover:text-primary transition-all border-b border-white/5 last:border-0"
+                                                >
+                                                    {artist.original_name}
+                                                    <span className="ml-2 text-xs opacity-50 font-mono">
+                                                        #{artist.id}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                    </div>
+                                )}
                             </div>
+
                             <div>
                                 <label className={labelClass}>
                                     <User size={14} className="opacity-50" />{" "}

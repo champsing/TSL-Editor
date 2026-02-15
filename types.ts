@@ -73,3 +73,8 @@ export interface Version {
     id: string;
     duration: string;
 }
+
+export interface Artist {
+    id: number;
+    original_name: string;
+}

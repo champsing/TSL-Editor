@@ -9,6 +9,9 @@ export const SongSelectionModal: React.FC<{
     onSelect: (song: Song) => void;
 }> = ({ isOpen, onClose, onSelect }) => {
     const [songs, setSongs] = React.useState<Song[]>([]);
+    const [artistLookup, setArtistLookup] = React.useState<
+        Record<number, string>
+    >({});
     const [loading, setLoading] = React.useState(false);
     const [search, setSearch] = React.useState("");
 
@@ -28,6 +31,42 @@ export const SongSelectionModal: React.FC<{
                 });
         }
     }, [isOpen]);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setLoading(true);
+            // 同時抓取歌曲與藝人對照清單
+            Promise.all([
+                fetch("https://api.timesl.online/songs").then((res) =>
+                    res.json(),
+                ),
+                fetch("https://api.timesl.online/artists/").then((res) =>
+                    res.json(),
+                ),
+            ]).then(([songData, artistData]) => {
+                setSongs(
+                    Array.isArray(songData) ? songData : songData.songs || [],
+                );
+
+                // 建立對照表 { id: original_name }
+                const artists = Array.isArray(artistData)
+                    ? artistData
+                    : artistData.artists || [];
+                const lookup: Record<number, string> = {};
+                artists.forEach((a: any) => (lookup[a.id] = a.original_name));
+                setArtistLookup(lookup);
+
+                setLoading(false);
+            });
+        }
+    }, [isOpen]);
+
+    // 格式化顯示名稱的輔助函數
+    const formatArtistNames = (artistField: string | number) => {
+        if (!artistField) return "Unknown Artist";
+        const ids = String(artistField).split(",").map(Number);
+        return ids.map((id) => artistLookup[id] || `ID: ${id}`).join(", ");
+    };
 
     if (!isOpen) return null;
 
@@ -87,7 +126,7 @@ export const SongSelectionModal: React.FC<{
                                         {song.title}
                                     </div>
                                     <div className="text-xs text-gray-400">
-                                        {song.artist}
+                                        Artist: {formatArtistNames(song.artist)}
                                     </div>
                                 </div>
                                 <div className="font-mono text-xs text-primary bg-primary/10 px-2 py-1 rounded">
