@@ -166,7 +166,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                                 !showArtistDropdown,
                                             )
                                         }
-                                        className="ml-auto text-gray-400 hover:text-white transition-colors"
+                                        className="ml-auto  text-gray-400 hover:text-white transition-colors"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -174,7 +174,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
 
                                 {/* 下拉選單本體 */}
                                 {showArtistDropdown && (
-                                    <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
+                                    <div className="absolute mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
                                         {Object.entries(artistLookup)
                                             // 過濾掉已經在 currentArtistIds 裡的藝人
                                             // 注意：Object.entries 的 key 是 string，所以用 String(id) 確保比對正確

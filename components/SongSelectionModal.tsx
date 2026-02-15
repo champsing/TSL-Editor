@@ -9,16 +9,21 @@ export const SongSelectionModal: React.FC<{
     onClose: () => void;
     onSelect: (song: Song) => void;
 }> = ({ isOpen, onClose, onSelect }) => {
-    const { songs, loading,  formatArtistNames } = useArtistNames();
+    const { songs, loading, formatArtistNames } = useArtistNames();
     const [search, setSearch] = React.useState("");
 
     if (!isOpen) return null;
 
-    const filteredSongs = songs.filter(
-        (s) =>
-            s.title.toLowerCase().includes(search.toLowerCase()) ||
-            s.artist.toLowerCase().includes(search.toLowerCase()),
-    );
+    const filteredSongs = songs.filter((s) => {
+        const searchTerm = search.toLowerCase();
+        // 取得格式化後的藝人顯示名稱
+        const displayArtistName = formatArtistNames(s.artist).toLowerCase();
+
+        return (
+            s.title.toLowerCase().includes(searchTerm) ||
+            displayArtistName.includes(searchTerm)
+        );
+    });
 
     return (
         <div className="fixed inset-0 z-51 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
