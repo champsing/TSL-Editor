@@ -409,7 +409,7 @@ const ToggleItem: React.FC<{
     </label>
 );
 
-// --- 抽離出的多選組件 ---
+// --- 修改後的 MultiSelectArtistField 組件 ---
 const MultiSelectArtistField: React.FC<{
     label: string;
     icon: React.ReactNode;
@@ -428,9 +428,19 @@ const MultiSelectArtistField: React.FC<{
     chipColorClass = "bg-primary/20 text-primary border-primary/30",
 }) => {
     const [isOpen, setIsOpen] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState(""); // 新增搜尋字串狀態
     const dropdownRef = React.useRef<HTMLDivElement>(null);
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-    // 點擊外部關閉選單
+    // 當選單開啟時，自動 focus 搜尋框
+    React.useEffect(() => {
+        if (isOpen) {
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+        } else {
+            setSearchQuery(""); // 關閉時清空搜尋
+        }
+    }, [isOpen]);
+
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -451,20 +461,33 @@ const MultiSelectArtistField: React.FC<{
         } else {
             onChange([...selectedIds, id]);
         }
-        setIsOpen(false);
+        // 為了方便連續選擇，這裡可以選擇不關閉 setIsOpen(false)
+        // 但如果想要選完即合，就維持原樣
     };
+
+    // 核心搜尋邏輯：過濾掉已選項目，並匹配名稱或 ID
+    const filteredOptions = Object.entries(lookup).filter(([id, name]) => {
+        const isSelected = selectedIds.includes(Number(id));
+        if (isSelected) return false;
+
+        const searchLower = searchQuery.toLowerCase();
+        return (
+            name.toLowerCase().includes(searchLower) || id.includes(searchLower)
+        );
+    });
 
     const labelClass =
         "flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest";
     const inputClass =
-        "w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-200 font-medium flex flex-wrap gap-2 min-h-[46px] items-center";
+        "w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-200 font-medium flex flex-wrap gap-2 min-h-[46px] items-center cursor-pointer";
 
     return (
         <div className="relative" ref={dropdownRef}>
             <label className={labelClass}>
                 {icon} {label}
             </label>
-            <div className={inputClass}>
+
+            <div className={inputClass} onClick={() => setIsOpen(!isOpen)}>
                 {selectedIds.length === 0 && (
                     <span className="text-gray-500 text-sm">{placeholder}</span>
                 )}
@@ -472,6 +495,7 @@ const MultiSelectArtistField: React.FC<{
                     <div
                         key={id}
                         className={`flex items-center gap-1.5 text-sm font-bold px-2 py-1 rounded-md border ${chipColorClass}`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {lookup[id] || `ID: ${id}`}
                         <button
@@ -485,35 +509,70 @@ const MultiSelectArtistField: React.FC<{
                         </button>
                     </div>
                 ))}
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="ml-auto text-gray-400 hover:text-white transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                <div className="ml-auto text-gray-400">
+                    <ChevronDown
+                        size={18}
+                        className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    />
+                </div>
             </div>
 
+            {/* 懸浮下拉選單 */}
             {isOpen && (
-                <div className="relative z-10 mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
-                    {Object.entries(lookup)
-                        .filter(([id]) => !selectedIds.includes(Number(id)))
-                        .map(([id, name]) => (
-                            <button
-                                key={id}
-                                onClick={() => toggleId(Number(id))}
-                                className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-primary/20 hover:text-primary transition-all border-b border-white/5 last:border-0"
-                            >
-                                {name}{" "}
-                                <span className="ml-2 text-xs opacity-50 font-mono">
-                                    {id}
-                                </span>
-                            </button>
-                        ))}
-                    {Object.keys(lookup).length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 italic">
-                            Loading...
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-100 bg-[#2d3748] border border-white/20 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    {/* 搜尋框區域 */}
+                    <div className="p-2 border-b border-white/10 bg-black/20">
+                        <div className="relative">
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onClick={(e) => e.stopPropagation()} // 防止點擊輸入框關閉選單
+                                placeholder="Search by name or ID..."
+                                className="w-full bg-black/40 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all"
+                            />
+                            <div className="absolute left-3 top-2.5 text-gray-500">
+                                <Hash size={14} />
+                            </div>
                         </div>
-                    )}
+                    </div>
+
+                    {/* 選項列表 */}
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar p-1">
+                        {filteredOptions.length > 0 ? (
+                            filteredOptions.map(([id, name]) => (
+                                <button
+                                    key={id}
+                                    onClick={() => toggleId(Number(id))}
+                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-primary hover:text-white rounded-lg transition-all mb-0.5 last:mb-0 group"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium">
+                                            {name}
+                                        </span>
+                                        <span className="text-[10px] opacity-40 group-hover:opacity-100 font-mono bg-black/20 px-1.5 py-0.5 rounded">
+                                            #{id}
+                                        </span>
+                                    </div>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="px-4 py-8 text-center">
+                                <p className="text-gray-500 text-sm italic">
+                                    No results found
+                                </p>
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery("")}
+                                        className="text-primary text-xs mt-2 hover:underline"
+                                    >
+                                        Clear search
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
