@@ -494,7 +494,7 @@ const MultiSelectArtistField: React.FC<{
             </div>
 
             {isOpen && (
-                <div className="absolute mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar z-53">
+                <div className="relative z-10 mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
                     {Object.entries(lookup)
                         .filter(([id]) => !selectedIds.includes(Number(id)))
                         .map(([id, name]) => (
@@ -520,7 +520,7 @@ const MultiSelectArtistField: React.FC<{
     );
 };
 
-// 1. 垂直收合元件 (已統一)
+// 1. 垂直收合元件
 const CollapsibleSection: React.FC<{
     title: string;
     isOpen: boolean;
@@ -528,7 +528,7 @@ const CollapsibleSection: React.FC<{
     icon?: React.ReactNode;
     children: React.ReactNode;
 }> = ({ title, isOpen, onToggle, icon, children }) => (
-    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl transition-all duration-300">
+    <div className="bg-white/5 border border-white/10 rounded-2xl shadow-xl transition-all duration-300">
         <button
             onClick={onToggle}
             className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5"
@@ -549,9 +549,7 @@ const CollapsibleSection: React.FC<{
         <div
             className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >
-            <div className="overflow-hidden">
-                <div className="p-6">{children}</div>
-            </div>
+            <div className="p-6">{children}</div>
         </div>
     </div>
 );
