@@ -29,45 +29,26 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     songData,
     setSongData,
 }) => {
-    const [isModalOpen, setIsModalOpen] = React.useState(false); // 新增狀態
-    const [isVersionModalOpen, setIsVersionModalOpen] = React.useState(false); // 控制版本 Modal
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [isVersionModalOpen, setIsVersionModalOpen] = React.useState(false);
     const [previewImage, setPreviewImage] = React.useState<string | null>(null);
+
+    const { artistLookup } = useArtistNames();
 
     const handleChange = (field: keyof Song, value: any) => {
         setSongData({ ...songData, [field]: value });
     };
 
-    const [showArtistDropdown, setShowArtistDropdown] = React.useState(false);
-
-    const { artistLookup } = useArtistNames();
-
-    // 取得當前已選擇的 ID 陣列
-    const currentArtistIds = React.useMemo(() => {
-        if (!songData.artist) return [];
-        return String(songData.artist)
+    // 解析 ID 字串為陣列的輔助函數
+    const parseIds = (idString: string | undefined) => {
+        if (!idString) return [];
+        return String(idString)
             .split(",")
             .map((id) => id.trim())
+            .filter(Boolean)
             .map(Number);
-    }, [songData.artist]);
-
-    // 處理新增/移除藝人
-    const updateArtists = (newIds: number[]) => {
-        handleChange("artist", newIds.join(","));
     };
 
-    const removeArtist = (idToRemove: number) => {
-        const removeList = currentArtistIds.filter((id) => id !== idToRemove);
-        updateArtists(removeList);
-    };
-
-    const addArtist = (idToAdd: number) => {
-        if (!currentArtistIds.includes(idToAdd)) {
-            updateArtists([...currentArtistIds, idToAdd]);
-        }
-        setShowArtistDropdown(false);
-    };
-
-    // 延續 LineEditor 的設計風格
     const inputClass =
         "w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-200 font-medium";
     const labelClass =
@@ -181,9 +162,10 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         </button>
                     </div>
 
-                    {/* Left Column: Basic Info */}
-                    <div className={`${sectionClass} lg:col-span-3 space-y-6`}>
+                    {/* Main Content */}
+                    <div className={`${sectionClass} lg:col-span-3 space-y-6 relative z-10`}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Title & Subtitle */}
                             <div>
                                 <label className={labelClass}>
                                     <Music size={14} /> Title
@@ -194,7 +176,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                         handleChange("title", e.target.value)
                                     }
                                     className={inputClass}
-                                    placeholder="Song title"
                                 />
                             </div>
                             <div>
@@ -208,118 +189,31 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                         handleChange("subtitle", e.target.value)
                                     }
                                     className={inputClass}
-                                    placeholder="Live version / Remix..."
                                 />
                             </div>
 
-                            {/* 把原本 Artist 的 Input 替換為以下內容 */}
-                            <div className="relative">
-                                <label className={labelClass}>
-                                    <User size={14} /> Artist (Multi-select)
-                                </label>
+                            {/* --- 使用封裝後的 Artist 選取器 --- */}
+                            <MultiSelectArtistField
+                                label="Artist"
+                                icon={<User size={14} />}
+                                selectedIds={parseIds(songData.artist)}
+                                lookup={artistLookup}
+                                onChange={(ids) =>
+                                    handleChange("artist", ids.join(","))
+                                }
+                            />
 
-                                <div
-                                    className={`${inputClass} flex flex-wrap gap-2 min-h-[46px] items-center`}
-                                >
-                                    {/* 顯示已選擇的 Chips */}
-                                    {currentArtistIds.map((id) => {
-                                        // 直接從 lookup 讀取，如果找不到就顯示 ID
-                                        const artistName =
-                                            artistLookup[id] || `ID: ${id}`;
-                                        return (
-                                            <div
-                                                key={id}
-                                                className="flex items-center gap-1.5 bg-primary/20 text-primary text-sm font-bold px-2 py-1 rounded-md border border-primary/30 group"
-                                            >
-                                                {artistName}
-                                                <button
-                                                    onClick={() =>
-                                                        removeArtist(id)
-                                                    } // 注意類型轉換
-                                                    className="hover:bg-primary/30 rounded-full p-0.5 transition-colors"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-
-                                    {/* 下拉選單按鈕 */}
-                                    <button
-                                        onClick={() =>
-                                            setShowArtistDropdown(
-                                                !showArtistDropdown,
-                                            )
-                                        }
-                                        className="ml-auto  text-gray-400 hover:text-white transition-colors"
-                                    >
-                                        <Plus size={20} />
-                                    </button>
-                                </div>
-
-                                {/* 下拉選單本體 */}
-                                {showArtistDropdown && (
-                                    <div className="absolute mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar">
-                                        {Object.entries(artistLookup)
-                                            // 過濾掉已經在 currentArtistIds 裡的藝人
-                                            // 注意：Object.entries 的 key 是 string，所以用 String(id) 確保比對正確
-                                            .filter(
-                                                ([id]) =>
-                                                    !currentArtistIds.includes(
-                                                        Number(id),
-                                                    ),
-                                            )
-                                            .map(([id, name]) => (
-                                                <button
-                                                    key={id}
-                                                    onClick={() =>
-                                                        addArtist(Number(id))
-                                                    } // 傳入 id 進行更新
-                                                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-primary/20 hover:text-primary transition-all border-b border-white/5 last:border-0"
-                                                >
-                                                    {name}
-                                                    <span className="ml-2 text-xs opacity-50 font-mono">
-                                                        #{id}
-                                                    </span>
-                                                </button>
-                                            ))}
-
-                                        {/* 如果讀取中顯示提示 */}
-                                        {Object.keys(artistLookup).length ===
-                                            0 && (
-                                            <div className="px-4 py-3 text-sm text-gray-500 italic">
-                                                Loading artists...
-                                            </div>
-                                        )}
-
-                                        {/* 如果完全沒有符合搜尋或過濾的結果 */}
-                                        {Object.entries(artistLookup).filter(
-                                            ([id]) =>
-                                                !currentArtistIds.includes(
-                                                    Number(id),
-                                                ),
-                                        ).length === 0 && (
-                                            <div className="px-4 py-3 text-sm text-gray-500 italic">
-                                                No more artists available
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className={labelClass}>
-                                    <User size={14} className="opacity-50" />{" "}
-                                    Lyricist
-                                </label>
-                                <input
-                                    value={songData.lyricist}
-                                    onChange={(e) =>
-                                        handleChange("lyricist", e.target.value)
-                                    }
-                                    className={inputClass}
-                                />
-                            </div>
+                            {/* --- 使用封裝後的 Lyricist 選取器 --- */}
+                            <MultiSelectArtistField
+                                label="Lyricist"
+                                icon={<User size={14} className="opacity-50" />}
+                                selectedIds={parseIds(songData.lyricist)}
+                                lookup={artistLookup}
+                                chipColorClass="bg-blue-400/20 text-blue-400 border-blue-400/30"
+                                onChange={(ids) =>
+                                    handleChange("lyricist", ids.join(","))
+                                }
+                            />
 
                             <div>
                                 <label className={labelClass}>
@@ -350,7 +244,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     </div>
                 </div>
 
-                <div className="gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl">
+                <div className="gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl relative z-0">
                     <div className=" border-white/5">
                         <label className={labelClass}>
                             <ImageIcon size={14} /> Cover Art URL
@@ -458,3 +352,114 @@ const ToggleItem: React.FC<{
         </div>
     </label>
 );
+
+// --- 抽離出的多選組件 ---
+const MultiSelectArtistField: React.FC<{
+    label: string;
+    icon: React.ReactNode;
+    selectedIds: number[];
+    lookup: Record<number, string>;
+    onChange: (newIds: number[]) => void;
+    placeholder?: string;
+    chipColorClass?: string;
+}> = ({
+    label,
+    icon,
+    selectedIds,
+    lookup,
+    onChange,
+    placeholder = "Select...",
+    chipColorClass = "bg-primary/20 text-primary border-primary/30",
+}) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+    // 點擊外部關閉選單
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            ) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const toggleId = (id: number) => {
+        if (selectedIds.includes(id)) {
+            onChange(selectedIds.filter((i) => i !== id));
+        } else {
+            onChange([...selectedIds, id]);
+        }
+        setIsOpen(false);
+    };
+
+    const labelClass =
+        "flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest";
+    const inputClass =
+        "w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-200 font-medium flex flex-wrap gap-2 min-h-[46px] items-center";
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <label className={labelClass}>
+                {icon} {label}
+            </label>
+            <div className={inputClass}>
+                {selectedIds.length === 0 && (
+                    <span className="text-gray-500 text-sm">{placeholder}</span>
+                )}
+                {selectedIds.map((id) => (
+                    <div
+                        key={id}
+                        className={`flex items-center gap-1.5 text-sm font-bold px-2 py-1 rounded-md border ${chipColorClass}`}
+                    >
+                        {lookup[id] || `ID: ${id}`}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleId(id);
+                            }}
+                            className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                            <X size={14} />
+                        </button>
+                    </div>
+                ))}
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="ml-auto text-gray-400 hover:text-white transition-colors"
+                >
+                    <Plus size={20} />
+                </button>
+            </div>
+
+            {isOpen && (
+                <div className="absolute mt-2 w-full max-h-60 overflow-y-auto bg-[#2d3748] border border-white/10 rounded-xl shadow-2xl custom-scrollbar z-53">
+                    {Object.entries(lookup)
+                        .filter(([id]) => !selectedIds.includes(Number(id)))
+                        .map(([id, name]) => (
+                            <button
+                                key={id}
+                                onClick={() => toggleId(Number(id))}
+                                className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-primary/20 hover:text-primary transition-all border-b border-white/5 last:border-0"
+                            >
+                                {name}{" "}
+                                <span className="ml-2 text-xs opacity-50 font-mono">
+                                    {id}
+                                </span>
+                            </button>
+                        ))}
+                    {Object.keys(lookup).length === 0 && (
+                        <div className="px-4 py-3 text-sm text-gray-500 italic">
+                            Loading...
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
