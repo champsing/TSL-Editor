@@ -608,7 +608,9 @@ const CollapsibleSection: React.FC<{
         <div
             className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >
-            <div className="p-6">{children}</div>
+            <div className="overflow-hidden">
+                <div className="p-6">{children}</div>
+            </div>
         </div>
     </div>
 );
