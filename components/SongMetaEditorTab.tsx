@@ -120,6 +120,67 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Toggle Switches */}
+                    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
+                        <ToggleItem
+                            icon={<CheckCircle2 size={18} />}
+                            label="Available"
+                            checked={!!songData.available}
+                            onChange={(val) =>
+                                handleChange("available", val ? 1 : 0)
+                            }
+                            color="text-green-400"
+                        />
+                        <ToggleItem
+                            icon={<Users size={18} />}
+                            label="Duet Mode"
+                            checked={!!songData.is_duet}
+                            onChange={(val) =>
+                                handleChange("is_duet", val ? 1 : 0)
+                            }
+                            color="text-blue-400"
+                        />
+                        <ToggleItem
+                            icon={<Languages size={18} />}
+                            label="Furigana"
+                            checked={!!songData.furigana}
+                            onChange={(val) =>
+                                handleChange("furigana", val ? 1 : 0)
+                            }
+                            color="text-purple-400"
+                        />
+                    </div>
+
+                    {/* --- 修改後的 Versions 入口 --- */}
+                    <div className="pt-4 border-t border-white/10">
+                        <label className={labelClass}>
+                            <LinkIcon size={14} /> Song Versions
+                        </label>
+                        <button
+                            onClick={() => setIsVersionModalOpen(true)}
+                            className="w-full flex items-center justify-between p-4 bg-white/5 border border-dashed border-white/20 rounded-xl hover:bg-white/10 hover:border-primary/50 transition-all group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                                    <Layers size={20} />
+                                </div>
+                                <div className="text-left">
+                                    <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
+                                        Manage Multi-versions
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        {songData.versions?.length || 0}{" "}
+                                        versions configured
+                                    </div>
+                                </div>
+                            </div>
+                            <Plus
+                                size={20}
+                                className="text-gray-500 group-hover:text-primary"
+                            />
+                        </button>
+                    </div>
+
                     {/* Left Column: Basic Info */}
                     <div className={`${sectionClass} lg:col-span-3 space-y-6`}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -286,67 +347,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                 />
                             </div>
                         </div>
-                    </div>
-
-                    {/* Toggle Switches */}
-                    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
-                        <ToggleItem
-                            icon={<CheckCircle2 size={18} />}
-                            label="Available"
-                            checked={!!songData.available}
-                            onChange={(val) =>
-                                handleChange("available", val ? 1 : 0)
-                            }
-                            color="text-green-400"
-                        />
-                        <ToggleItem
-                            icon={<Users size={18} />}
-                            label="Duet Mode"
-                            checked={!!songData.is_duet}
-                            onChange={(val) =>
-                                handleChange("is_duet", val ? 1 : 0)
-                            }
-                            color="text-blue-400"
-                        />
-                        <ToggleItem
-                            icon={<Languages size={18} />}
-                            label="Furigana"
-                            checked={!!songData.furigana}
-                            onChange={(val) =>
-                                handleChange("furigana", val ? 1 : 0)
-                            }
-                            color="text-purple-400"
-                        />
-                    </div>
-
-                    {/* --- 修改後的 Versions 入口 --- */}
-                    <div className="pt-4 border-t border-white/10">
-                        <label className={labelClass}>
-                            <LinkIcon size={14} /> Song Versions
-                        </label>
-                        <button
-                            onClick={() => setIsVersionModalOpen(true)}
-                            className="w-full flex items-center justify-between p-4 bg-white/5 border border-dashed border-white/20 rounded-xl hover:bg-white/10 hover:border-primary/50 transition-all group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary/20 rounded-lg text-primary">
-                                    <Layers size={20} />
-                                </div>
-                                <div className="text-left">
-                                    <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
-                                        Manage Multi-versions
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        {songData.versions?.length || 0}{" "}
-                                        versions configured
-                                    </div>
-                                </div>
-                            </div>
-                            <Plus
-                                size={20}
-                                className="text-gray-500 group-hover:text-primary"
-                            />
-                        </button>
                     </div>
                 </div>
 
