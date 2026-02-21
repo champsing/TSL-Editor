@@ -116,7 +116,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     <div className="flex-1 space-y-6 w-full">
                         {/* 1. Status & Versions (垂直收合) */}
                         <CollapsibleSection
-                            title="Status & Versions"
+                            title="Song status"
                             isOpen={sections.status}
                             onToggle={() => toggleSection("status")}
                             icon={<CheckCircle2 size={16} />}
@@ -162,10 +162,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     </div>
 
                     {/* --- 修改後的 Versions 入口 --- */}
-                    <div className="pt-4 border-t border-white/10">
-                        <label className={labelClass}>
-                            <LinkIcon size={14} /> Song Versions
-                        </label>
+                    <div className="border-white/10">
                         <button
                             onClick={() => setIsVersionModalOpen(true)}
                             className="w-full flex items-center justify-between p-4 bg-white/5 border border-dashed border-white/20 rounded-xl hover:bg-white/10 hover:border-primary/50 transition-all group"
@@ -176,7 +173,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                 </div>
                                 <div className="text-left">
                                     <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
-                                        Manage Multi-versions
+                                        Manage Song Multi-versions
                                     </div>
                                     <div className="text-xs text-gray-500">
                                         {songData.versions?.length || 0}{" "}
@@ -292,42 +289,56 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 </div>
 
                 {/* 3. Cover Art (水平收合 - 向左收合，向右展開) */}
-                <HorizontalCollapsibleSection
-                    isOpen={sections.cover}
-                    onToggle={() => toggleSection("cover")}
-                >
-                    <div className="w-[300px] p-6 space-y-4">
-                        <label className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest">
-                            <ImageIcon size={14} /> Cover Art
-                        </label>
-                        <div className="space-y-4">
-                            <div className="aspect-square w-full rounded-2xl bg-black/40 border border-white/10 overflow-hidden group relative">
+                <div className="col-span-2">
+                    <HorizontalCollapsibleSection
+                        title="Cover Art"
+                        icon={<ImageIcon size={16} />}
+                        isOpen={sections.cover}
+                        onToggle={() => toggleSection("cover")}
+                    >
+                        <div className="w-[350px] p-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                {/* 輸入框 */}
+                                <input
+                                    value={songData.art}
+                                    onChange={(e) =>
+                                        handleChange("art", e.target.value)
+                                    }
+                                    className={`${inputClass} text-xs h-11`}
+                                    placeholder="https://..."
+                                />
+
+                                {/* 縮圖預覽按鈕 */}
                                 {songData.art ? (
-                                    <img
-                                        src={songData.art}
-                                        alt="Cover"
-                                        className="w-full h-full object-cover cursor-zoom-in"
+                                    <button
+                                        type="button"
                                         onClick={() =>
                                             setPreviewImage(songData.art)
                                         }
-                                    />
+                                        className="relative group shrink-0 focus:outline-none"
+                                    >
+                                        <img
+                                            src={songData.art}
+                                            alt="Art"
+                                            className="w-11 h-11 rounded-lg object-cover border border-white/20 shadow-lg group-hover:scale-105 group-hover:border-primary/50 transition-all cursor-zoom-in"
+                                        />
+                                        {/* 懸浮時顯示的小圖示 */}
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity">
+                                            <ImageIcon
+                                                size={14}
+                                                className="text-white"
+                                            />
+                                        </div>
+                                    </button>
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-600">
-                                        <ImageIcon size={48} />
+                                    <div className="w-11 h-11 rounded-lg bg-black/40 border border-dashed border-white/10 flex items-center justify-center text-gray-600 shrink-0">
+                                        <ImageIcon size={18} />
                                     </div>
                                 )}
                             </div>
-                            <input
-                                value={songData.art}
-                                onChange={(e) =>
-                                    handleChange("art", e.target.value)
-                                }
-                                className={`${inputClass} text-xs`}
-                                placeholder="Cover URL..."
-                            />
                         </div>
-                    </div>
-                </HorizontalCollapsibleSection>
+                    </HorizontalCollapsibleSection>
+                </div>
             </div>
 
             {/* 在最外層 div 結束前加入 Modal */}
@@ -509,7 +520,7 @@ const MultiSelectArtistField: React.FC<{
     );
 };
 
-// 1. 垂直收合元件 (純 CSS 版)
+// 1. 垂直收合元件 (已統一)
 const CollapsibleSection: React.FC<{
     title: string;
     isOpen: boolean;
@@ -517,13 +528,13 @@ const CollapsibleSection: React.FC<{
     icon?: React.ReactNode;
     children: React.ReactNode;
 }> = ({ title, isOpen, onToggle, icon, children }) => (
-    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl transition-all duration-300">
         <button
             onClick={onToggle}
             className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5"
         >
             <div className="flex items-center gap-3">
-                <span className="text-primary opacity-50">{icon}</span>
+                <span className="text-primary opacity-70">{icon}</span>
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-300">
                     {title}
                 </span>
@@ -535,7 +546,6 @@ const CollapsibleSection: React.FC<{
             </div>
         </button>
 
-        {/* CSS Grid 動畫容器 */}
         <div
             className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >
@@ -546,35 +556,44 @@ const CollapsibleSection: React.FC<{
     </div>
 );
 
-// 2. 水平收合元件 (極簡化觸發器版)
+// 2. 水平收合元件 (調整為與上方一致的 Header 風格)
 const HorizontalCollapsibleSection: React.FC<{
+    title: string; // 新增標題屬性以求統一
     isOpen: boolean;
     onToggle: () => void;
+    icon?: React.ReactNode;
     children: React.ReactNode;
-}> = ({ isOpen, onToggle, children }) => (
+}> = ({ title, isOpen, onToggle, icon, children }) => (
     <div className="flex items-start shrink-0 h-full relative">
-        {/* 極小化切換按鈕：收合時只剩下一個半圓形或小標籤 */}
+        {/* 切換按鈕：位置稍微優化 */}
         <button
             onClick={onToggle}
             className={`
-                absolute -left-4 top-10 z-10
-                w-8 h-8 bg-primary/20 border border-primary/30 rounded-full 
+                absolute -left-4 top-12 z-20
+                w-8 h-8 bg-[#2d3748] border border-white/10 rounded-full 
                 flex items-center justify-center text-primary backdrop-blur-md
-                hover:bg-primary hover:text-white transition-all duration-300
-                shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]
+                hover:border-primary/50 hover:text-white transition-all duration-300
+                shadow-xl
                 ${isOpen ? "rotate-0" : "rotate-180"}
             `}
         >
             <ChevronRight size={18} />
         </button>
 
-        {/* 內容容器 */}
         <div
-            className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0"}`}
+            className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-cols-2 opacity-100" : "grid-cols-[0fr] opacity-0"}`}
         >
-            <div className="overflow-hidden">
-                <div className="w-[300px] ml-4 bg-white/5 border border-white/10 rounded-2xl">
-                    {children}
+            <div className="overflow-hidden h-full">
+                <div className="w-[350px] ml-4 bg-white/5 border border-white/10 rounded-2xl shadow-xl h-full flex flex-col">
+                    {/* 新增的一致化 Header */}
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-white/5">
+                        <span className="text-primary opacity-70">{icon}</span>
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-300">
+                            {title}
+                        </span>
+                    </div>
+                    {/* 內容區 */}
+                    <div className="flex-1">{children}</div>
                 </div>
             </div>
         </div>

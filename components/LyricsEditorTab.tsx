@@ -50,7 +50,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
     } = props;
 
     return (
-        <div className="flex-1 flex flex-col min-w-0 bg-[#1a202c] overflow-y-auto pb-32">
+        <div className="flex-1 flex flex-col min-w-0 bg-[#1a202c] overflow-y-auto">
             {" "}
             {/* 稍微加深背景色對比 */}
             {/* Header 佈局優化 */}
