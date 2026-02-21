@@ -20,7 +20,6 @@ import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇
 import { SongVersionsModal } from "./SongVersionsModal";
 import { X } from "lucide-react";
 import { useArtistNames } from "@/hooks/useArtistName";
-import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
     songData: Song;
@@ -510,7 +509,7 @@ const MultiSelectArtistField: React.FC<{
     );
 };
 
-// 垂直收合元件 (用於 Status & Main)
+// 1. 垂直收合元件 (純 CSS 版)
 const CollapsibleSection: React.FC<{
     title: string;
     isOpen: boolean;
@@ -521,7 +520,7 @@ const CollapsibleSection: React.FC<{
     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
         <button
             onClick={onToggle}
-            className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/2 transition-colors border-b border-white/5"
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5"
         >
             <div className="flex items-center gap-3">
                 <span className="text-primary opacity-50">{icon}</span>
@@ -535,53 +534,49 @@ const CollapsibleSection: React.FC<{
                 <ChevronDown size={18} />
             </div>
         </button>
-        <AnimatePresence initial={false}>
-            {isOpen && (
-                <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                    <div className="p-6">{children}</div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+
+        {/* CSS Grid 動畫容器 */}
+        <div
+            className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+        >
+            <div className="overflow-hidden">
+                <div className="p-6">{children}</div>
+            </div>
+        </div>
     </div>
 );
 
-// 水平收合元件 (用於 Cover Art)
+// 2. 水平收合元件 (極簡化觸發器版)
 const HorizontalCollapsibleSection: React.FC<{
     isOpen: boolean;
     onToggle: () => void;
     children: React.ReactNode;
 }> = ({ isOpen, onToggle, children }) => (
-    <div className="flex items-stretch shrink-0 h-full">
-        {/* 切換按鈕 */}
+    <div className="flex items-start shrink-0 h-full relative">
+        {/* 極小化切換按鈕：收合時只剩下一個半圓形或小標籤 */}
         <button
             onClick={onToggle}
-            className="w-8 bg-white/5 border border-white/10 rounded-l-2xl flex items-center justify-center hover:bg-white/10 transition-colors group"
+            className={`
+                absolute -left-4 top-10 z-10
+                w-8 h-8 bg-primary/20 border border-primary/30 rounded-full 
+                flex items-center justify-center text-primary backdrop-blur-md
+                hover:bg-primary hover:text-white transition-all duration-300
+                shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]
+                ${isOpen ? "rotate-0" : "rotate-180"}
+            `}
         >
-            <div
-                className={`text-gray-500 transition-transform duration-500 ${isOpen ? "" : "rotate-180"}`}
-            >
-                <ChevronRight size={20} className="group-hover:text-primary" />
-            </div>
+            <ChevronRight size={18} />
         </button>
 
         {/* 內容容器 */}
-        <AnimatePresence initial={false}>
-            {isOpen && (
-                <motion.div
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: "auto", opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                    className="overflow-hidden bg-white/5 border-y border-r border-white/10 rounded-r-2xl"
-                >
+        <div
+            className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0"}`}
+        >
+            <div className="overflow-hidden">
+                <div className="w-[300px] ml-4 bg-white/5 border border-white/10 rounded-2xl">
                     {children}
-                </motion.div>
-            )}
-        </AnimatePresence>
+                </div>
+            </div>
+        </div>
     </div>
 );
