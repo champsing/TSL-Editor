@@ -1,10 +1,9 @@
 // components/SongMetaEditorTab.tsx
-import React from "react";
-import { Artist, Song } from "../types";
+import React, { useState } from "react";
+import { Song } from "../types";
 import {
     Music,
     User,
-    Globe,
     Image as ImageIcon,
     CheckCircle2,
     Users,
@@ -14,11 +13,14 @@ import {
     Plus,
     Link as LinkIcon,
     Layers,
+    ChevronRight,
+    ChevronDown,
 } from "lucide-react";
 import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇 Modal 組件
 import { SongVersionsModal } from "./SongVersionsModal";
 import { X } from "lucide-react";
 import { useArtistNames } from "@/hooks/useArtistName";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
     songData: Song;
@@ -34,6 +36,16 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const [previewImage, setPreviewImage] = React.useState<string | null>(null);
 
     const { artistLookup } = useArtistNames();
+    // 收合狀態管理
+    const [sections, setSections] = useState({
+        status: true,
+        main: true,
+        cover: true,
+    });
+
+    const toggleSection = (name: keyof typeof sections) => {
+        setSections((prev) => ({ ...prev, [name]: !prev[name] }));
+    };
 
     const handleChange = (field: keyof Song, value: any) => {
         setSongData({ ...songData, [field]: value });
@@ -100,36 +112,54 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Toggle Switches */}
-                    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
-                        <ToggleItem
-                            icon={<CheckCircle2 size={18} />}
-                            label="Available"
-                            checked={!!songData.available}
-                            onChange={(val) =>
-                                handleChange("available", val ? 1 : 0)
-                            }
-                            color="text-green-400"
-                        />
-                        <ToggleItem
-                            icon={<Users size={18} />}
-                            label="Duet Mode"
-                            checked={!!songData.is_duet}
-                            onChange={(val) =>
-                                handleChange("is_duet", val ? 1 : 0)
-                            }
-                            color="text-blue-400"
-                        />
-                        <ToggleItem
-                            icon={<Languages size={18} />}
-                            label="Furigana"
-                            checked={!!songData.furigana}
-                            onChange={(val) =>
-                                handleChange("furigana", val ? 1 : 0)
-                            }
-                            color="text-purple-400"
-                        />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* 左側主要區域 */}
+                    <div className="flex-1 space-y-6 w-full">
+                        {/* 1. Status & Versions (垂直收合) */}
+                        <CollapsibleSection
+                            title="Status & Versions"
+                            isOpen={sections.status}
+                            onToggle={() => toggleSection("status")}
+                            icon={<CheckCircle2 size={16} />}
+                        >
+                            <div className="grid grid-cols-1 gap-6">
+                                <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
+                                    <ToggleItem
+                                        icon={<CheckCircle2 size={18} />}
+                                        label="Available"
+                                        checked={!!songData.available}
+                                        onChange={(val) =>
+                                            handleChange(
+                                                "available",
+                                                val ? 1 : 0,
+                                            )
+                                        }
+                                        color="text-green-400"
+                                    />
+                                    <ToggleItem
+                                        icon={<Users size={18} />}
+                                        label="Duet Mode"
+                                        checked={!!songData.is_duet}
+                                        onChange={(val) =>
+                                            handleChange("is_duet", val ? 1 : 0)
+                                        }
+                                        color="text-blue-400"
+                                    />
+                                    <ToggleItem
+                                        icon={<Languages size={18} />}
+                                        label="Furigana"
+                                        checked={!!songData.furigana}
+                                        onChange={(val) =>
+                                            handleChange(
+                                                "furigana",
+                                                val ? 1 : 0,
+                                            )
+                                        }
+                                        color="text-purple-400"
+                                    />
+                                </div>
+                            </div>
+                        </CollapsibleSection>
                     </div>
 
                     {/* --- 修改後的 Versions 入口 --- */}
@@ -161,128 +191,144 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                             />
                         </button>
                     </div>
-
-                    {/* Main Content */}
-                    <div className={`${sectionClass} lg:col-span-3 space-y-6 relative z-10`}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            {/* Title & Subtitle */}
-                            <div>
-                                <label className={labelClass}>
-                                    <Music size={14} /> Title
-                                </label>
-                                <input
-                                    value={songData.title}
-                                    onChange={(e) =>
-                                        handleChange("title", e.target.value)
+                    <div className="col-span-2">
+                        {/* 2. Main Content (垂直收合) */}
+                        <CollapsibleSection
+                            title="Main Content"
+                            isOpen={sections.main}
+                            onToggle={() => toggleSection("main")}
+                            icon={<Music size={16} />}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest">
+                                        <Music size={14} /> Title
+                                    </label>
+                                    <input
+                                        value={songData.title}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "title",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={inputClass}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest">
+                                        <Music
+                                            size={14}
+                                            className="opacity-50"
+                                        />{" "}
+                                        Subtitle
+                                    </label>
+                                    <input
+                                        value={songData.subtitle || ""}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "subtitle",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={inputClass}
+                                    />
+                                </div>
+                                <MultiSelectArtistField
+                                    label="Artist"
+                                    icon={<User size={14} />}
+                                    selectedIds={parseIds(songData.artist)}
+                                    lookup={artistLookup}
+                                    onChange={(ids) =>
+                                        handleChange("artist", ids.join(","))
                                     }
-                                    className={inputClass}
                                 />
-                            </div>
-                            <div>
-                                <label className={labelClass}>
-                                    <Music size={14} className="opacity-50" />{" "}
-                                    Subtitle
-                                </label>
-                                <input
-                                    value={songData.subtitle || ""}
-                                    onChange={(e) =>
-                                        handleChange("subtitle", e.target.value)
+                                <MultiSelectArtistField
+                                    label="Lyricist"
+                                    icon={
+                                        <User
+                                            size={14}
+                                            className="opacity-50"
+                                        />
                                     }
-                                    className={inputClass}
-                                />
-                            </div>
-
-                            {/* --- 使用封裝後的 Artist 選取器 --- */}
-                            <MultiSelectArtistField
-                                label="Artist"
-                                icon={<User size={14} />}
-                                selectedIds={parseIds(songData.artist)}
-                                lookup={artistLookup}
-                                onChange={(ids) =>
-                                    handleChange("artist", ids.join(","))
-                                }
-                            />
-
-                            {/* --- 使用封裝後的 Lyricist 選取器 --- */}
-                            <MultiSelectArtistField
-                                label="Lyricist"
-                                icon={<User size={14} className="opacity-50" />}
-                                selectedIds={parseIds(songData.lyricist)}
-                                lookup={artistLookup}
-                                chipColorClass="bg-blue-400/20 text-blue-400 border-blue-400/30"
-                                onChange={(ids) =>
-                                    handleChange("lyricist", ids.join(","))
-                                }
-                            />
-
-                            <div>
-                                <label className={labelClass}>
-                                    Language Code
-                                </label>
-                                <input
-                                    value={songData.lang}
-                                    onChange={(e) =>
-                                        handleChange("lang", e.target.value)
+                                    selectedIds={parseIds(songData.lyricist)}
+                                    lookup={artistLookup}
+                                    chipColorClass="bg-blue-400/20 text-blue-400 border-blue-400/30"
+                                    onChange={(ids) =>
+                                        handleChange("lyricist", ids.join(","))
                                     }
-                                    className={`${inputClass} font-mono`}
-                                    placeholder="ja / en / zh"
                                 />
+
+                                <div>
+                                    <label className={labelClass}>
+                                        Language Code
+                                    </label>
+                                    <input
+                                        value={songData.lang}
+                                        onChange={(e) =>
+                                            handleChange("lang", e.target.value)
+                                        }
+                                        className={`${inputClass} font-mono`}
+                                        placeholder="ja / en / zh"
+                                    />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>
+                                        Folder Path
+                                    </label>
+                                    <input
+                                        value={songData.folder}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "folder",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={`${inputClass} font-mono text-sm`}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label className={labelClass}>
-                                    Folder Path
-                                </label>
-                                <input
-                                    value={songData.folder}
-                                    onChange={(e) =>
-                                        handleChange("folder", e.target.value)
-                                    }
-                                    className={`${inputClass} font-mono text-sm`}
-                                />
-                            </div>
-                        </div>
+                        </CollapsibleSection>
                     </div>
                 </div>
 
-                <div className="gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl relative z-0">
-                    <div className=" border-white/5">
-                        <label className={labelClass}>
-                            <ImageIcon size={14} /> Cover Art URL
+                {/* 3. Cover Art (水平收合 - 向左收合，向右展開) */}
+                <HorizontalCollapsibleSection
+                    isOpen={sections.cover}
+                    onToggle={() => toggleSection("cover")}
+                >
+                    <div className="w-[300px] p-6 space-y-4">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest">
+                            <ImageIcon size={14} /> Cover Art
                         </label>
-                        <div className="flex gap-4">
+                        <div className="space-y-4">
+                            <div className="aspect-square w-full rounded-2xl bg-black/40 border border-white/10 overflow-hidden group relative">
+                                {songData.art ? (
+                                    <img
+                                        src={songData.art}
+                                        alt="Cover"
+                                        className="w-full h-full object-cover cursor-zoom-in"
+                                        onClick={() =>
+                                            setPreviewImage(songData.art)
+                                        }
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-600">
+                                        <ImageIcon size={48} />
+                                    </div>
+                                )}
+                            </div>
                             <input
                                 value={songData.art}
                                 onChange={(e) =>
                                     handleChange("art", e.target.value)
                                 }
-                                className={inputClass}
-                                placeholder="https://..."
+                                className={`${inputClass} text-xs`}
+                                placeholder="Cover URL..."
                             />
-                            {songData.art && (
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setPreviewImage(songData.art)
-                                    }
-                                    className="relative group shrink-0 focus:outline-none"
-                                >
-                                    <img
-                                        src={songData.art}
-                                        alt="Art"
-                                        className="w-11 h-11 rounded-lg object-cover border border-white/20 shadow-lg group-hover:scale-105 group-hover:border-primary/50 transition-all cursor-zoom-in"
-                                    />
-                                    {/* 懸浮提示 */}
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity">
-                                        <Hash
-                                            size={12}
-                                            className="text-white"
-                                        />
-                                    </div>
-                                </button>
-                            )}
                         </div>
                     </div>
-                </div>
+                </HorizontalCollapsibleSection>
             </div>
 
             {/* 在最外層 div 結束前加入 Modal */}
@@ -463,3 +509,79 @@ const MultiSelectArtistField: React.FC<{
         </div>
     );
 };
+
+// 垂直收合元件 (用於 Status & Main)
+const CollapsibleSection: React.FC<{
+    title: string;
+    isOpen: boolean;
+    onToggle: () => void;
+    icon?: React.ReactNode;
+    children: React.ReactNode;
+}> = ({ title, isOpen, onToggle, icon, children }) => (
+    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+        <button
+            onClick={onToggle}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/2 transition-colors border-b border-white/5"
+        >
+            <div className="flex items-center gap-3">
+                <span className="text-primary opacity-50">{icon}</span>
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-300">
+                    {title}
+                </span>
+            </div>
+            <div
+                className={`text-gray-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+            >
+                <ChevronDown size={18} />
+            </div>
+        </button>
+        <AnimatePresence initial={false}>
+            {isOpen && (
+                <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                    <div className="p-6">{children}</div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+);
+
+// 水平收合元件 (用於 Cover Art)
+const HorizontalCollapsibleSection: React.FC<{
+    isOpen: boolean;
+    onToggle: () => void;
+    children: React.ReactNode;
+}> = ({ isOpen, onToggle, children }) => (
+    <div className="flex items-stretch shrink-0 h-full">
+        {/* 切換按鈕 */}
+        <button
+            onClick={onToggle}
+            className="w-8 bg-white/5 border border-white/10 rounded-l-2xl flex items-center justify-center hover:bg-white/10 transition-colors group"
+        >
+            <div
+                className={`text-gray-500 transition-transform duration-500 ${isOpen ? "" : "rotate-180"}`}
+            >
+                <ChevronRight size={20} className="group-hover:text-primary" />
+            </div>
+        </button>
+
+        {/* 內容容器 */}
+        <AnimatePresence initial={false}>
+            {isOpen && (
+                <motion.div
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: "auto", opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    className="overflow-hidden bg-white/5 border-y border-r border-white/10 rounded-r-2xl"
+                >
+                    {children}
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+);
