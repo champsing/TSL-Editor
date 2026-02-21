@@ -76,22 +76,46 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         "bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-sm";
 
     return (
-        <div className="flex-1 bg-[#1a202c] overflow-y-auto p-8 custom-scrollbar">
+        <div className="flex-1 bg-[#1a202c] p-8 custom-scrollbar overflow-y-auto pb-32">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header Section */}
-                <div className="flex items-center justify-baseline border-b border-white/10 pb-6 gap-4">
-                    <div>
-                        <h2 className="text-3xl font-black text-white flex items-center gap-3">
-                            <Music className="text-primary" size={32} />
-                            Song Metadata
-                        </h2>
+                <div className="flex items-center justify-between border-b border-white/10 pb-6">
+                    <div className="flex items-center justify-baseline gap-4">
+                        <div>
+                            <h2 className="text-3xl font-black text-white flex items-center gap-3">
+                                <Music className="text-primary" size={32} />
+                                Song Metadata
+                            </h2>
+                        </div>
+                        {/* 修改後的 ID 按鈕 */}
+                        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20">
+                            <Hash size={16} className="text-primary" />
+                            <span className="font-mono text-primary font-bold">
+                                {songData.song_id}
+                            </span>
+                        </div>
                     </div>
-                    {/* 修改後的 ID 按鈕 */}
-                    <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20">
-                        <Hash size={16} className="text-primary" />
-                        <span className="font-mono text-primary font-bold">
-                            {songData.song_id}
-                        </span>
+
+                    {/* Date Editor */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-gray-400">
+                            <Calendar size={16} />
+                            <span className="text-xs font-bold uppercase tracking-wider">
+                                Last Updated:
+                            </span>
+                        </div>
+                        <input
+                            type="date"
+                            value={
+                                songData.updated_at
+                                    ? songData.updated_at.split(" ")[0]
+                                    : ""
+                            }
+                            onChange={(e) =>
+                                handleChange("updated_at", e.target.value)
+                            }
+                            className="bg-black/40 border border-white/10 rounded px-3 py-1 text-sm text-primary font-mono focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                        />
                     </div>
                 </div>
 
@@ -235,86 +259,35 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                                     className={inputClass}
                                 />
                             </div>
-                        </div>
 
-                        <div className="pt-4 border-t border-white/5">
-                            <label className={labelClass}>
-                                <ImageIcon size={14} /> Cover Art URL
-                            </label>
-                            <div className="flex gap-4">
+                            <div>
+                                <label className={labelClass}>
+                                    Language Code
+                                </label>
                                 <input
-                                    value={songData.art}
+                                    value={songData.lang}
                                     onChange={(e) =>
-                                        handleChange("art", e.target.value)
+                                        handleChange("lang", e.target.value)
                                     }
-                                    className={inputClass}
-                                    placeholder="https://..."
+                                    className={`${inputClass} font-mono`}
+                                    placeholder="ja / en / zh"
                                 />
-                                {songData.art && (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setPreviewImage(songData.art)
-                                        }
-                                        className="relative group shrink-0 focus:outline-none"
-                                    >
-                                        <img
-                                            src={songData.art}
-                                            alt="Art"
-                                            className="w-11 h-11 rounded-lg object-cover border border-white/20 shadow-lg group-hover:scale-105 group-hover:border-primary/50 transition-all cursor-zoom-in"
-                                        />
-                                        {/* 懸浮提示 */}
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity">
-                                            <Hash
-                                                size={12}
-                                                className="text-white"
-                                            />
-                                        </div>
-                                    </button>
-                                )}
+                            </div>
+                            <div>
+                                <label className={labelClass}>
+                                    Folder Path
+                                </label>
+                                <input
+                                    value={songData.folder}
+                                    onChange={(e) =>
+                                        handleChange("folder", e.target.value)
+                                    }
+                                    className={`${inputClass} font-mono text-sm`}
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column: System & Status */}
-                    <div className="space-y-6">
-                        <div className={sectionClass}>
-                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                                <Globe size={16} className="text-primary" />
-                                System Settings
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className={labelClass}>
-                                        Language Code
-                                    </label>
-                                    <input
-                                        value={songData.lang}
-                                        onChange={(e) =>
-                                            handleChange("lang", e.target.value)
-                                        }
-                                        className={`${inputClass} font-mono`}
-                                        placeholder="ja / en / zh"
-                                    />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>
-                                        Folder Path
-                                    </label>
-                                    <input
-                                        value={songData.folder}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "folder",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className={`${inputClass} font-mono text-sm`}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     {/* Toggle Switches */}
                     <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
                         <ToggleItem
@@ -377,32 +350,43 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     </div>
                 </div>
 
-                {/* Footer: Date Editor & Meta */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <Calendar size={16} />
-                            <span className="text-xs font-bold uppercase tracking-wider">
-                                Last Updated:
-                            </span>
+                <div className="gap-4 p-6 bg-white/5 border border-white/10 rounded-2xl">
+                    <div className=" border-white/5">
+                        <label className={labelClass}>
+                            <ImageIcon size={14} /> Cover Art URL
+                        </label>
+                        <div className="flex gap-4">
+                            <input
+                                value={songData.art}
+                                onChange={(e) =>
+                                    handleChange("art", e.target.value)
+                                }
+                                className={inputClass}
+                                placeholder="https://..."
+                            />
+                            {songData.art && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPreviewImage(songData.art)
+                                    }
+                                    className="relative group shrink-0 focus:outline-none"
+                                >
+                                    <img
+                                        src={songData.art}
+                                        alt="Art"
+                                        className="w-11 h-11 rounded-lg object-cover border border-white/20 shadow-lg group-hover:scale-105 group-hover:border-primary/50 transition-all cursor-zoom-in"
+                                    />
+                                    {/* 懸浮提示 */}
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity">
+                                        <Hash
+                                            size={12}
+                                            className="text-white"
+                                        />
+                                    </div>
+                                </button>
+                            )}
                         </div>
-                        <input
-                            type="date"
-                            value={
-                                songData.updated_at
-                                    ? songData.updated_at.split(" ")[0]
-                                    : ""
-                            }
-                            onChange={(e) =>
-                                handleChange("updated_at", e.target.value)
-                            }
-                            className="bg-black/40 border border-white/10 rounded px-3 py-1 text-sm text-primary font-mono focus:outline-none focus:border-primary transition-colors cursor-pointer"
-                        />
-                    </div>
-
-                    <div className="text-xs font-mono text-gray-500">
-                        System Status:{" "}
-                        <span className="text-green-500">Synced</span>
                     </div>
                 </div>
             </div>
