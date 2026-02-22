@@ -11,10 +11,9 @@ import {
     Calendar,
     Hash,
     Plus,
-    Link as LinkIcon,
     Layers,
-    ChevronRight,
     ChevronDown,
+    ChevronLeft,
 } from "lucide-react";
 import { SongSelectionModal } from "./SongSelectionModal"; // 新增歌曲選擇 Modal 組件
 import { SongVersionsModal } from "./SongVersionsModal";
@@ -296,7 +295,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         isOpen={sections.cover}
                         onToggle={() => toggleSection("cover")}
                     >
-                        <div className="w-[350px] p-6 space-y-4">
+                        <div className="p-6 space-y-4">
                             <div className="flex items-center gap-3">
                                 {/* 輸入框 */}
                                 <input
@@ -636,14 +635,14 @@ const HorizontalCollapsibleSection: React.FC<{
                 ${isOpen ? "rotate-0" : "rotate-180"}
             `}
         >
-            <ChevronRight size={18} />
+            <ChevronLeft size={18} />
         </button>
 
         <div
-            className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-cols-2 opacity-100" : "grid-cols-[0fr] opacity-0"}`}
+            className={`transition-all duration-500 ease-in-out ${isOpen ? "w-1/2 opacity-100" : "w-0 opacity-0"}`}
         >
-            <div className="overflow-hidden h-full">
-                <div className="w-[350px] ml-4 bg-white/5 border border-white/10 rounded-2xl shadow-xl h-full flex flex-col">
+            <div className="h-full overflow-hidden">
+                <div className="ml-4 bg-white/5 border border-white/10 rounded-2xl shadow-xl h-full flex flex-col">
                     {/* 新增的一致化 Header */}
                     <div className="px-5 py-4 flex items-center gap-3 border-b border-white/5">
                         <span className="text-primary opacity-70">{icon}</span>
