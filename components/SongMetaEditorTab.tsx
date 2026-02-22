@@ -518,7 +518,7 @@ const MultiSelectArtistField: React.FC<{
 
             {/* 懸浮下拉選單 */}
             {isOpen && (
-                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-100 bg-[#2d3748] border border-white/20 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-100 bg-[#2d3748] border border-white/20 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
                     {/* 搜尋框區域 */}
                     <div className="p-2 border-b border-white/10 bg-black/20">
                         <div className="relative">
@@ -538,7 +538,7 @@ const MultiSelectArtistField: React.FC<{
                     </div>
 
                     {/* 選項列表 */}
-                    <div className="max-h-60 overflow-y-auto custom-scrollbar p-1">
+                    <div className="max-h-60 overflow-y-scroll custom-scrollbar p-1">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map(([id, name]) => (
                                 <button
@@ -607,7 +607,7 @@ const CollapsibleSection: React.FC<{
         <div
             className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >
-            <div className="overflow-hidden">
+            <div className={`${isOpen ? "" : "overflow-hidden"}`}>
                 <div className="p-6">{children}</div>
             </div>
         </div>
