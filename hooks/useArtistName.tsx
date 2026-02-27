@@ -12,22 +12,22 @@ export const useArtistNames = () => {
         setLoading(true);
         setError(null);
 
-        // 同時抓取歌曲與藝人對照字典 ({ id: name })
+        // 同時抓取歌曲與藝人對照字典
         Promise.all([
-            fetch("https://api.timesl.online/songs").then((res) => res.json()),
-            fetch("https://api.timesl.online/artists/").then((res) =>
+            fetch("https://api.timesl.online/api/songs/list").then((res) =>
+                res.json(),
+            ),
+            fetch("https://api.timesl.online/api/artists/list").then((res) =>
                 res.json(),
             ),
         ])
             .then(([songData, artistData]) => {
                 // 處理歌曲清單
-                const songList = Array.isArray(songData)
-                    ? songData
-                    : songData.songs || [];
+                const songList = Array.isArray(songData) ? songData : [];
                 setSongs(songList);
 
-                // 處理藝人對照表 (對應你 Python 新寫的 export_artist_list 格式)
-                const lookup = artistData.artists || artistData || {};
+                // 處理藝人對照表
+                const lookup = artistData || {};
                 setArtistLookup(lookup);
             })
             .catch((err) => {
@@ -37,7 +37,7 @@ export const useArtistNames = () => {
             .finally(() => {
                 setLoading(false);
             });
-    },[]);
+    }, []);
 
     /**
      * 格式化顯示名稱

@@ -93,7 +93,7 @@ function App() {
         }
 
         const response = await fetch(
-            `https://api.timesl.online/songs/${selectedSong.song_id}`,
+            `https://api.timesl.online/api/songs/${selectedSong.song_id}`,
         );
         const fullSongData = await response.json();
 
