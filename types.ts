@@ -76,5 +76,8 @@ export interface Version {
 
 export interface Artist {
     id: number;
+    artist_id: number;
     original_name: string;
+    romaji_name: string;
+    updated_at: string;
 }

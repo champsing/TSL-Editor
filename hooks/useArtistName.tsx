@@ -1,3 +1,4 @@
+import { Artist, Song } from "@/types";
 import { useState, useEffect, useCallback } from "react";
 
 export const useArtistNames = () => {
@@ -23,14 +24,14 @@ export const useArtistNames = () => {
         ])
             .then(([songData, artistData]) => {
                 // 處理歌曲清單
-                const songList = Array.isArray(songData) ? songData : [];
+                const songList: Song[] = Array.isArray(songData) ? songData : [];
                 setSongs(songList);
 
                 // 處理藝人對照表
-                const lookup = Array.isArray(artistData) ? artistData : [];
+                const lookup: Artist[] = Array.isArray(artistData) ? artistData : [];
                 setArtistLookup(
                     Object.fromEntries(
-                        lookup.map((artist: any) => [
+                        lookup.map((artist) => [
                             artist.artist_id,
                             artist.original_name,
                         ]),
