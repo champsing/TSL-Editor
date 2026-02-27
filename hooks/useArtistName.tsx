@@ -27,8 +27,15 @@ export const useArtistNames = () => {
                 setSongs(songList);
 
                 // 處理藝人對照表
-                const lookup = artistData || {};
-                setArtistLookup(lookup);
+                const lookup = Array.isArray(artistData) ? artistData : [];
+                setArtistLookup(
+                    Object.fromEntries(
+                        lookup.map((artist: any) => [
+                            artist.id,
+                            artist.original_name,
+                        ]),
+                    ),
+                );
             })
             .catch((err) => {
                 console.error("Fetch error in useArtistNames:", err);
