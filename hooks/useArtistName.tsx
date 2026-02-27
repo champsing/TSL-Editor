@@ -31,7 +31,7 @@ export const useArtistNames = () => {
                 setArtistLookup(
                     Object.fromEntries(
                         lookup.map((artist: any) => [
-                            artist.id,
+                            artist.artist_id,
                             artist.original_name,
                         ]),
                     ),
