@@ -1,6 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { LyricLine } from "../../types";
-import { X, GripVertical, ArrowUp, ArrowDown, TriangleAlert } from "lucide-react";
+import {
+    X,
+    GripVertical,
+    ArrowUp,
+    ArrowDown,
+    TriangleAlert,
+} from "lucide-react";
 
 interface LineReorderModalProps {
     isOpen: boolean;
@@ -49,7 +55,8 @@ const fixTimes = (items: LineItemData[]): LineItemData[] => {
 
 // Get display text for a line
 const getLineText = (line: LyricLine): string => {
-    if (line.type && line.type !== "normal") return `[${line.type.toUpperCase()}]`;
+    if (line.type && line.type !== "normal")
+        return `[${line.type.toUpperCase()}]`;
     return line.text?.map((p) => p.phrase).join(" ") || "(empty)";
 };
 
@@ -161,7 +168,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
 
     // Check time conflicts (where order differs from time order)
     const timeConflicts = items.reduce<boolean[]>((acc, item, i) => {
-        if (i === 0) { acc.push(false); return acc; }
+        if (i === 0) {
+            acc.push(false);
+            return acc;
+        }
         const prev = timeToSeconds(items[i - 1].line.time);
         const cur = timeToSeconds(item.line.time);
         acc.push(cur < prev);
@@ -175,7 +185,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)" }}
+            style={{
+                background: "rgba(0,0,0,0.75)",
+                backdropFilter: "blur(6px)",
+            }}
         >
             <div
                 className="relative flex flex-col bg-[#1a202c] border border-gray-700 rounded-2xl shadow-2xl"
@@ -188,8 +201,11 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                             Reorder Lines
                         </h2>
                         <p className="text-xs text-gray-400 mt-0.5">
-                            Drag rows or select + <kbd className="bg-gray-700 px-1 rounded text-gray-300">Shift ↑↓</kbd> to move.
-                            Time conflicts are auto-fixed on Apply.
+                            Drag rows or select +{" "}
+                            <kbd className="bg-gray-700 px-1 rounded text-gray-300">
+                                Shift ↑↓
+                            </kbd>{" "}
+                            to move. Time conflicts are auto-fixed on Apply.
                         </p>
                     </div>
                     <button
@@ -205,7 +221,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                     <div className="mx-6 mt-3 flex items-center gap-2 bg-amber-900/20 border border-amber-500/30 rounded-lg px-3 py-2 text-xs text-amber-300">
                         <TriangleAlert size={14} className="shrink-0" />
                         <span>
-                            Lines marked <span className="text-amber-400 font-bold">⚠</span> have time conflicts — applying will auto-set them to 3s before the previous line.
+                            Lines marked{" "}
+                            <span className="text-amber-400 font-bold">⚠</span>{" "}
+                            have time conflicts — applying will auto-set them to
+                            3s before the previous line.
                         </span>
                     </div>
                 )}
@@ -218,7 +237,8 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                     {items.map((item, idx) => {
                         const isSelected = kbSelected === idx;
                         const isDragging = dragIndex === idx;
-                        const isDragOver = dragOverIndex === idx && dragIndex !== idx;
+                        const isDragOver =
+                            dragOverIndex === idx && dragIndex !== idx;
                         const hasConflict = timeConflicts[idx];
 
                         return (
@@ -229,7 +249,9 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                 onDragOver={(e) => handleDragOver(e, idx)}
                                 onDrop={(e) => handleDrop(e, idx)}
                                 onDragEnd={handleDragEnd}
-                                onClick={() => setKbSelected(isSelected ? null : idx)}
+                                onClick={() =>
+                                    setKbSelected(isSelected ? null : idx)
+                                }
                                 className={`
                                     flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-grab active:cursor-grabbing
                                     transition-all duration-150 select-none
@@ -240,7 +262,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                 `}
                             >
                                 {/* Grip */}
-                                <GripVertical size={16} className="text-gray-600 shrink-0" />
+                                <GripVertical
+                                    size={16}
+                                    className="text-gray-600 shrink-0"
+                                />
 
                                 {/* Row number */}
                                 <span className="text-xs text-gray-500 w-6 text-right tabular-nums shrink-0">
@@ -251,16 +276,19 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                 <span
                                     className={`font-mono text-sm font-bold w-20 shrink-0 ${hasConflict ? "text-amber-400" : "text-primary"}`}
                                 >
-                                    {hasConflict && <span className="mr-1">⚠</span>}
+                                    {hasConflict && (
+                                        <span className="mr-1">⚠</span>
+                                    )}
                                     {item.line.time}
                                 </span>
 
                                 {/* Type badge (if special) */}
-                                {item.line.type && item.line.type !== "normal" && (
-                                    <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-gray-700 text-gray-400 font-bold shrink-0">
-                                        {item.line.type}
-                                    </span>
-                                )}
+                                {item.line.type &&
+                                    item.line.type !== "normal" && (
+                                        <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-gray-700 text-gray-400 font-bold shrink-0">
+                                            {item.line.type}
+                                        </span>
+                                    )}
 
                                 {/* Vocalist badges */}
                                 {item.line.is_secondary && (
@@ -290,7 +318,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                 {isSelected && (
                                     <div className="flex gap-1 shrink-0">
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); moveItem(idx, "up"); }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                moveItem(idx, "up");
+                                            }}
                                             disabled={idx === 0}
                                             className="p-1 rounded bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/40 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                                             title="Move up (Shift+↑)"
@@ -298,7 +329,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                             <ArrowUp size={14} />
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); moveItem(idx, "down"); }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                moveItem(idx, "down");
+                                            }}
                                             disabled={idx === items.length - 1}
                                             className="p-1 rounded bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/40 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                                             title="Move down (Shift+↓)"
@@ -315,7 +349,10 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                 {/* Footer */}
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-700 gap-3">
                     <span className="text-xs text-gray-500">
-                        {items.length} lines • {hasConflicts ? `${timeConflicts.filter(Boolean).length} time conflict(s) will be fixed` : "No conflicts"}
+                        {items.length} lines •{" "}
+                        {hasConflicts
+                            ? `${timeConflicts.filter(Boolean).length} time conflict(s) will be fixed`
+                            : "No conflicts"}
                     </span>
                     <div className="flex gap-3">
                         <button
