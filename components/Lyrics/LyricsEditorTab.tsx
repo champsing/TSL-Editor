@@ -1,7 +1,7 @@
 // components/LyricsEditorTab.tsx
 import React from "react";
 import { Plus, Play, Pause } from "lucide-react";
-import { LineEditor } from "../Header/LineEditor";
+import { LineEditor } from "./LineEditor";
 import { secondsToTime } from "../../utils";
 import { LyricLine } from "../../types";
 import { EditActions } from "./EditActions";
