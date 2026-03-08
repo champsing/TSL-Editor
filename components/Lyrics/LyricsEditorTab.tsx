@@ -1,7 +1,8 @@
 // components/LyricsEditorTab.tsx
-import React from "react";
-import { Plus, Play, Pause } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, Play, Pause, ArrowUpDown } from "lucide-react";
 import { LineEditor } from "./LineEditor";
+import { LineReorderModal } from "./LineReorderModal";
 import { secondsToTime } from "../../utils";
 import { LyricLine } from "../../types";
 import { EditActions } from "./EditActions";
@@ -25,6 +26,8 @@ interface Props {
     onViewDiff: () => void;
     onPlayPause: () => void;
     scrollContainerRef: React.RefObject<HTMLDivElement>;
+    // Optional: expose a bulk-replace handler for cleaner reorder support
+    replaceAllLines?: (lines: LyricLine[]) => void;
 }
 
 export const LyricsEditorTab: React.FC<Props> = (props) => {
@@ -47,15 +50,28 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
         onPlayPause,
         setPreviewModalOpen,
         scrollContainerRef,
+        replaceAllLines,
     } = props;
+
+    const [reorderModalOpen, setReorderModalOpen] = useState(false);
+
+    const handleReorder = (newLines: LyricLine[]) => {
+        if (replaceAllLines) {
+            // Preferred: parent exposes a bulk replace handler
+            replaceAllLines(newLines);
+        } else {
+            // Fallback: update each index individually
+            newLines.forEach((line, i) => {
+                updateLine(i, line);
+            });
+        }
+    };
 
     return (
         <div className="flex-1 flex flex-col min-w-0 bg-[#1a202c] overflow-y-auto">
-            {" "}
-            {/* 稍微加深背景色對比 */}
-            {/* Header 佈局優化 */}
+            {/* Header */}
             <div className="bg-[#2d3748]/80 backdrop-blur-md px-6 py-4 border-b border-gray-700/50 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                {/* 左側：狀態與時間 */}
+                {/* Left: Status & Time */}
                 <div className="flex items-center gap-6">
                     <button
                         onClick={onPlayPause}
@@ -69,9 +85,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             }
                         `}
                     >
-                        {/* 懸停時的微光背景擴散 */}
                         <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-5 blur-md transition-opacity" />
-
                         {isPlaying ? (
                             <Pause
                                 size={18}
@@ -96,19 +110,10 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                         </div>
                     </div>
                     <div className="h-10 w-px bg-gray-700"></div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
-                            Total Lines
-                        </span>
-                        <div className="text-xl font-semibold text-gray-300">
-                            {stagedLyrics.length}
-                        </div>
-                    </div>
                 </div>
 
-                {/* 右側：按鈕群組化 */}
+                {/* Right: Button groups */}
                 <div className="flex items-center gap-3">
-                    {/* 主要操作組 */}
                     <div className="flex bg-gray-800/50 p-1 rounded-lg border border-gray-700">
                         <button
                             onClick={() => setPreviewModalOpen(true)}
@@ -120,6 +125,24 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                                 className="opacity-70"
                             />
                             Preview
+                        </button>
+
+                        <div className="w-px h-6 bg-gray-700 my-auto"></div>
+
+                        {/* Reorder button */}
+                        <button
+                            onClick={() => setReorderModalOpen(true)}
+                            disabled={stagedLyrics.length === 0}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all active:scale-95
+                                ${
+                                    stagedLyrics.length > 0
+                                        ? "text-sky-400 hover:bg-sky-500/10"
+                                        : "text-gray-600 cursor-not-allowed opacity-50"
+                                }`}
+                            title="Reorder lines"
+                        >
+                            <ArrowUpDown size={16} />
+                            Reorder
                         </button>
 
                         <div className="w-px h-6 bg-gray-700 my-auto"></div>
@@ -139,10 +162,8 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                         </button>
                     </div>
 
-                    {/* 分隔線 */}
                     <div className="w-2"></div>
 
-                    {/* 變更管理組 (EditActions 如果可以自定義樣式，建議傳入 className) */}
                     <div className="flex items-center gap-2 border-l border-gray-700 pl-4">
                         <EditActions
                             hasUncommittedChanges={hasUncommittedChanges}
@@ -153,7 +174,8 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                     </div>
                 </div>
             </div>
-            {/* 內容區：增加一個優雅的漸層陰影 */}
+
+            {/* Content area */}
             <div
                 ref={scrollContainerRef}
                 className="flex-1 overflow-y-auto p-8 scroll-smooth pb-32 relative custom-scrollbar"
@@ -186,8 +208,26 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             />
                         ))
                     )}
+                    <div className="mt-4 flex flex-row gap-4 items-center">
+                        <div className="grow"></div>
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+                            Total Lines
+                        </span>
+                        <div className="text-xl font-semibold text-gray-300">
+                            {stagedLyrics.length}
+                        </div>
+                        <div className="grow"></div>
+                    </div>
                 </div>
             </div>
+
+            {/* Reorder Modal */}
+            <LineReorderModal
+                isOpen={reorderModalOpen}
+                onClose={() => setReorderModalOpen(false)}
+                lines={stagedLyrics}
+                onReorder={handleReorder}
+            />
         </div>
     );
 };
