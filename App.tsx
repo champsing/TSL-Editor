@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { PreviewModal } from "./components/PreviewModal";
-import { JsonModal } from "./components/JsonModal"; // 新增 Modal 組件 (如下)
-import { DiffModal } from "./components/DiffModal"; // 匯入新的 DiffModal 組件
-import { EditorHeader } from "./components/EditorHeader";
-import { EditorSidebar } from "./components/EditorSidebar";
+import { PreviewModal } from "./components/Lyrics/PreviewModal";
+import { JsonModal } from "./components/Header/JsonModal"; // 新增 Modal 組件 (如下)
+import { DiffModal } from "./components/Lyrics/DiffModal"; // 匯入新的 DiffModal 組件
+import { EditorHeader } from "./components/Header/EditorHeader";
+import { EditorSidebar } from "./components/Lyrics/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
 import { LyricData, Song, Version } from "./types";
 import { Music, FileText } from "lucide-react"; // 導入圖標
-import { LyricsEditorTab } from "./components/LyricsEditorTab";
-import { SongMetaEditorTab } from "./components/SongMetaEditorTab";
-import { SongSelectionModal } from "./components/SongSelectionModal";
+import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
+import { SongMetaEditorTab } from "./components/Meta/EditorTab";
+import { SongSelectionModal } from "./components/Header/SongSelectionModal";
 
 // --- Main App Component ---
 function App() {

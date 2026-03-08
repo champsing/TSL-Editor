@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { YouTubePlayer, YouTubePlayerHandle } from "./YouTubePlayer";
+import { YouTubePlayer, YouTubePlayerHandle } from "../YouTubePlayer";
 // 引入 Volume2 圖標
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 

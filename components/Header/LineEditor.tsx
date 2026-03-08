@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { LyricLine, LyricPhrase } from "../types";
-import { PhraseEditor } from "./PhraseEditor";
+import { LyricLine, LyricPhrase } from "../../types";
+import { PhraseEditor } from "../Lyrics/PhraseEditor";
 import {
     Clock,
     Plus,

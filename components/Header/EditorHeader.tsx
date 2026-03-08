@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { HelpCircle, Music2, RefreshCcw } from "lucide-react";
-import { VERSION_NUMBER } from "../utils";
+import { VERSION_NUMBER } from "../../utils";
 import { LyricData } from "@/types";
 import { JsonButtons } from "./JsonButtons";
 import { HelpModal } from "./HelpModal";

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback } from "react";
 import { Download, FileJson, Upload, Check } from "lucide-react"; // 引入 Download
-import { LyricData } from "../types"; // 假設 LyricData 的型別是從上一層目錄引入的
+import { LyricData } from "../../types"; // 假設 LyricData 的型別是從上一層目錄引入的
 
 // --- Helper Function: Download JSON ---
 const downloadJson = (data: LyricData, filename = "original.json") => {
