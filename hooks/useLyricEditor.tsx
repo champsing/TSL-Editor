@@ -67,11 +67,16 @@ export const useLyricEditor = () => {
     );
 
     // 🚨 新增：根據路徑抓取歌詞的通用函式
-    const loadLyricsByPath = async (folder: string, version: string) => {
+    const loadLyricsByPath = async (
+        songId: number,
+        folder: string,
+        version: string,
+    ) => {
         try {
             // 編碼 URL 以防資料夾名稱有空格或特殊字元
             const encodedFolder = encodeURIComponent(folder);
-            const url = `https://raw.githubusercontent.com/champsing/Time-synced-lyrics/master/mappings/${encodedFolder}/${version}.json`;
+
+            const url = `https://lyric.timesl.online/${songId}_${folder}/${version}.json`;
 
             const response = await fetch(url);
             if (!response.ok) throw new Error("Network response was not ok");

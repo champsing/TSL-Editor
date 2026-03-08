@@ -119,6 +119,7 @@ function App() {
             // 從 GitHub 抓取歌詞（確保 folder 存在）
             if (fullSongData.folder) {
                 await loadLyricsByPath(
+                    selectedSong.song_id,
                     fullSongData.folder,
                     defaultVersion.version,
                 );

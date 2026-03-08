@@ -236,7 +236,7 @@ export const LineReorderModal: React.FC<LineReorderModalProps> = ({
                                     ${isDragging ? "opacity-40 scale-95 border-gray-500 bg-white/5" : ""}
                                     ${isDragOver ? "border-primary bg-primary/10 scale-[1.01] shadow-lg shadow-primary/20" : ""}
                                     ${isSelected && !isDragOver ? "border-yellow-400/70 bg-yellow-400/10 shadow-md shadow-yellow-400/10" : ""}
-                                    ${!isDragging && !isDragOver && !isSelected ? "border-gray-700/60 bg-white/[0.03] hover:border-gray-500 hover:bg-white/5" : ""}
+                                    ${!isDragging && !isDragOver && !isSelected ? "border-gray-700/60 bg-white/3 hover:border-gray-500 hover:bg-white/5" : ""}
                                 `}
                             >
                                 {/* Grip */}
