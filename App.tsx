@@ -10,6 +10,7 @@ import { Music, FileText } from "lucide-react"; // 導入圖標
 import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/Meta/EditorTab";
 import { SongSelectionModal } from "./components/Header/SongSelectionModal";
+import { API_BASE_URL } from "./utils";
 
 // --- Main App Component ---
 function App() {
@@ -92,7 +93,7 @@ function App() {
         }
 
         const response = await fetch(
-            `https://api.timesl.online/api/songs/${selectedSong.song_id}`,
+            `${API_BASE_URL}/api/songs/${selectedSong.song_id}`,
         );
         const fullSongData = await response.json();
 
