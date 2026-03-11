@@ -1,5 +1,5 @@
 import { Artist, Song } from "@/types";
-import { API_BASE_URL } from "@/utils";
+import { API_BASE_URL } from "@/composables/utils";
 import { useState, useEffect, useCallback } from "react";
 
 export const useArtistNames = () => {

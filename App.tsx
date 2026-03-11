@@ -10,7 +10,7 @@ import { Music, FileText } from "lucide-react"; // 導入圖標
 import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/Meta/EditorTab";
 import { SongSelectionModal } from "./components/Header/SongSelectionModal";
-import { API_BASE_URL } from "./utils";
+import { API_BASE_URL } from "./composables/utils";
 
 // --- Main App Component ---
 function App() {

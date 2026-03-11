@@ -5,7 +5,7 @@ import {
     DEFAULT_VIDEO_ID,
     secondsToTime,
     timeToSeconds,
-} from "../utils";
+} from "../composables/utils";
 import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 
 // --- Constants ---

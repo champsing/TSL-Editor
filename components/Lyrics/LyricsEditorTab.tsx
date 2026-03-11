@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Plus, Play, Pause, ArrowUpDown } from "lucide-react";
 import { LineEditor } from "./LineEditor";
 import { LineReorderModal } from "./LineReorderModal";
-import { secondsToTime } from "../../utils";
+import { secondsToTime } from "../../composables/utils";
 import { LyricLine } from "../../types";
 import { EditActions } from "./EditActions";
 
