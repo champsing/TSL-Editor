@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../../composables/useAuth";
 import { SiGithub } from "react-icons/si";
+import { SlSocialGithub } from "react-icons/sl";
+import { FaSquareGithub } from "react-icons/fa6";
 
 // ─── Logout Confirmation Modal ────────────────────────────────────────────────
 const LogoutConfirmModal: React.FC<{
@@ -114,7 +116,7 @@ export const AuthButton: React.FC = () => {
                 className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-3 py-2 rounded-lg border border-white/10 hover:border-white/20 transition-all group"
                 title="Login via GitHub"
             >
-                <SiGithub
+                <SlSocialGithub
                     size={15}
                     className="text-gray-400 group-hover:text-white transition-colors"
                 />
@@ -185,7 +187,10 @@ export const AuthButton: React.FC = () => {
                                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"
                                 onClick={() => setDropdownOpen(false)}
                             >
-                                <SiGithub size={15} className="text-gray-500" />
+                                <FaSquareGithub
+                                    size={15}
+                                    className="text-gray-500"
+                                />
                                 GitHub Profile
                             </a>
                             <button
