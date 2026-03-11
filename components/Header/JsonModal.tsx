@@ -1,43 +1,40 @@
-// JsonModal.tsx (修改後)
-
-import React, { useState, useCallback, useEffect } from "react";
-import { AlertTriangle, Check, X } from "lucide-react"; // 引入 X 用於關閉按鈕
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { AlertTriangle, Check, Download, Upload, X } from "lucide-react";
 import { LyricData } from "@/types";
 
 // 定義分頁類型
 type Tab = "committed" | "uncommitted";
 
 interface JsonModalProps {
-    committedJson: string; // 已提交的 JSON (唯讀)
-    uncommittedJson: string; // 尚未提交的 JSON (可編輯)
+    committedJson: string;
+    uncommittedJson: string;
     onClose: () => void;
-    onCopy: () => void; // 複製 committedJson 的操作
-    onUpdateUncommitted: (newJson: string) => void; // 新增：更新 stagedLyrics 的回調函數
+    onUpdateUncommitted: (newJson: string) => void;
+    lyrics: LyricData;
+    onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const JsonModal: React.FC<JsonModalProps> = ({
     committedJson,
     uncommittedJson,
+    lyrics,
     onClose,
-    onUpdateUncommitted, // 接收新的更新函數
+    onUpdateUncommitted,
+    onFileUpload,
 }) => {
     const [isCopied, setIsCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<Tab>("committed"); // 預設顯示 Committed
     const [editableJson, setEditableJson] = useState(uncommittedJson); // 用於 Uncommitted tab 的內部編輯狀態
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDownloaded, setIsDownloaded] = useState(false);
 
     // 複製操作
     const handleCopy = useCallback(() => {
-        // 僅複製當前活躍的內容
         const contentToCopy =
             activeTab === "committed" ? committedJson : editableJson;
-        navigator.clipboard.writeText(contentToCopy); // 直接使用瀏覽器 API 複製
-
+        navigator.clipboard.writeText(contentToCopy);
         setIsCopied(true);
-        const timer = setTimeout(() => {
-            setIsCopied(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+        setTimeout(() => setIsCopied(false), 2000);
     }, [committedJson, editableJson, activeTab]);
 
     // 處理可編輯 JSON 的變更
@@ -65,6 +62,21 @@ export const JsonModal: React.FC<JsonModalProps> = ({
             console.error(error);
         }
     };
+
+    const downloadJson = useCallback(() => {
+        const jsonStr = JSON.stringify(lyrics, null, 4);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "original.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setIsDownloaded(true);
+        setTimeout(() => setIsDownloaded(false), 2000);
+    }, [lyrics]);
 
     // 當外部的 uncommittedJson 改變時，更新內部的編輯狀態
     // 這確保了從 App.tsx 來的最新 stagedLyrics 總是被顯示
@@ -107,7 +119,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                         >
                             <div className="flex flex-row gap-2 items-center">
                                 <span>Committed Lyrics</span>
-                                {/* ✨ 優化後的 Read-Only 標籤設計 */}
+
                                 <span className="text-emerald-300 bg-emerald-900/40 rounded-2xl px-2 text-xs font-semibold border border-emerald-700">
                                     Read-Only
                                 </span>
@@ -123,7 +135,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                         >
                             <div className="flex flex-row gap-2 items-center">
                                 <span>Uncommitted Lyrics</span>
-                                {/* ✨ 優化後的 Editable 標籤設計 */}
+
                                 <span className="text-yellow-300 bg-yellow-900/40 rounded-2xl px-2 text-xs font-semibold border border-yellow-700">
                                     Editable
                                 </span>
@@ -160,40 +172,130 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                 />
 
                 {/* 底部按鈕區 */}
-                <div className="p-4 border-t border-gray-700 flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        className="cursor-pointer px-4 py-2 text-gray-300 hover:text-white rounded"
-                    >
-                        Cancel
-                    </button>
+                <div className="p-4 border-t border-white/5 flex justify-between items-center">
+                    {/* Left: file utilities */}
 
-                    {/* 複製按鈕 - 複製當前分頁的內容 */}
-                    <button
-                        onClick={handleCopy}
-                        className={`
-                            ${
-                                isCopied
-                                    ? "cursor-not-allowed bg-green-500 hover:bg-green-400 text-white"
-                                    : "cursor-pointer bg-primary hover:bg-teal-300 text-dark"
-                            }
-                            font-bold px-6 py-2 rounded shadow flex items-center gap-2 transition
-                        `}
-                        title={`Copy the content of the ${activeTab} tab`}
-                    >
-                        {isCopied && <Check size={20} />}
-                        {isCopied ? "Copied!" : "Copy JSON"}
-                    </button>
+                    <div className="flex gap-2">
+                        {isEditable && (
+                            <div>
+                                {/* Import */}
+                                <label
+                                    className="
+                                        group cursor-pointer flex items-center gap-2
+                                        px-3 py-2 rounded-lg text-sm font-semibold
+                                        bg-white/5 hover:bg-white/10
+                                        border border-white/10 hover:border-white/20
+                                        text-gray-400 hover:text-white
+                                        transition-all duration-200
+                                    "
+                                >
+                                    <Upload
+                                        size={14}
+                                        className="transition-transform duration-200 group-hover:scale-110"
+                                    />
+                                    <span className="uppercase tracking-wide text-xs">
+                                        Import
+                                    </span>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        className="hidden"
+                                        accept=".json"
+                                        onChange={(e) => {
+                                            onFileUpload(e);
+                                            if (fileInputRef.current)
+                                                fileInputRef.current.value = "";
+                                            onClose();
+                                        }}
+                                    />
+                                </label>
+                            </div>
+                        )}
 
-                    {/* 應用變更按鈕 (僅在 Uncommitted Tab 顯示) */}
-                    {isEditable && (
+                        {/* Download */}
                         <button
-                            onClick={handleApplyChanges}
-                            className="cursor-pointer bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2 rounded shadow flex items-center gap-2 transition"
+                            onClick={downloadJson}
+                            disabled={isDownloaded}
+                            className={`
+                                group flex items-center gap-2
+                                px-3 py-2 rounded-lg text-sm font-semibold
+                                border transition-all duration-200
+                                ${
+                                    isDownloaded
+                                        ? "bg-green-500/15 border-green-500/30 text-green-400 cursor-not-allowed"
+                                        : "bg-white/5 hover:bg-primary/10 border-white/10 hover:border-primary/40 text-gray-400 hover:text-primary cursor-pointer"
+                                }
+                            `}
                         >
-                            Apply Changes
+                            {isDownloaded ? (
+                                <Check size={14} />
+                            ) : (
+                                <Download
+                                    size={14}
+                                    className="transition-transform duration-200 group-hover:scale-110"
+                                />
+                            )}
+                            <span className="uppercase tracking-wide text-xs">
+                                {isDownloaded ? "Downloaded!" : "Download"}
+                            </span>
                         </button>
-                    )}
+                    </div>
+
+                    {/* Right: cancel / copy / apply */}
+                    <div className="flex gap-2 items-center">
+                        {/* Cancel — ghost */}
+                        <button
+                            onClick={onClose}
+                            className="
+                                px-4 py-2 rounded-lg text-sm font-semibold
+                                text-gray-500 hover:text-white
+                                hover:bg-white/5
+                                transition-all duration-200
+                            "
+                        >
+                            Cancel
+                        </button>
+
+                        {/* Copy */}
+                        <button
+                            onClick={handleCopy}
+                            disabled={isCopied}
+                            className={`
+                                group flex items-center gap-2
+                                px-4 py-2 rounded-lg text-sm font-semibold
+                                border transition-all duration-200
+                                ${
+                                    isCopied
+                                        ? "bg-green-500/15 border-green-500/30 text-green-400 cursor-not-allowed"
+                                        : "bg-white/5 hover:bg-primary/10 border-white/10 hover:border-primary/40 text-gray-400 hover:text-primary cursor-pointer"
+                                }
+                            `}
+                        >
+                            {isCopied && <Check size={14} />}
+                            <span className="uppercase tracking-wide text-xs">
+                                {isCopied ? "Copied!" : "Copy JSON"}
+                            </span>
+                        </button>
+
+                        {/* Apply Changes — destructive */}
+                        {isEditable && (
+                            <button
+                                onClick={handleApplyChanges}
+                                className="
+                                    flex items-center gap-2
+                                    px-4 py-2 rounded-lg text-sm font-semibold
+                                    bg-red-500/10 hover:bg-red-500/20
+                                    border border-red-500/30 hover:border-red-500/50
+                                    text-red-400 hover:text-red-300
+                                    cursor-pointer transition-all duration-200
+                                "
+                            >
+                                <span className="uppercase tracking-wide text-xs ">
+                                    Apply Changes
+                                </span>
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

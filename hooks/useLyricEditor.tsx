@@ -292,13 +292,6 @@ export const useLyricEditor = () => {
         setEditingLineIndex(insertIndex);
     };
 
-    const copyJson = () => {
-        const jsonStr = JSON.stringify(lyrics, null, 4);
-        navigator.clipboard.writeText(jsonStr).then(() => {
-            console.log("JSON copied to clipboard!");
-        });
-    };
-
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -389,7 +382,7 @@ export const useLyricEditor = () => {
         setEditingLineIndex,
         // Computed Values
         currentLineIndex,
-        activeLineIndices, // 👈 新增導出這個陣列
+        activeLineIndices,
         hasUncommittedChanges,
         // Actions
         handleSeek,
@@ -400,10 +393,9 @@ export const useLyricEditor = () => {
         updateLine,
         deleteLine,
         addLine,
-        copyJson,
         handleFileUpload,
         fetchTenbyou,
-        loadLyricsByPath, // 👈 導出此函式
-        setVideoId, // 確保有導出此項以更新影片
+        loadLyricsByPath,
+        setVideoId,
     };
 };

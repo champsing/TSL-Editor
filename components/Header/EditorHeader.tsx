@@ -1,27 +1,22 @@
 import React, { useState } from "react";
 import { HelpCircle, Music2, RefreshCcw } from "lucide-react";
 import { VERSION_NUMBER } from "../../utils";
-import { LyricData } from "@/types";
 import { JsonButtons } from "./JsonButtons";
 import { HelpModal } from "./HelpModal";
 
 interface EditorHeaderProps {
     onOpenSongSelect: () => void;
-    lyrics: LyricData;
-    onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onViewJson: () => void;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
     onOpenSongSelect,
-    lyrics,
-    onFileUpload,
     onViewJson,
 }) => {
     const [isHelpOpen, setIsHelpOpen] = useState(false); // 控制 Modal 狀態
 
     return (
-        <header className="bg-dark shadow-lg px-6 py-3 flex items-center justify-between border-b border-gray-800">
+        <header className="bg-dark shadow-lg px-6 py-3 flex items-center justify-between border-b-2 border-zinc-600">
             {/* --- 1. Logo --- */}
             <div className="flex items-center gap-3">
                 <div className="bg-primary p-2 rounded-lg">
@@ -45,11 +40,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
             <div className="flex items-center gap-4">
                 {/* File/JSON Actions */}
-                <JsonButtons
-                    lyrics={lyrics}
-                    onFileUpload={onFileUpload}
-                    onViewJson={onViewJson}
-                />
+                <JsonButtons onViewJson={onViewJson} />
 
                 {/* 幫助按鈕 */}
                 <button

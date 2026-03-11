@@ -46,10 +46,9 @@ function App() {
         updateLine,
         deleteLine,
         addLine,
-        copyJson,
         handleFileUpload,
         setVideoId,
-        loadLyricsByPath, // 👈 取得新函式
+        loadLyricsByPath,
     } = useLyricEditor();
 
     // 新增用於控制 Diff Modal 開啟/關閉的 state
@@ -166,9 +165,7 @@ function App() {
             {/* Header (標頭) - 拆分到 EditorHeader */}
             <EditorHeader
                 onOpenSongSelect={() => setIsSongModalOpen(true)}
-                onFileUpload={handleFileUpload}
                 onViewJson={() => setJsonModalOpen(true)}
-                lyrics={lyrics}
             />
 
             <div className="flex flex-1 overflow-hidden relative">
@@ -219,7 +216,6 @@ function App() {
                     committedJson={JSON.stringify(lyrics, null, 4)}
                     uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
                     onClose={() => setJsonModalOpen(false)}
-                    onCopy={copyJson}
                     onUpdateUncommitted={(newJson) => {
                         try {
                             // 1. 嘗試將 JSON 字串解析為 LyricData 物件
@@ -235,6 +231,8 @@ function App() {
                             );
                         }
                     }}
+                    lyrics={lyrics}
+                    onFileUpload={handleFileUpload}
                 />
             )}
 
