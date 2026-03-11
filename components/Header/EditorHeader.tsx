@@ -3,6 +3,7 @@ import { HelpCircle, Music2, RefreshCcw } from "lucide-react";
 import { VERSION_NUMBER } from "../../utils";
 import { JsonButtons } from "./JsonButtons";
 import { HelpModal } from "./HelpModal";
+import { SiGithub } from "react-icons/si";
 
 interface EditorHeaderProps {
     onOpenSongSelect: () => void;
@@ -50,6 +51,16 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                 >
                     <HelpCircle size={22} />
                 </button>
+
+                <a
+                    href="https://github.com/champsing/TSL-Editor"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-primary transition-colors p-1"
+                    title="View Source on GitHub"
+                >
+                    <SiGithub size={20} />
+                </a>
             </div>
 
             <HelpModal
