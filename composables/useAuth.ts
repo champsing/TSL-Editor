@@ -44,7 +44,7 @@ export const useAuth = (): UseAuthReturn => {
     /** 用現有 token 驗證身份，拿回 user info */
     const fetchMe = useCallback(async (token: string) => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            const res = await fetch(`${API_BASE_URL}/auth/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
@@ -87,14 +87,14 @@ export const useAuth = (): UseAuthReturn => {
     }, [fetchMe]);
 
     const login = useCallback(() => {
-        window.location.href = `${API_BASE_URL}/api/auth/github`;
+        window.location.href = `${API_BASE_URL}/auth/github`;
     }, []);
 
     const logout = useCallback(() => {
         clearToken();
         setUser(null);
         // 通知後端（optional，JWT 是 stateless 但保持一致的介面）
-        fetch(`${API_BASE_URL}/api/auth/logout`, { method: "POST" }).catch(
+        fetch(`${API_BASE_URL}/auth/logout`, { method: "POST" }).catch(
             () => {},
         );
     }, []);

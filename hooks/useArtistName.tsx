@@ -16,8 +16,8 @@ export const useArtistNames = () => {
 
         // 同時抓取歌曲與藝人對照字典
         Promise.all([
-            fetch(`${API_BASE_URL}/api/songs/list`).then((res) => res.json()),
-            fetch(`${API_BASE_URL}/api/artists/list`).then((res) => res.json()),
+            fetch(`${API_BASE_URL}/songs/list`).then((res) => res.json()),
+            fetch(`${API_BASE_URL}/artists/list`).then((res) => res.json()),
         ])
             .then(([songData, artistData]) => {
                 // 處理歌曲清單

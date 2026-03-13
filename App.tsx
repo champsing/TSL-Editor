@@ -95,7 +95,7 @@ function App() {
         }
 
         const response = await fetch(
-            `${API_BASE_URL}/api/songs/${selectedSong.song_id}`,
+            `${API_BASE_URL}/songs/${selectedSong.song_id}`,
         );
         const fullSongData = await response.json();
 
