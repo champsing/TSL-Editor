@@ -43,7 +43,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const [isSongSelectOpen, setIsSongSelectOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const { artistLookup } = useArtistNames();
+    const { artistLookup, formatArtistNames } = useArtistNames();
 
     const handleChange = (field: keyof Song, value: any) => {
         setSongData({ ...songData, [field]: value });
@@ -81,8 +81,15 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     <div className="flex items-center gap-4">
                         <h2 className="text-3xl font-black text-white flex items-center gap-3">
                             <Music className="text-primary" size={32} />
-                            Song Metadata
                         </h2>
+                        <div className="flex flex-col leading-tight">
+                            <span className="text-white font-bold text-lg">
+                                {songData.title}
+                            </span>
+                            <span className="text-gray-400 text-sm">
+                                {formatArtistNames(songData.artist)}
+                            </span>
+                        </div>
                         <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
                             <Hash size={16} className="text-primary" />
                             <span className="font-mono text-primary font-bold">
