@@ -86,7 +86,14 @@ export const useAuth = (): UseAuthReturn => {
     }, [fetchMe]);
 
     const login = useCallback(() => {
-        window.location.href = `${API_BASE_URL}/auth/github`;
+        if (import.meta.env.DEV) {
+            const BETA_TOKEN = import.meta.env.VITE_BETA_TOKEN;
+            if (BETA_TOKEN) {
+                saveToken(BETA_TOKEN);
+                fetchMe(BETA_TOKEN);
+                return;
+            }
+        } else window.location.href = `${API_BASE_URL}/auth/github`;
     }, []);
 
     const logout = useCallback(() => {

@@ -1,7 +1,7 @@
 import { useArtistNames } from "@/hooks/useArtistName";
 import { Song, Version } from "@composables/types";
 import { Search, X, Plus, ArrowLeft, Layers, Music } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { authHeaders } from "@composables/useAuth";
 import { API_BASE_URL } from "@/composables/utils";
 
@@ -22,8 +22,17 @@ const VersionsEditor: React.FC<{
     const setDefault = (idx: number) =>
         onUpdate(versions.map((v, i) => ({ ...v, default: i === idx })));
 
-    const remove = (idx: number) =>
-        onUpdate(versions.filter((_, i) => i !== idx));
+    const remove = (idx: number) => {
+        // original 版本不可刪除
+        if (versions[idx].version === "original") return;
+        const next = versions.filter((_, i) => i !== idx);
+        // 若刪掉的是 default，把第一個接手
+        if (versions[idx].default && next.length > 0) {
+            next[0] = { ...next[0], default: true };
+        }
+        onUpdate(next);
+        console.log(versions);
+    };
 
     const add = () =>
         onUpdate([
@@ -96,12 +105,14 @@ const VersionsEditor: React.FC<{
                             >
                                 {v.default ? "Default" : "Set Default"}
                             </button>
-                            <button
-                                onClick={() => remove(idx)}
-                                className="text-xs px-2 py-1 rounded-lg border border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all"
-                            >
-                                Remove
-                            </button>
+                            {v.version !== "original" && (
+                                <button
+                                    onClick={() => remove(idx)}
+                                    className="text-xs px-2 py-1 rounded-lg border border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all"
+                                >
+                                    Remove
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -171,11 +182,15 @@ const CreateSongView: React.FC<{
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex items-center gap-3">
                 <button
-                    onClick={onBack}
+                    onClick={() => {
+                        if (step === "info") onBack();
+                        else setStep("info");
+                    }}
                     className="text-gray-400 hover:text-white transition-colors"
                 >
                     <ArrowLeft size={20} />
                 </button>
+
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <Plus size={20} className="text-primary" />
                     New Song
