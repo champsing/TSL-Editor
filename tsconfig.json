@@ -14,7 +14,8 @@
         "jsx": "react-jsx",
         "paths": {
             "@/*": ["./*"],
-            "@components/*": ["./components/*"]
+            "@components/*": ["./components/*"],
+            "@composables/*": ["./composables/*"]
         },
         "allowImportingTsExtensions": true,
         "noEmit": true

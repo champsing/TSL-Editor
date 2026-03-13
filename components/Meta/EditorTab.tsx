@@ -1,6 +1,6 @@
 // components/SongMetaEditorTab.tsx
-import React, { useState } from "react";
-import { Song } from "../../composables/types";
+import React, { useEffect, useRef, useState } from "react";
+import { Song } from "@composables/types";
 import {
     Music,
     User,
@@ -25,7 +25,7 @@ import { X } from "lucide-react";
 import { SongSelectionModal } from "../Header/SongSelectionModal";
 import { useArtistNames } from "@/hooks/useArtistName";
 import { SongMetaEditorModal } from "./EditorModal";
-import { Version } from "@/composables/types";
+import { Version } from "@composables/types";
 
 interface Props {
     songData: Song;
@@ -621,12 +621,12 @@ const MultiSelectArtistField: React.FC<{
     placeholder = "Select...",
     chipColorClass = "bg-primary/20 text-primary border-primary/30",
 }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-    const [searchQuery, setSearchQuery] = React.useState("");
-    const dropdownRef = React.useRef<HTMLDivElement>(null);
-    const searchInputRef = React.useRef<HTMLInputElement>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isOpen) {
             setTimeout(() => searchInputRef.current?.focus(), 100);
         } else {
@@ -634,7 +634,7 @@ const MultiSelectArtistField: React.FC<{
         }
     }, [isOpen]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 dropdownRef.current &&

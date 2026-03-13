@@ -1,5 +1,5 @@
 import React from "react";
-import { LyricPhrase } from "../../composables/types";
+import { LyricPhrase } from "@composables/types";
 import { X, Mic, Type, Zap, Pin } from "lucide-react";
 
 interface PhraseEditorProps {

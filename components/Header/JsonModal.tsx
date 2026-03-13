@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { AlertTriangle, Check, Download, Upload, X } from "lucide-react";
-import { LyricData } from "@/composables/types";
+import { LyricData } from "@composables/types";
 
 // 定義分頁類型
 type Tab = "committed" | "uncommitted";

@@ -1,5 +1,5 @@
 import { useArtistNames } from "@/hooks/useArtistName";
-import { Song } from "@/composables/types";
+import { Song } from "@composables/types";
 import { Search, X } from "lucide-react";
 import React from "react";
 

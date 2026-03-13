@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PreviewModal } from "./components/Lyrics/PreviewModal";
 import { JsonModal } from "./components/Header/JsonModal"; // 新增 Modal 組件 (如下)
 import { DiffModal } from "./components/Lyrics/DiffModal"; // 匯入新的 DiffModal 組件
@@ -53,13 +53,13 @@ function App() {
     } = useLyricEditor();
 
     // 新增用於控制 Diff Modal 開啟/關閉的 state
-    const [diffModalOpen, setDiffModalOpen] = React.useState(false);
+    const [diffModalOpen, setDiffModalOpen] = useState(false);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const [activeTab, setActiveTab] = React.useState<"lyrics" | "meta">("meta");
+    const [activeTab, setActiveTab] = useState<"lyrics" | "meta">("meta");
 
-    const [isSongModalOpen, setIsSongModalOpen] = React.useState(false); // 控制 Modal
+    const [isSongModalOpen, setIsSongModalOpen] = useState(false); // 控制 Modal
 
     useEffect(() => {
         const loadLatestSong = async () => {
@@ -84,7 +84,7 @@ function App() {
     }, []); // 只在 mount 時執行一次
 
     // 假設這是從伺服器取得或初始化歌曲資料
-    const [songData, setSongData] = React.useState<Song>({} as Song);
+    const [songData, setSongData] = useState<Song>({} as Song);
 
     // 🚨 處理歌曲選取的核心邏輯
     const handleSongSelect = async (selectedSong: Song) => {

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { LyricLine, LyricPhrase } from "../../composables/types";
+import React, { useEffect, useState } from "react";
+import { LyricLine, LyricPhrase } from "@composables/types";
 import { PhraseEditor } from "./PhraseEditor";
 import { PhraseReorderBar } from "./PhraseReorderBar";
 import {
@@ -39,7 +39,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const [reorderMode, setReorderMode] = useState(false);
 
     // Close reorder mode when editing ends
-    React.useEffect(() => {
+   useEffect(() => {
         if (!isEditing) setReorderMode(false);
     }, [isEditing]);
 

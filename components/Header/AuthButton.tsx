@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { LogIn, LogOut, ChevronDown } from "lucide-react";
-import { useAuth } from "../../composables/useAuth";
+import { useAuth } from "@composables/useAuth";
 import { SiGithub } from "react-icons/si";
 import { SlSocialGithub } from "react-icons/sl";
 import { FaSquareGithub } from "react-icons/fa6";

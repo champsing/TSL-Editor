@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { LyricPhrase } from "../../composables/types";
+import React, { useState, useCallback, useEffect, DragEvent } from "react";
+import { LyricPhrase } from "@composables/types";
 import { GripVertical, ArrowLeft, ArrowRight, Zap } from "lucide-react";
 
 interface PhraseReorderBarProps {
@@ -31,7 +31,7 @@ export const PhraseReorderBar: React.FC<PhraseReorderBarProps> = ({
         [phrases, onChange],
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (selected === null) return;
         const handle = (e: KeyboardEvent) => {
             if (e.key === "ArrowLeft") {
@@ -48,15 +48,15 @@ export const PhraseReorderBar: React.FC<PhraseReorderBarProps> = ({
     }, [selected, movePhrase]);
 
     // ── drag ─────────────────────────────────────────────────
-    const onDragStart = (e: React.DragEvent, idx: number) => {
+    const onDragStart = (e: DragEvent, idx: number) => {
         setDragIndex(idx);
         e.dataTransfer.effectAllowed = "move";
     };
-    const onDragOver = (e: React.DragEvent, idx: number) => {
+    const onDragOver = (e: DragEvent, idx: number) => {
         e.preventDefault();
         if (idx !== dragOverIndex) setDragOverIndex(idx);
     };
-    const onDrop = (e: React.DragEvent, dropIdx: number) => {
+    const onDrop = (e: DragEvent, dropIdx: number) => {
         e.preventDefault();
         if (dragIndex === null || dragIndex === dropIdx) {
             resetDrag();
