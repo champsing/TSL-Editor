@@ -215,7 +215,10 @@ const CreateSongView: React.FC<{
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex items-center gap-3">
                 <button
-                    onClick={onBack}
+                    onClick={() => {
+                        if (step === "info") onBack();
+                        else setStep("info");
+                    }}
                     className="text-gray-400 hover:text-white transition-colors"
                 >
                     <ArrowLeft size={20} />
@@ -322,8 +325,8 @@ const CreateSongView: React.FC<{
                             {!hasOriginal && (
                                 <span className="flex items-center gap-1.5 text-red-400 text-xs">
                                     <AlertCircle size={13} />
-                                    An original version with YouTube ID
-                                    is required.
+                                    An original version with YouTube ID is
+                                    required.
                                 </span>
                             )}
                             <button
