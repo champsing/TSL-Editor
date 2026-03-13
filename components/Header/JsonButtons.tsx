@@ -21,11 +21,13 @@ export const JsonButtons: React.FC<JsonButtonsProps> = ({ onViewJson }) => {
             "
         >
             {/* 底部光暈掃過效果 */}
-            <span className="
+            <span
+                className="
                 absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
                 bg-[radial-gradient(ellipse_at_bottom,rgba(89,191,34,0.08)_0%,transparent_70%)]
                 transition-opacity duration-300 pointer-events-none
-            " />
+            "
+            />
 
             <FileJson
                 size={15}

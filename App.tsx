@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PreviewModal } from "./components/Lyrics/PreviewModal";
 import { JsonModal } from "./components/Header/JsonModal"; // 新增 Modal 組件 (如下)
 import { DiffModal } from "./components/Lyrics/DiffModal"; // 匯入新的 DiffModal 組件
@@ -11,6 +11,9 @@ import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/Meta/EditorTab";
 import { SongSelectionModal } from "./components/Header/SongSelectionModal";
 import { API_BASE_URL } from "./composables/utils";
+import { useAuth } from "@composables/useAuth";
+
+
 
 // --- Main App Component ---
 function App() {
@@ -52,6 +55,8 @@ function App() {
         loadLyricsByPath,
     } = useLyricEditor();
 
+    const { user } = useAuth();
+
     // 新增用於控制 Diff Modal 開啟/關閉的 state
     const [diffModalOpen, setDiffModalOpen] = useState(false);
 
@@ -64,9 +69,7 @@ function App() {
     useEffect(() => {
         const loadLatestSong = async () => {
             try {
-                const res = await fetch(
-                    "https://api.timesl.online/api/songs/list",
-                );
+                const res = await fetch(`${API_BASE_URL}/songs/list`);
                 const songs: Song[] = await res.json();
                 if (!songs.length) return;
 
@@ -308,6 +311,7 @@ function App() {
                 isOpen={isSongModalOpen}
                 onClose={() => setIsSongModalOpen(false)}
                 onSelect={handleSongSelect}
+                isLoggedIn={!!user}
             />
         </div>
     );

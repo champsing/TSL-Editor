@@ -39,7 +39,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
     const [reorderMode, setReorderMode] = useState(false);
 
     // Close reorder mode when editing ends
-   useEffect(() => {
+    useEffect(() => {
         if (!isEditing) setReorderMode(false);
     }, [isEditing]);
 

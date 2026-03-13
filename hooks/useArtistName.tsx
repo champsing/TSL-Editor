@@ -10,23 +10,20 @@ export const useArtistNames = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<any>(null);
 
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         setLoading(true);
         setError(null);
 
-        // 同時抓取歌曲與藝人對照字典
         Promise.all([
             fetch(`${API_BASE_URL}/songs/list`).then((res) => res.json()),
             fetch(`${API_BASE_URL}/artists/list`).then((res) => res.json()),
         ])
             .then(([songData, artistData]) => {
-                // 處理歌曲清單
                 const songList: Song[] = Array.isArray(songData)
                     ? songData
                     : [];
                 setSongs(songList);
 
-                // 處理藝人對照表
                 const lookup: Artist[] = Array.isArray(artistData)
                     ? artistData
                     : [];
@@ -48,18 +45,16 @@ export const useArtistNames = () => {
             });
     }, []);
 
-    /**
-     * 格式化顯示名稱
-     * 支援輸入: "1,2,3" 或 123
-     */
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
     const formatArtistNames = useCallback(
         (artistField: string | number | null | undefined) => {
             if (!artistField) return "Unknown Artist";
-
             const ids = String(artistField)
                 .split(",")
                 .map((id) => id.trim());
-
             return ids.map((id) => artistLookup[id] || `ID: ${id}`).join(", ");
         },
         [artistLookup],
@@ -71,5 +66,6 @@ export const useArtistNames = () => {
         loading,
         error,
         formatArtistNames,
+        refetch: fetchData,
     };
 };
