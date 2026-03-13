@@ -64,17 +64,16 @@ export const useAuth = (): UseAuthReturn => {
 
     // Mount：從 localStorage 讀 token，驗證一次
     useEffect(() => {
-        // OAuth callback 帶回的 token 在 URL fragment（?token=...）
-        // github.rs 的 redirect 是 /?token=<jwt>（fragment 不會送到 server）
-        const params = new URLSearchParams(window.location.search);
-        const urlToken = params.get("token");
+        // OAuth callback 帶回的 token 在 URL fragment（#token=...）
+        // 用 fragment 而非 query string，避免 token 出現在 server log        // 改後
+        const hash = window.location.hash; // "#token=xxxx"
+        const urlToken = hash.startsWith("#token=") ? hash.slice(7) : null;
 
         if (urlToken) {
             // 把 token 存起來，清掉 URL
             saveToken(urlToken);
-            const clean = new URL(window.location.href);
-            clean.searchParams.delete("token");
-            window.history.replaceState({}, "", clean.toString());
+            // 清掉 hash
+            window.history.replaceState({}, "", window.location.pathname);
             fetchMe(urlToken);
         } else {
             const stored = getToken();
