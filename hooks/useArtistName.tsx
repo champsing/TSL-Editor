@@ -1,4 +1,4 @@
-import { Artist, Song } from "@/types";
+import { Artist, Song } from "@/composables/types";
 import { API_BASE_URL } from "@/composables/utils";
 import { useState, useEffect, useCallback } from "react";
 

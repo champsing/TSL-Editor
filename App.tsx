@@ -5,7 +5,7 @@ import { DiffModal } from "./components/Lyrics/DiffModal"; // 匯入新的 DiffM
 import { EditorHeader } from "./components/Header/EditorHeader";
 import { EditorSidebar } from "./components/Lyrics/EditorSidebar";
 import { useLyricEditor } from "./hooks/useLyricEditor";
-import { LyricData, Song, Version } from "./types";
+import { LyricData, Song, Version } from "./composables/types";
 import { Music, FileText } from "lucide-react"; // 導入圖標
 import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/Meta/EditorTab";

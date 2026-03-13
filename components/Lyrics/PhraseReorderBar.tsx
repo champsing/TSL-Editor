@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { LyricPhrase } from "../../types";
+import { LyricPhrase } from "../../composables/types";
 import { GripVertical, ArrowLeft, ArrowRight, Zap } from "lucide-react";
 
 interface PhraseReorderBarProps {

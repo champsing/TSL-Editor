@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LyricLine, LyricPhrase } from "../../types";
+import { LyricLine, LyricPhrase } from "../../composables/types";
 import { PhraseEditor } from "./PhraseEditor";
 import { PhraseReorderBar } from "./PhraseReorderBar";
 import {

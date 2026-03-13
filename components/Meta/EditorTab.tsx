@@ -1,6 +1,6 @@
 // components/SongMetaEditorTab.tsx
 import React, { useState } from "react";
-import { Song } from "../../types";
+import { Song } from "../../composables/types";
 import {
     Music,
     User,
@@ -25,7 +25,7 @@ import { X } from "lucide-react";
 import { SongSelectionModal } from "../Header/SongSelectionModal";
 import { useArtistNames } from "@/hooks/useArtistName";
 import { SongMetaEditorModal } from "./EditorModal";
-import { Version } from "@/types";
+import { Version } from "@/composables/types";
 
 interface Props {
     songData: Song;

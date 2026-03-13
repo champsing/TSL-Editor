@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { LyricLine } from "../../types";
+import { LyricLine } from "../../composables/types";
 import {
     X,
     GripVertical,

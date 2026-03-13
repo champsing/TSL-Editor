@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { LyricData, LyricLine } from "../types";
+import { LyricData, LyricLine } from "../composables/types";
 import {
     INITIAL_JSON_DATA,
     DEFAULT_VIDEO_ID,
