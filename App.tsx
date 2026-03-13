@@ -61,6 +61,28 @@ function App() {
 
     const [isSongModalOpen, setIsSongModalOpen] = React.useState(false); // 控制 Modal
 
+    useEffect(() => {
+        const loadLatestSong = async () => {
+            try {
+                const res = await fetch(
+                    "https://api.timesl.online/api/songs/list",
+                );
+                const songs: Song[] = await res.json();
+                if (!songs.length) return;
+
+                // 取 updated_at 最新的一首
+                const latest = songs.reduce((a, b) =>
+                    a.updated_at > b.updated_at ? a : b,
+                );
+                await handleSongSelect(latest);
+            } catch (e) {
+                console.error("Failed to load latest song on startup:", e);
+            }
+        };
+
+        loadLatestSong();
+    }, []); // 只在 mount 時執行一次
+
     // 假設這是從伺服器取得或初始化歌曲資料
     const [songData, setSongData] = React.useState<Song>({} as Song);
 
@@ -140,28 +162,6 @@ function App() {
         // 也可以 return 一個空的清理函數：
         return () => {};
     }, [currentLineIndex, previewModalOpen, diffModalOpen]);
-
-    useEffect(() => {
-        const loadLatestSong = async () => {
-            try {
-                const res = await fetch(
-                    "https://api.timesl.online/api/songs/list",
-                );
-                const songs: Song[] = await res.json();
-                if (!songs.length) return;
-
-                // 取 updated_at 最新的一首
-                const latest = songs.reduce((a, b) =>
-                    a.updated_at > b.updated_at ? a : b,
-                );
-                await handleSongSelect(latest);
-            } catch (e) {
-                console.error("Failed to load latest song on startup:", e);
-            }
-        };
-
-        loadLatestSong();
-    }, []); // 只在 mount 時執行一次
 
     return (
         <div className="flex flex-col h-screen bg-secondary">
