@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { LyricData, LyricLine, LyricPhrase } from "../../types";
-import { timeToSeconds } from "../../utils";
+import { timeToSeconds } from "../../composables/utils";
 import { X, Play, Pause } from "lucide-react";
 
 // --- Interfaces ---

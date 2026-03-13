@@ -1,4 +1,4 @@
-import TenbyouMapping from "./original.json";
+import TenbyouMapping from "../original.json";
 
 export const VERSION_NUMBER = import.meta.env.VITE_APP_VERSION || "1.0.0";
 export const API_BASE_URL = "https://api.timesl.online/api";

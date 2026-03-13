@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { HelpCircle, Music2, RefreshCcw } from "lucide-react";
-import { VERSION_NUMBER } from "../../utils";
+import { VERSION_NUMBER } from "../../composables/utils";
 import { JsonButtons } from "./JsonButtons";
 import { HelpModal } from "./HelpModal";
 import { SiGithub } from "react-icons/si";
+import { AuthButton } from "./AuthButton";
 
 interface EditorHeaderProps {
     onOpenSongSelect: () => void;
@@ -42,6 +43,12 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <div className="flex items-center gap-4">
                 {/* File/JSON Actions */}
                 <JsonButtons onViewJson={onViewJson} />
+
+                {/* 分隔線 */}
+                <div className="w-px h-6 bg-white/10" />
+
+                {/* GitHub Auth */}
+                <AuthButton />
 
                 {/* 幫助按鈕 */}
                 <button
