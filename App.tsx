@@ -192,6 +192,7 @@ function App() {
                         commitLyrics={commitLyrics}
                         discardChanges={discardChanges}
                         onViewDiff={() => setDiffModalOpen(true)}
+                        onImportJSON={() => setJsonModalOpen(true)}
                         onPlayPause={handlePlayPause}
                     />
                 ) : (

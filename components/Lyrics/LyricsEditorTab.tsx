@@ -1,11 +1,11 @@
 // components/LyricsEditorTab.tsx
 import React, { useState } from "react";
-import { Plus, Play, Pause, ArrowUpDown } from "lucide-react";
-import { LineEditor } from "./LineEditor";
+import { Plus, Play, Pause, ArrowUpDown, Upload } from "lucide-react";
 import { LineReorderModal } from "./LineReorderModal";
 import { secondsToTime } from "@composables/utils";
 import { LyricLine } from "@composables/types";
 import { EditActions } from "./EditActions";
+import { LineEditor } from "./LineEditor";
 
 interface Props {
     isPlaying: boolean;
@@ -24,9 +24,9 @@ interface Props {
     commitLyrics: () => void;
     discardChanges: () => void;
     onViewDiff: () => void;
+    onImportJSON: () => void;
     onPlayPause: () => void;
     scrollContainerRef: React.RefObject<HTMLDivElement>;
-    // Optional: expose a bulk-replace handler for cleaner reorder support
     replaceAllLines?: (lines: LyricLine[]) => void;
 }
 
@@ -37,19 +37,20 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
         stagedLyrics,
         activeLineIndices,
         editingLineIndex,
-        setEditingLineIndex,
-        addLine,
         updateLine,
         deleteLine,
         handleStamp,
         handleSeek,
         hasUncommittedChanges,
+        scrollContainerRef,
+        addLine,
         commitLyrics,
         discardChanges,
         onViewDiff,
+        onImportJSON,
         onPlayPause,
         setPreviewModalOpen,
-        scrollContainerRef,
+        setEditingLineIndex,
         replaceAllLines,
     } = props;
 
@@ -186,12 +187,35 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             <div className="bg-gray-800/50 p-4 rounded-full mb-4">
                                 <Plus size={32} />
                             </div>
-                            <p className="text-lg">No lyrics loaded yet.</p>
-                            <p className="text-sm">
-                                Select an existing song, click "Add Line" or
-                                import a file in "View JSON" modal to get
-                                started.
+                            <p className="text-lg mb-4">
+                                No lyrics loaded yet.
                             </p>
+                            <p className="text-sm">
+                                Select an existing song or click "Add Line" to
+                                get started.
+                            </p>
+                            <p className="text-sm mt-2 ">You can also</p>
+                            <div className="mt-2" onClick={onImportJSON}>
+                                {/* Import */}
+                                <label
+                                    className="
+                                    group cursor-pointer flex items-center gap-2
+                                    px-3 py-2 rounded-lg text-sm font-semibold
+                                    bg-white/5 hover:bg-white/10
+                                    border border-white/10 hover:border-white/20
+                                    text-gray-400 hover:text-white
+                                    transition-all duration-200
+                                "
+                                >
+                                    <Upload
+                                        size={14}
+                                        className="transition-transform duration-200 group-hover:scale-110"
+                                    />
+                                    <span className="uppercase tracking-wide text-xs">
+                                        Import JSON file
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     ) : (
                         stagedLyrics.map((line, index) => (
