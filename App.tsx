@@ -13,8 +13,6 @@ import { SongSelectionModal } from "./components/Header/SongSelectionModal";
 import { API_BASE_URL } from "./composables/utils";
 import { useAuth } from "@composables/useAuth";
 
-
-
 // --- Main App Component ---
 function App() {
     const {

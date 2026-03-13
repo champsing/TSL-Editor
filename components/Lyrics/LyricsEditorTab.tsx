@@ -188,7 +188,8 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             </div>
                             <p className="text-lg">No lyrics loaded yet.</p>
                             <p className="text-sm">
-                                Select an existing song, click "Add Line" or import a file in "View JSON" modal to get
+                                Select an existing song, click "Add Line" or
+                                import a file in "View JSON" modal to get
                                 started.
                             </p>
                         </div>
