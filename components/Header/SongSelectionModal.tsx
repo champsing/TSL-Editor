@@ -1,9 +1,18 @@
 import { useArtistNames } from "@/hooks/useArtistName";
 import { Song, Version } from "@composables/types";
-import { Search, X, Plus, ArrowLeft, Layers, Music } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import {
+    Search,
+    X,
+    Plus,
+    ArrowLeft,
+    Layers,
+    Music,
+    AlertCircle,
+} from "lucide-react";
+import React, { useState } from "react";
 import { authHeaders } from "@composables/useAuth";
 import { API_BASE_URL } from "@/composables/utils";
+import { FaLock } from "react-icons/fa6";
 
 // ── VersionsModalContent (inline，複用 EditorTab 的邏輯) ──────────────────────
 const inputClass =
@@ -31,7 +40,6 @@ const VersionsEditor: React.FC<{
             next[0] = { ...next[0], default: true };
         }
         onUpdate(next);
-        console.log(versions);
     };
 
     const add = () =>
@@ -50,7 +58,11 @@ const VersionsEditor: React.FC<{
             {versions.map((v, idx) => (
                 <div
                     key={idx}
-                    className="bg-black/30 border border-white/8 rounded-xl p-4 space-y-3"
+                    className={`border rounded-xl p-4 space-y-3 transition-colors ${
+                        v.version === "original"
+                            ? "bg-primary/5 border-primary/20"
+                            : "bg-black/30 border-white/8"
+                    }`}
                 >
                     <div className="flex items-center gap-2">
                         <div className="flex-1 grid grid-cols-3 gap-2">
@@ -58,14 +70,32 @@ const VersionsEditor: React.FC<{
                                 <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">
                                     Version
                                 </p>
-                                <input
-                                    value={v.version}
-                                    onChange={(e) =>
-                                        update(idx, "version", e.target.value)
-                                    }
-                                    className={inputClass}
-                                    placeholder="original"
-                                />
+                                {v.version === "original" ? (
+                                    <div
+                                        className={`${inputClass} flex items-center gap-2 text-primary/70 cursor-not-allowed select-none`}
+                                    >
+                                        <FaLock
+                                            size={11}
+                                            className="shrink-0 opacity-60"
+                                        />
+                                        <span className="font-mono">
+                                            original
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <input
+                                        value={v.version}
+                                        onChange={(e) =>
+                                            update(
+                                                idx,
+                                                "version",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={inputClass}
+                                        placeholder="e.g. live, acoustic"
+                                    />
+                                )}
                             </div>
                             <div>
                                 <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">
@@ -145,6 +175,9 @@ const CreateSongView: React.FC<{
 
     const canProceed =
         songId.trim() !== "" && title.trim() !== "" && !isNaN(Number(songId));
+    const hasOriginal = versions.some(
+        (v) => v.version === "original" && v.id.trim() !== "",
+    );
 
     const handleCreate = async () => {
         setIsSubmitting(true);
@@ -182,15 +215,11 @@ const CreateSongView: React.FC<{
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex items-center gap-3">
                 <button
-                    onClick={() => {
-                        if (step === "info") onBack();
-                        else setStep("info");
-                    }}
+                    onClick={onBack}
                     className="text-gray-400 hover:text-white transition-colors"
                 >
                     <ArrowLeft size={20} />
                 </button>
-
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <Plus size={20} className="text-primary" />
                     New Song
@@ -289,13 +318,22 @@ const CreateSongView: React.FC<{
                         >
                             <ArrowLeft size={14} /> Back
                         </button>
-                        <button
-                            onClick={handleCreate}
-                            disabled={isSubmitting || versions.length === 0}
-                            className="px-5 py-2 bg-primary text-black font-bold text-sm rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/90 transition-all"
-                        >
-                            {isSubmitting ? "Creating…" : "Create Song"}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            {!hasOriginal && (
+                                <span className="flex items-center gap-1.5 text-red-400 text-xs">
+                                    <AlertCircle size={13} />
+                                    An original version with YouTube ID
+                                    is required.
+                                </span>
+                            )}
+                            <button
+                                onClick={handleCreate}
+                                disabled={isSubmitting || !hasOriginal}
+                                className="px-5 py-2 bg-primary text-black font-bold text-sm rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/90 transition-all"
+                            >
+                                {isSubmitting ? "Creating…" : "Create Song"}
+                            </button>
+                        </div>
                     </>
                 )}
             </div>
