@@ -33,7 +33,7 @@ function App() {
         editingLineIndex,
         setEditingLineIndex,
         currentLineIndex,
-        activeLineIndices, // 👈 從 Hook 取得 activeLineIndices
+        activeLineIndices,
         hasUncommittedChanges,
         // Refs
         playerRef,
@@ -62,27 +62,7 @@ function App() {
     const [isSongModalOpen, setIsSongModalOpen] = React.useState(false); // 控制 Modal
 
     // 假設這是從伺服器取得或初始化歌曲資料
-    const [songData, setSongData] = React.useState<Song>({
-        song_id: 1867354081,
-        available: true,
-        hidden: false,
-        folder: "Mrs GREEN APPLE - lulu",
-        art: "https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/c6/37/51/c6375129-a4a6-6fca-fd1b-bd02b788b58f/Joba6e2e2f2-78fa-4fc7-b378-6362ebfb8e21-213296121-PreviewImage_Preview_Image_Intermediate_nonvideo_sdr_417683161_2502934387-Time1767836143126.png/900x900bb.webp",
-        artist: "96222103300",
-        lyricist: "1360524149",
-        title: "lulu.",
-        subtitle: "",
-        album: null,
-        versions: [
-            { version: "original", id: "4REuyY89tfw", duration: "4:30" },
-        ], // 這裡對應一下你 types.ts 的 Version 結構
-        is_duet: false,
-        furigana: false,
-        translation: { available: false, author: "", cite: "" },
-        updated_at: "2026-01-30",
-        lang: "ja",
-        credits: { performance: [], song_writing: [], engineering: [] },
-    });
+    const [songData, setSongData] = React.useState<Song>({} as Song);
 
     // 🚨 處理歌曲選取的核心邏輯
     const handleSongSelect = async (selectedSong: Song) => {
@@ -160,6 +140,28 @@ function App() {
         // 也可以 return 一個空的清理函數：
         return () => {};
     }, [currentLineIndex, previewModalOpen, diffModalOpen]);
+
+    useEffect(() => {
+        const loadLatestSong = async () => {
+            try {
+                const res = await fetch(
+                    "https://api.timesl.online/api/songs/list",
+                );
+                const songs: Song[] = await res.json();
+                if (!songs.length) return;
+
+                // 取 updated_at 最新的一首
+                const latest = songs.reduce((a, b) =>
+                    a.updated_at > b.updated_at ? a : b,
+                );
+                await handleSongSelect(latest);
+            } catch (e) {
+                console.error("Failed to load latest song on startup:", e);
+            }
+        };
+
+        loadLatestSong();
+    }, []); // 只在 mount 時執行一次
 
     return (
         <div className="flex flex-col h-screen bg-secondary">

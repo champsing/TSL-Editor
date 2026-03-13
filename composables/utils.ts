@@ -1,5 +1,3 @@
-import TenbyouMapping from "../original.json";
-
 export const VERSION_NUMBER = import.meta.env.VITE_APP_VERSION || "1.0.0";
 export const API_BASE_URL = "https://api.timesl.online/api";
 
@@ -25,9 +23,3 @@ export const secondsToTime = (
 };
 
 export const formatDuration = (val: number) => `${val}`;
-
-// Default YouTube Video ID
-export const DEFAULT_VIDEO_ID = "sL-yJIyuEaM"; // Mrs Green Apple, Sonoko Inoue - Tenbyouno Uta
-
-// Default Initial Data
-export const INITIAL_JSON_DATA = TenbyouMapping;

@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LyricData, LyricLine } from "../composables/types";
-import {
-    INITIAL_JSON_DATA,
-    DEFAULT_VIDEO_ID,
-    secondsToTime,
-    timeToSeconds,
-} from "../composables/utils";
+import { secondsToTime, timeToSeconds } from "../composables/utils";
 import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 
 // --- Constants ---
 const STORAGE_KEY_VIDEO_ID = "sync_editor_video_id";
 const STORAGE_KEY_LYRICS = "sync_editor_lyrics";
-const tenbyouVideoID = "sL-yJIyuEaM";
 
 // --- Helper: Deep Comparison (Simplified) ---
 const areLyricsEqual = (a: LyricData, b: LyricData): boolean => {
@@ -26,8 +20,7 @@ export const useLyricEditor = () => {
 
     // --- State: Video ID ---
     const [videoId, setVideoId] = useState(() => {
-        const savedId = sessionStorage.getItem(STORAGE_KEY_VIDEO_ID);
-        return savedId || DEFAULT_VIDEO_ID;
+        return sessionStorage.getItem(STORAGE_KEY_VIDEO_ID) ?? "sL-yJIyuEaM";
     });
     const [tempVideoId, setTempVideoId] = useState(videoId);
 
@@ -37,19 +30,13 @@ export const useLyricEditor = () => {
         if (savedLyrics) {
             try {
                 return JSON.parse(savedLyrics);
-            } catch (e) {
+            } catch {
                 console.error(
                     "Failed to parse saved lyrics from sessionStorage",
-                    e,
                 );
             }
         }
-        try {
-            return INITIAL_JSON_DATA;
-        } catch (e) {
-            console.error("Failed to parse initial data");
-            return [];
-        }
+        return [];
     });
 
     // 儲存正在編輯/暫存的歌詞
@@ -279,7 +266,7 @@ export const useLyricEditor = () => {
     const addLine = () => {
         const newLine: LyricLine = {
             time: secondsToTime(playerTime, 1),
-            text: [{ phrase: "新行歌詞", duration: 20 }],
+            text: [{ phrase: "輸入歌詞", duration: 20 }],
             translation: "",
         };
         const insertIndex =
@@ -316,45 +303,6 @@ export const useLyricEditor = () => {
         };
         reader.readAsText(file);
     };
-
-    // 🚨 新增 fetch 函式 (使用 useCallback 確保函式穩定性)
-    const fetchTenbyou = React.useCallback(async () => {
-        try {
-            const response = await fetch(
-                "https://raw.githubusercontent.com/champsing/Time-synced-lyrics/master/mappings/Mrs GREEN APPLE, Sonoko Inoue - Tenbyouno Uta/original.json",
-            );
-            const mapping = await response.json();
-            setVideoId(tenbyouVideoID);
-            setTempVideoId(tenbyouVideoID); // 確保 tempVideoId 也更新
-            setLyrics(mapping);
-            setStagedLyrics(mapping); // 確保 stagedLyrics 也更新
-            sessionStorage.setItem(STORAGE_KEY_VIDEO_ID, tenbyouVideoID);
-            sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(mapping));
-            console.log(
-                "Successfully fetched Mrs. GREEN APPLE feat. Sonoko Inoue - Tenbyounouta's mapping file.",
-            );
-        } catch (e) {
-            console.error(
-                "Couldn't fetch Mrs. GREEN APPLE feat. Sonoko Inoue - Tenbyounouta's mapping file, using fallback initial data.",
-                e,
-            );
-        }
-    }, [setVideoId, setTempVideoId, setLyrics, setStagedLyrics]);
-
-    // --- Effects: Storage Sync ---
-    const hasInitialized = useRef(false);
-
-    useEffect(() => {
-        // 只在第一次載入且沒有影片 ID 時執行
-        if (
-            !hasInitialized.current &&
-            (!tempVideoId || tempVideoId === DEFAULT_VIDEO_ID)
-        ) {
-            hasInitialized.current = true;
-            fetchTenbyou();
-            handleVideoLoad();
-        }
-    }, [fetchTenbyou, tempVideoId]);
 
     return {
         // Refs
@@ -394,7 +342,6 @@ export const useLyricEditor = () => {
         deleteLine,
         addLine,
         handleFileUpload,
-        fetchTenbyou,
         loadLyricsByPath,
         setVideoId,
     };
