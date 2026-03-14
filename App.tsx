@@ -258,7 +258,7 @@ function App() {
                         size={18}
                         className={`transition-transform duration-300 ${activeTab === "meta" ? "scale-110" : "group-hover:scale-110"}`}
                     />
-                    <span className="tracking-wide text-sm">Song Info</span>
+                    <span className="tracking-wide text-sm">Song</span>
                 </button>
 
                 {/* 分隔線 (選擇性) */}
@@ -279,7 +279,7 @@ function App() {
                         size={18}
                         className={`transition-transform duration-300 ${activeTab === "lyrics" ? "scale-110" : "group-hover:scale-110"}`}
                     />
-                    <span className="tracking-wide text-sm">Lyrics Editor</span>
+                    <span className="tracking-wide text-sm">Lyrics</span>
                 </button>
             </div>
 
