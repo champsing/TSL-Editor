@@ -16,7 +16,7 @@ export const InformationModal: React.FC<{
 
     const { artistLookup, refetch: refetchArtists } = useArtistNames();
 
-    const handleArtistCreated = (artistId: number, name: string) => {
+    const handleArtistCreated = () => {
         refetchArtists?.();
     };
 

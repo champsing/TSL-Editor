@@ -30,7 +30,7 @@ const LogoutConfirmModal: React.FC<{
                 onClick={onCancel}
             />
             <div className="relative bg-[#1a1a2e] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 fade-in duration-200">
-                <div className="absolute -inset-px rounded-2xl opacity-20 blur-xl pointer-events-none bg-red-500" />
+                <div className="absolute -inset-px rounded-2xl opacity-20 blur-lg pointer-events-none bg-red-500" />
                 <div className="relative flex flex-col items-center gap-4 text-center">
                     {/* GitHub avatar via unavatar */}
                     <img

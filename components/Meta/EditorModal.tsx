@@ -68,7 +68,7 @@ export const SongMetaEditorModal: React.FC<SongMetaEditorModalProps> = ({
             >
                 {/* Accent glow bloom behind the panel */}
                 <div
-                    className="absolute -inset-px rounded-2xl opacity-30 blur-xl pointer-events-none"
+                    className="absolute -inset-px rounded-2xl opacity-30 blur-lg pointer-events-none"
                     style={{ background: accentColor }}
                 />
 

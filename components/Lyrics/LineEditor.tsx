@@ -259,7 +259,7 @@ export const LineEditor: React.FC<LineEditorProps> = ({
         <div
             className={`mb-4 p-4 rounded-lg border transition-all duration-300 bg-white/10 ${
                 isCurrent
-                    ? "is-current border-primary shadow-[0_0_15px_rgba(74,194,215,0.3)] transform scale-[1.01]"
+                    ? "is-current border-primary shadow-[0_0_15px_rgba(167,139,250,0.3)] transform scale-[1.01]"
                     : "border-gray-700 hover:border-gray-500"
             }`}
         >

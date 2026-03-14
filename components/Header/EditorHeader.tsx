@@ -21,16 +21,70 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         <header className="bg-dark shadow-lg px-6 py-3 flex items-center justify-between border-b-2 border-zinc-600">
             {/* --- 1. Logo --- */}
             <div className="flex items-center gap-3">
-                <div className="bg-primary p-2 rounded-lg">
-                    <Music2 className="text-dark" size={24} />
+                <div className="flex items-center gap-2.5">
+                    {/* Waveform mark */}
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect
+                            x="1"
+                            y="16"
+                            width="4"
+                            height="7"
+                            rx="2"
+                            fill="#E8C468"
+                            opacity="0.4"
+                        />
+                        <rect
+                            x="7"
+                            y="9"
+                            width="4"
+                            height="20"
+                            rx="2"
+                            fill="#E8C468"
+                            opacity="0.65"
+                        />
+                        <rect
+                            x="13"
+                            y="3"
+                            width="4"
+                            height="26"
+                            rx="2"
+                            fill="#E8C468"
+                        />
+                        <rect
+                            x="19"
+                            y="9"
+                            width="4"
+                            height="15"
+                            rx="2"
+                            fill="#E8C468"
+                            opacity="0.8"
+                        />
+                        <rect
+                            x="25"
+                            y="14"
+                            width="4"
+                            height="9"
+                            rx="2"
+                            fill="#E8C468"
+                            opacity="0.5"
+                        />
+                    </svg>
+                    {/* Wordmark */}
+                    <div className="flex flex-col leading-none gap-0.5">
+                        <span
+                            className="font-playfair text-2xl font-black tracking-tight leading-none"
+                            style={{ color: "#E8C468" }}
+                        >
+                            TSL
+                        </span>
+                        <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-500">
+                            Editor
+                        </span>
+                    </div>
                 </div>
-                <h1 className="text-2xl font-playfair font-bold text-white">
-                    <span className="text-primary">TSL</span>Editor
-                </h1>
-                <sup className="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
                 <button
                     onClick={onOpenSongSelect}
-                    className="ml-4 flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
+                    className="ml-3 flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
                 >
                     <RefreshCcw
                         size={16}

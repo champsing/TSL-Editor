@@ -131,7 +131,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         icon={<Music size={22} />}
                         label="Information"
                         subtitle={mainSummary || "Title, artist, language…"}
-                        accentClass="bg-primary/15 text-primary group-hover:bg-primary/25"
+                        accentClass="bg-rose-500/15 text-rose-500 group-hover:bg-rose-500/25"
                         onClick={() => setOpenModal("main")}
                     />
                     <EditorEntryButton
@@ -184,7 +184,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 onClose={close}
                 title="Information"
                 icon={<Music size={20} />}
-                accentColor="var(--color-primary, #a78bfa)"
+                accentColor="var(--color-rose-500, #ff2056)"
                 footer="Title, artist IDs, language code and folder path are all stored in the song buffer."
             >
                 <InformationModal

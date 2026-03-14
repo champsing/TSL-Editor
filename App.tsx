@@ -249,7 +249,7 @@ function App() {
                         flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 group
                         ${
                             activeTab === "meta"
-                                ? "bg-primary text-black font-bold shadow-[0_0_20px_rgba(74,194,215,0.4)]"
+                                ? "bg-primary text-black font-bold shadow-[0_0_20px_rgba(167,139,250,0.4)]"
                                 : "text-gray-400 hover:text-white hover:bg-white/5"
                         }
                     `}
