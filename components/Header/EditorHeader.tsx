@@ -30,8 +30,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                             width="4"
                             height="7"
                             rx="2"
-                            fill="#E8C468"
-                            opacity="0.4"
+                            fill="white"
+                            opacity="0.25"
                         />
                         <rect
                             x="7"
@@ -39,8 +39,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                             width="4"
                             height="20"
                             rx="2"
-                            fill="#E8C468"
-                            opacity="0.65"
+                            fill="white"
+                            opacity="0.5"
                         />
                         <rect
                             x="13"
@@ -48,7 +48,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                             width="4"
                             height="26"
                             rx="2"
-                            fill="#E8C468"
+                            fill="white"
+                            opacity="0.9"
                         />
                         <rect
                             x="19"
@@ -56,8 +57,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                             width="4"
                             height="15"
                             rx="2"
-                            fill="#E8C468"
-                            opacity="0.8"
+                            fill="white"
+                            opacity="0.65"
                         />
                         <rect
                             x="25"
@@ -65,16 +66,13 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                             width="4"
                             height="9"
                             rx="2"
-                            fill="#E8C468"
-                            opacity="0.5"
+                            fill="white"
+                            opacity="0.35"
                         />
                     </svg>
                     {/* Wordmark */}
                     <div className="flex flex-col leading-none gap-0.5">
-                        <span
-                            className="font-playfair text-2xl font-black tracking-tight leading-none"
-                            style={{ color: "#E8C468" }}
-                        >
+                        <span className="font-playfair text-2xl font-black tracking-tight leading-none text-gray-300">
                             TSL
                         </span>
                         <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-500">
