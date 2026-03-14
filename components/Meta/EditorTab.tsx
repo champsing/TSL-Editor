@@ -1,35 +1,24 @@
 // components/SongMetaEditorTab.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Song } from "@composables/types";
 import {
     Music,
-    User,
     Image as ImageIcon,
     CheckCircle2,
-    Users,
-    Languages,
     Calendar,
     Hash,
     Plus,
     Layers,
-    ChevronDown,
-    Folder,
-    Globe,
-    Star,
-    Clock,
     LinkIcon,
-    Trash2,
-    Link,
 } from "lucide-react";
-import { X } from "lucide-react";
 import { SongSelectionModal } from "../Header/SongSelection/SongSelectionModal";
 import { useArtistNames } from "@/hooks/useArtistName";
 import { SongMetaEditorModal } from "./EditorModal";
-import { Version } from "@composables/types";
-import { ArtistSelectModal } from "./ArtistSelection/ArtistSelectModal";
-import { ToggleItem } from "./EditorTab/ToggleItem";
-import { MultiSelectArtistModal } from "./EditorTab/MultiSelectArtistModal";
 import { VersionsModal } from "./EditorTab/VersionsModal";
+import { StatusModal } from "./EditorTab/Modals/StatusModal";
+import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
+import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
+import { InformationModal } from "./EditorTab/Modals/InformationModal";
 
 interface Props {
     songData: Song;
@@ -140,7 +129,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     />
                     <EditorEntryButton
                         icon={<Music size={22} />}
-                        label="Main Content"
+                        label="Information"
                         subtitle={mainSummary || "Title, artist, language…"}
                         accentClass="bg-primary/15 text-primary group-hover:bg-primary/25"
                         onClick={() => setOpenModal("main")}
@@ -186,22 +175,19 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 accentColor="#4ade80"
                 footer="Changes are saved to the current song buffer immediately."
             >
-                <StatusModalContent
-                    songData={songData}
-                    onChange={handleChange}
-                />
+                <StatusModal songData={songData} onChange={handleChange} />
             </SongMetaEditorModal>
 
-            {/* 2. Main Content */}
+            {/* 2. Information */}
             <SongMetaEditorModal
                 isOpen={openModal === "main"}
                 onClose={close}
-                title="Main Content"
+                title="Information"
                 icon={<Music size={20} />}
                 accentColor="var(--color-primary, #a78bfa)"
                 footer="Title, artist IDs, language code and folder path are all stored in the song buffer."
             >
-                <MainContentModalContent
+                <InformationModal
                     songData={songData}
                     onChange={handleChange}
                     parseIds={parseIds}
@@ -218,7 +204,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 accentColor="#c084fc"
                 footer="Paste any publicly accessible image URL. Click the thumbnail to preview full size."
             >
-                <CoverArtModalContent
+                <CoverArtModal
                     songData={songData}
                     onChange={handleChange}
                     onPreview={setPreviewImage}
@@ -289,168 +275,3 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         </div>
     );
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// EditorEntryButton — the unified entry tile on the main page
-// ─────────────────────────────────────────────────────────────────────────────
-const EditorEntryButton: React.FC<{
-    icon: React.ReactNode;
-    label: string;
-    subtitle?: string;
-    accentClass?: string;
-    onClick: () => void;
-    preview?: React.ReactNode;
-}> = ({
-    icon,
-    label,
-    subtitle,
-    accentClass = "bg-primary/15 text-primary group-hover:bg-primary/25",
-    onClick,
-    preview,
-}) => (
-    <button
-        onClick={onClick}
-        className="group w-full flex items-center gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/8 hover:border-white/20 transition-all duration-200 text-left"
-    >
-        <div
-            className={`p-3 rounded-xl transition-colors duration-200 ${accentClass}`}
-        >
-            {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
-                {label}
-            </div>
-            {subtitle && (
-                <div className="text-xs text-gray-500 mt-0.5 truncate">
-                    {subtitle}
-                </div>
-            )}
-        </div>
-        {preview && <div className="shrink-0">{preview}</div>}
-        <Plus
-            size={18}
-            className="text-gray-600 group-hover:text-primary transition-colors shrink-0"
-        />
-    </button>
-);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Modal content components
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── 1. Status ─────────────────────────────────────────────────────────────────
-const StatusModalContent: React.FC<{
-    songData: Song;
-    onChange: (field: keyof Song, value: any) => void;
-}> = ({ songData, onChange }) => (
-    <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
-        <ToggleItem
-            icon={<CheckCircle2 size={18} />}
-            label="Available"
-            checked={!!songData.available}
-            onChange={(val) => onChange("available", val ? 1 : 0)}
-            color="text-green-400"
-        />
-        <ToggleItem
-            icon={<Users size={18} />}
-            label="Duet Mode"
-            checked={!!songData.is_duet}
-            onChange={(val) => onChange("is_duet", val ? 1 : 0)}
-            color="text-blue-400"
-        />
-        <ToggleItem
-            icon={<Languages size={18} />}
-            label="Furigana"
-            checked={!!songData.furigana}
-            onChange={(val) => onChange("furigana", val ? 1 : 0)}
-            color="text-purple-400"
-        />
-    </div>
-);
-
-// ── 2. Main Content ───────────────────────────────────────────────────────────
-const MainContentModalContent: React.FC<{
-    songData: Song;
-    onChange: (field: keyof Song, value: any) => void;
-    parseIds: (s: string | undefined) => number[];
-    artistLookup: Record<number, string>;
-}> = ({ songData, onChange, parseIds, artistLookup }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-            <label className={labelClassEditor}>
-                <Music size={14} /> Title
-            </label>
-            <input
-                value={songData.title}
-                onChange={(e) => onChange("title", e.target.value)}
-                className={inputClassEditor}
-            />
-        </div>
-        <div>
-            <label className={labelClassEditor}>
-                <Music size={14} className="opacity-50" /> Subtitle
-            </label>
-            <input
-                value={songData.subtitle || ""}
-                onChange={(e) => onChange("subtitle", e.target.value)}
-                className={inputClassEditor}
-            />
-        </div>
-
-{/* 這裡要加 Artist 和 Lyricist */}
-
-        <div>
-            <label className={labelClassEditor}>
-                <Globe size={14} /> Language Code
-            </label>
-            <input
-                value={songData.lang}
-                onChange={(e) => onChange("lang", e.target.value)}
-                className={`${inputClassEditor} font-mono`}
-                placeholder="ja / en / zh"
-            />
-        </div>
-        <div>
-            <label className={labelClassEditor}>
-                <Folder size={14} /> Folder Path
-            </label>
-            <input
-                value={songData.folder}
-                onChange={(e) => onChange("folder", e.target.value)}
-                className={`${inputClassEditor} font-mono text-sm`}
-            />
-        </div>
-    </div>
-);
-
-// ── 3. Cover Art ──────────────────────────────────────────────────────────────
-const CoverArtModalContent: React.FC<{
-    songData: Song;
-    onChange: (field: keyof Song, value: any) => void;
-    onPreview: (url: string) => void;
-}> = ({ songData, onChange, onPreview }) => (
-    <div className="space-y-4">
-        <div className="flex items-center gap-3 px-4">
-            <label className={labelClassEditor}>
-                <Link size={14} /> URL
-            </label>
-            <input
-                value={songData.art}
-                onChange={(e) => onChange("art", e.target.value)}
-                className={`${inputClassEditor} text-xs h-11`}
-                placeholder="https://..."
-            />
-        </div>
-        {songData.art && (
-            <div className="flex justify-center">
-                <img
-                    src={songData.art}
-                    alt="Cover Art Preview"
-                    onClick={() => onPreview(songData.art)}
-                    className="max-h-64 rounded-xl border border-white/10 shadow-xl object-contain cursor-zoom-in hover:scale-[1.02] transition-transform"
-                />
-            </div>
-        )}
-    </div>
-);

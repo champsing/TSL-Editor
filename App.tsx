@@ -9,9 +9,10 @@ import { LyricData, Song, Version } from "./composables/types";
 import { Music, FileText } from "lucide-react"; // 導入圖標
 import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
 import { SongMetaEditorTab } from "./components/Meta/EditorTab";
-import { SongSelectionModal } from "./components/Header/SongSelectionModal";
+import { SongSelectionModal } from "./components/Header/SongSelection/SongSelectionModal";
 import { API_BASE_URL } from "./composables/utils";
 import { useAuth } from "@composables/useAuth";
+import { useArtistNames } from "./hooks/useArtistName";
 
 // --- Main App Component ---
 function App() {
