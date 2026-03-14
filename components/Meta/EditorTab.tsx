@@ -191,7 +191,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     songData={songData}
                     onChange={handleChange}
                     parseIds={parseIds}
-                    artistLookup={artistLookup}
                 />
             </SongMetaEditorModal>
 

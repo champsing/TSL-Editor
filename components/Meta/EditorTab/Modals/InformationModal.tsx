@@ -11,7 +11,6 @@ export const InformationModal: React.FC<{
     songData: Song;
     onChange: (field: keyof Song, value: any) => void;
     parseIds: (s: string | undefined) => number[];
-    artistLookup: Record<number, string>;
 }> = ({ songData, onChange, parseIds }) => {
     const { user } = useAuth();
 
@@ -51,6 +50,7 @@ export const InformationModal: React.FC<{
                 lookup={artistLookup}
                 onChange={(ids) => onChange("artist", ids.join(","))}
                 onArtistCreated={handleArtistCreated}
+                isLoggedIn={!!user}
             />
             <MultiSelectArtistModal
                 label="Lyricist"
@@ -59,7 +59,8 @@ export const InformationModal: React.FC<{
                 lookup={artistLookup}
                 chipColorClass="bg-blue-400/20 text-blue-400 border-blue-400/30"
                 onChange={(ids) => onChange("lyricist", ids.join(","))}
-                onArtistCreated={() => {}}
+                onArtistCreated={handleArtistCreated}
+                isLoggedIn={!!user}
             />
 
             <div>
