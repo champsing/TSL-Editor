@@ -9,11 +9,13 @@ import { AuthButton } from "./AuthButton";
 interface EditorHeaderProps {
     onOpenSongSelect: () => void;
     onViewJson: () => void;
+    onUpload: () => void;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
     onOpenSongSelect,
     onViewJson,
+    onUpload,
 }) => {
     const [isHelpOpen, setIsHelpOpen] = useState(false); // 控制 Modal 狀態
 
@@ -80,6 +82,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                         </span>
                     </div>
                 </div>
+                <sup className="text-gray-400 ">Ver {VERSION_NUMBER}</sup>
                 <button
                     onClick={onOpenSongSelect}
                     className="ml-3 flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-2 py-2 rounded-lg border border-white/10 transition-all group"
@@ -94,7 +97,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
             <div className="flex items-center gap-4">
                 {/* File/JSON Actions */}
-                <JsonButtons onViewJson={onViewJson} />
+                <JsonButtons onViewJson={onViewJson} onUpload={onUpload} />
 
                 {/* 分隔線 */}
                 <div className="w-px h-6 bg-white/10" />

@@ -1,35 +1,86 @@
 import React from "react";
-import { FileJson } from "lucide-react";
+import { FileJson2, Upload } from "lucide-react";
+import { useAuth } from "@composables/useAuth";
 
 interface JsonButtonsProps {
     onViewJson: () => void;
+    onUpload: () => void;
 }
 
-export const JsonButtons: React.FC<JsonButtonsProps> = ({ onViewJson }) => {
-    return (
-        <button
-            onClick={onViewJson}
-            className="
-                group relative flex items-center gap-2
-                px-3 py-2 rounded-lg
-                bg-white/5 hover:bg-primary/10
-                border border-white/10 hover:border-primary/40
-                text-gray-400 hover:text-primary
-                text-sm font-semibold
-                transition-all duration-200
-                overflow-hidden
-            "
-        >
-            {/* 底部光暈掃過效果 */}
-            <span
-                className="
-                absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
-                bg-[radial-gradient(ellipse_at_bottom,rgba(89,191,34,0.08)_0%,transparent_70%)]
-                transition-opacity duration-300 pointer-events-none
-            "
-            />
+export const JsonButtons: React.FC<JsonButtonsProps> = ({
+    onViewJson,
+    onUpload,
+}) => {
+    const { user } = useAuth();
+    const isLoggedIn = !!user;
 
-            <FileJson
+    const viewClass = {
+        base: `
+        group relative flex items-center gap-2
+        px-3 py-2 rounded-lg
+        bg-white/5 hover:bg-primary/10
+        border border-white/10 hover:border-primary/40
+        text-gray-400 hover:text-primary
+        text-sm font-semibold
+        transition-all duration-200
+        overflow-hidden
+        `,
+        glow: `
+        absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
+        bg-[radial-gradient(ellipse_at_bottom,rgba(167,139,250,0.08)_0%,transparent_70%)]
+        transition-opacity duration-300 pointer-events-none
+        `,
+    };
+
+    const uploadClass = {
+        base: `
+        group relative flex items-center gap-2
+        px-3 py-2 rounded-lg
+        bg-primary/[0.06] hover:bg-primary/[0.12]
+        text-white hover:text-violet-200
+        text-sm font-bold
+        transition-all duration-200
+        overflow-hidden
+        `,
+        glow: `
+        absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
+        bg-[radial-gradient(ellipse_at_top,rgba(244,114,182,0.12)_0%,transparent_60%)]
+        transition-opacity duration-300 pointer-events-none
+        `,
+    };
+
+    if (isLoggedIn) {
+        return (
+            <div
+                style={{
+                    padding: "1px",
+                    borderRadius: "8px",
+                    background:
+                        "linear-gradient(135deg, #f472b6, #a78bfa, #38bdf8, #a78bfa, #f472b6)",
+                    backgroundSize: "300% 300%",
+                    animation: "gradient-shift 3s ease infinite",
+                }}
+            >
+                <button
+                    className={uploadClass.base}
+                    onClick={onUpload}
+                    style={{ background: "#231f1f" }} // ← 和 bg-dark 同色，蓋住漸層只露邊框
+                >
+                    <span className={uploadClass.glow} />
+                    <Upload size={13} />
+                    <FileJson2 size={15} />
+                    <span className="tracking-wide uppercase text-xs">
+                        Upload JSON
+                    </span>
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <button onClick={onViewJson} className={viewClass.base}>
+            <span className={viewClass.glow} />
+            <FileJson2
                 size={15}
                 className="transition-transform duration-200 group-hover:scale-110 shrink-0"
             />

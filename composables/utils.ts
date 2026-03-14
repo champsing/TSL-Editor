@@ -26,3 +26,11 @@ export const secondsToTime = (
 };
 
 export const formatDuration = (val: number) => `${val}`;
+
+// ── sessionStorage keys ───────────────────────────────────────────────────────
+export const TSL_EDITOR_KEYS = {
+    VIDEO_ID: "tsl_editor_video_id",
+    LYRICS: "tsl_editor_lyrics",
+    SONG_DATA: "tsl_editor_song_data",
+    VARIANT: "tsl_editor_song_variant", // { song_id, song_version }
+} as const;

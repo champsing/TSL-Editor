@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LyricData, LyricLine } from "../composables/types";
-import { secondsToTime, timeToSeconds } from "../composables/utils";
+import {
+    secondsToTime,
+    timeToSeconds,
+    TSL_EDITOR_KEYS,
+} from "../composables/utils";
 import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 
 // --- Constants ---
-const STORAGE_KEY_VIDEO_ID = "sync_editor_video_id";
-const STORAGE_KEY_LYRICS = "sync_editor_lyrics";
+const STORAGE_KEY_VIDEO_ID = TSL_EDITOR_KEYS.VIDEO_ID;
+const STORAGE_KEY_LYRICS = TSL_EDITOR_KEYS.LYRICS;
 
 // --- Helper: Deep Comparison (Simplified) ---
 const areLyricsEqual = (a: LyricData, b: LyricData): boolean => {

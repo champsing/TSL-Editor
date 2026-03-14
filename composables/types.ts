@@ -22,8 +22,6 @@ export interface LyricLine {
     is_together?: boolean;
 }
 
-export type LyricData = LyricLine[];
-
 export interface Song {
     song_id: number;
     available: boolean;
@@ -80,3 +78,8 @@ export interface Artist {
     romaji_name: string;
     updated_at: string;
 }
+
+export type LyricData = LyricLine[];
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+export type UploadStatus = "idle" | "loading" | "success" | "error";

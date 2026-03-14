@@ -3,6 +3,9 @@ export default {
     content: ["./index.html", "./**/*.{vue,js,ts,jsx,tsx}"],
     theme: {
         extend: {
+            animation: {
+                "gradient-shift": "gradient-shift 3s ease infinite",
+            },
             colors: {
                 primary: "#A78BFA", // 原本 "#59bf22"
                 secondary: "#365456",
