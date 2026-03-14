@@ -2,7 +2,7 @@ import { Version } from "@composables/types";
 import { Plus } from "lucide-react";
 import React from "react";
 import { FaLock } from "react-icons/fa6";
-import { inputClassSong } from "./SongSelectionModal";
+import { inputClassSong } from "@components/Header/SongSelection/SongSelectionModal";
 
 export const VersionsEditor: React.FC<{
     versions: Version[];

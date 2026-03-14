@@ -14,11 +14,11 @@ import {
 import { SongSelectionModal } from "../Header/SongSelection/SongSelectionModal";
 import { useArtistNames } from "@/hooks/useArtistName";
 import { SongMetaEditorModal } from "./EditorModal";
-import { VersionsModal } from "./EditorTab/VersionsModal";
 import { StatusModal } from "./EditorTab/Modals/StatusModal";
 import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
 import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
 import { InformationModal } from "./EditorTab/Modals/InformationModal";
+import { VersionsEditor } from "../Header/SongSelection/VersionEditor";
 
 interface Props {
     songData: Song;
@@ -238,7 +238,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 }
                 footer='The "original" version is required and cannot be deleted. All changes are saved to the current song buffer.'
             >
-                <VersionsModal
+                <VersionsEditor
                     versions={songData.versions || []}
                     onUpdate={(v) => handleChange("versions", v)}
                 />
