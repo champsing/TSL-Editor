@@ -7,11 +7,11 @@ import { X, Play, Pause } from "lucide-react";
 interface PreviewModalProps {
     lyrics: LyricData;
     currentTime: number;
-    onClose: () => void;
     isPlaying: boolean;
-    onPlayPause: () => void;
     currentSongTitle?: string;
     currentSongArtist?: string;
+    onClose: () => void;
+    onPlayPause: () => void;
     onSeek: (seconds: number) => void;
 }
 
@@ -220,10 +220,12 @@ const getPhraseStyle = (
 export const PreviewModal: React.FC<PreviewModalProps> = ({
     lyrics,
     currentTime,
-    onClose,
     isPlaying,
+    currentSongTitle,
+    currentSongArtist,
+    onClose,
     onPlayPause,
-    onSeek, // 👈 從 props 接收 onSeek
+    onSeek,
 }) => {
     const processedLyrics = useMemo(() => processLyrics(lyrics), [lyrics]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -489,9 +491,14 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
 
             {/* --- 3. Bottom Controls Overlay --- */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-[#231f1f]/90 px-6 py-4 rounded-xl flex items-center gap-6 shadow-2xl backdrop-blur-sm border border-white/10">
-                <span className="text-white font-bold text-lg">
-                    Preview Song
-                </span>
+                <div className="flex flex-col leading-tight">
+                    <span className="text-white font-bold text-lg">
+                        {currentSongTitle}
+                    </span>
+                    <span className="text-gray-400 text-sm">
+                        {currentSongArtist}
+                    </span>
+                </div>
 
                 <div className="h-8 w-px bg-gray-600"></div>
 
@@ -529,7 +536,9 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
                 <div className="font-mono text-xl text-primary w-24 text-center">
                     {/* Format: MM:SS.mm */}
                     {Math.floor(currentTime / 60)}:
-                    {(currentTime % 60).toFixed(2).padStart(5, "0")}
+                    {isPlaying
+                        ? Math.floor(currentTime % 60)
+                        : (currentTime % 60).toFixed(2).padStart(5, "0")}
                 </div>
 
                 {/* --- Close Button --- */}

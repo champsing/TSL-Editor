@@ -54,6 +54,8 @@ function App() {
         loadLyricsByPath,
     } = useLyricEditor();
 
+    const { formatArtistNames } = useArtistNames();
+
     const { user } = useAuth();
 
     // 新增用於控制 Diff Modal 開啟/關閉的 state
@@ -288,8 +290,10 @@ function App() {
                 <PreviewModal
                     lyrics={stagedLyrics}
                     currentTime={playerTime}
-                    onClose={() => setPreviewModalOpen(false)}
+                    currentSongTitle={songData.title}
+                    currentSongArtist={formatArtistNames(songData.artist)}
                     isPlaying={isPlaying}
+                    onClose={() => setPreviewModalOpen(false)}
                     onPlayPause={handlePlayPause}
                     onSeek={handleSeek}
                 />
