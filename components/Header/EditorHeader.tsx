@@ -1,18 +1,20 @@
-import React, { useState } from "react";
-import { HelpCircle, RefreshCcw } from "lucide-react";
 import { VERSION_NUMBER } from "@composables/utils";
-import { JsonButtons } from "./JsonButtons";
-import { HelpModal } from "./HelpModal";
+import { HelpCircle, RefreshCcw } from "lucide-react";
+import React, { useState } from "react";
 import { SiGithub } from "react-icons/si";
 import { AuthButton } from "./AuthButton";
+import { HelpModal } from "./HelpModal";
+import { JsonButtons } from "./JsonButtons";
 
 interface EditorHeaderProps {
+    activeModal: "upload" | "json" | null;
     onOpenSongSelect: () => void;
     onViewJson: () => void;
     onUpload: () => void;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
+    activeModal,
     onOpenSongSelect,
     onViewJson,
     onUpload,
@@ -97,7 +99,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
             <div className="flex items-center gap-4">
                 {/* File/JSON Actions */}
-                <JsonButtons onViewJson={onViewJson} onUpload={onUpload} />
+                <JsonButtons
+                    onViewJson={onViewJson}
+                    onUpload={onUpload}
+                    activeModal={activeModal}
+                />
 
                 {/* 分隔線 */}
                 <div className="w-px h-6 bg-white/10" />

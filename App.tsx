@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState } from "react";
-import { PreviewModal } from "./components/Lyrics/PreviewModal";
-import { JsonModal } from "./components/Header/JsonModal";
-import { DiffModal } from "./components/Lyrics/DiffModal";
-import { EditorHeader } from "./components/Header/EditorHeader";
-import { EditorSidebar } from "./components/Lyrics/EditorSidebar";
-import { useLyricEditor } from "./hooks/useLyricEditor";
-import { LyricData, Song, Version } from "./composables/types";
-import { Music, FileText } from "lucide-react";
-import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
-import { SongMetaEditorTab } from "./components/Meta/EditorTab";
-import { SongSelectionModal } from "./components/Header/SongSelection/SongSelectionModal";
-import { API_BASE_URL, TSL_EDITOR_KEYS } from "./composables/utils";
-import { useAuth } from "@composables/useAuth";
-import { useArtistNames } from "./hooks/useArtistName";
 import { UploadModal } from "@components/Header/UploadModal/UploadModal";
+import { useAuth } from "@composables/useAuth";
+import { FileText, Music } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { EditorHeader } from "./components/Header/EditorHeader";
+import { JsonModal } from "./components/Header/JsonModal";
+import { SongSelectionModal } from "./components/Header/SongSelection/SongSelectionModal";
+import { DiffModal } from "./components/Lyrics/DiffModal";
+import { EditorSidebar } from "./components/Lyrics/EditorSidebar";
+import { LyricsEditorTab } from "./components/Lyrics/LyricsEditorTab";
+import { PreviewModal } from "./components/Lyrics/PreviewModal";
+import { SongMetaEditorTab } from "./components/Meta/EditorTab";
+import { LyricData, Song, Version } from "./composables/types";
+import { API_BASE_URL, TSL_EDITOR_KEYS } from "./composables/utils";
+import { useArtistNames } from "./hooks/useArtistName";
+import { useLyricEditor } from "./hooks/useLyricEditor";
 
 // --- Main App Component ---
 function App() {
@@ -29,8 +29,6 @@ function App() {
         setPlayerTime,
         isPlaying,
         setIsPlaying,
-        jsonModalOpen,
-        setJsonModalOpen,
         previewModalOpen,
         setPreviewModalOpen,
         editingLineIndex,
@@ -59,7 +57,9 @@ function App() {
     const { user } = useAuth();
 
     const [diffModalOpen, setDiffModalOpen] = useState(false);
-    const [uploadModalOpen, setUploadModalOpen] = useState(false);
+    const [activeIOModal, setActiveIOModal] = useState<
+        "upload" | "json" | null
+    >(null);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -167,8 +167,9 @@ function App() {
             {/* Header */}
             <EditorHeader
                 onOpenSongSelect={() => setIsSongModalOpen(true)}
-                onViewJson={() => setJsonModalOpen(true)}
-                onUpload={() => setUploadModalOpen(true)}
+                activeModal={activeIOModal}
+                onViewJson={() => setActiveIOModal("json")}
+                onUpload={() => setActiveIOModal("upload")}
             />
 
             <div className="flex flex-1 overflow-hidden relative">
@@ -192,7 +193,7 @@ function App() {
                         commitLyrics={commitLyrics}
                         discardChanges={discardChanges}
                         onViewDiff={() => setDiffModalOpen(true)}
-                        onImportJSON={() => setJsonModalOpen(true)}
+                        onImportJSON={() => setActiveIOModal("json")}
                         onPlayPause={handlePlayPause}
                     />
                 ) : (
@@ -280,35 +281,47 @@ function App() {
                 />
             )}
 
-            {/* JSON Modal（未登入入口） */}
-            {jsonModalOpen && (
+            {/* JSON Modal */}
+            {activeIOModal === "json" && (
                 <JsonModal
+                    isOpen={activeIOModal === "json"}
                     committedJson={JSON.stringify(lyrics, null, 4)}
                     uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
-                    onClose={() => setJsonModalOpen(false)}
+                    lyrics={lyrics}
+                    onClose={() => setActiveIOModal(null)}
                     onUpdateUncommitted={(newJson) => {
                         try {
-                            const parsedData = JSON.parse(newJson) as LyricData;
-                            setStagedLyrics(parsedData);
+                            setStagedLyrics(JSON.parse(newJson) as LyricData);
                         } catch (error) {
                             console.error("Failed to parse JSON:", error);
                         }
                     }}
-                    lyrics={lyrics}
                     onFileUpload={handleFileUpload}
+                    onSwitchToUpload={
+                        user ? () => setActiveIOModal("upload") : undefined
+                    }
                 />
             )}
 
-            {/* Upload Modal（登入後入口） */}
-            {uploadModalOpen && (
+            {/* Upload Modal */}
+            {activeIOModal === "upload" && (
                 <UploadModal
-                    isOpen={uploadModalOpen}
-                    onClose={() => setUploadModalOpen(false)}
+                    isOpen={activeIOModal === "upload"}
                     songData={songData}
                     lyrics={lyrics}
+                    committedJson={JSON.stringify(lyrics, null, 4)}
+                    uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
+                    onClose={() => setActiveIOModal(null)}
                     onRemoteSongDataRefreshed={(refreshed) =>
                         setSongData(refreshed)
                     }
+                    onUpdateUncommitted={(newJson) => {
+                        try {
+                            setStagedLyrics(JSON.parse(newJson));
+                        } catch {}
+                    }}
+                    onFileUpload={handleFileUpload}
+                    onSwitchToJson={() => setActiveIOModal("json")}
                 />
             )}
 

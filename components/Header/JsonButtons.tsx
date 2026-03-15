@@ -1,13 +1,15 @@
-import React from "react";
-import { FileJson2, Upload } from "lucide-react";
 import { useAuth } from "@composables/useAuth";
+import { FileJson2, Upload } from "lucide-react";
+import React from "react";
 
 interface JsonButtonsProps {
+    activeModal: "upload" | "json" | null;
     onViewJson: () => void;
     onUpload: () => void;
 }
 
 export const JsonButtons: React.FC<JsonButtonsProps> = ({
+    activeModal,
     onViewJson,
     onUpload,
 }) => {
@@ -49,6 +51,7 @@ export const JsonButtons: React.FC<JsonButtonsProps> = ({
         `,
     };
 
+    // 登入後
     if (isLoggedIn) {
         return (
             <div
@@ -62,21 +65,35 @@ export const JsonButtons: React.FC<JsonButtonsProps> = ({
                 }}
             >
                 <button
+                    onClick={activeModal === "upload" ? onViewJson : onUpload}
                     className={uploadClass.base}
-                    onClick={onUpload}
-                    style={{ background: "#231f1f" }} // ← 和 bg-dark 同色，蓋住漸層只露邊框
+                    style={{ background: "#231f1f" }}
                 >
                     <span className={uploadClass.glow} />
-                    <Upload size={13} />
-                    <FileJson2 size={15} />
-                    <span className="tracking-wide uppercase text-xs">
-                        Upload JSON
-                    </span>
+                    {activeModal === "upload" ? (
+                        // 現在開著 Upload → 顯示切回 View JSON
+                        <>
+                            <FileJson2 size={15} />
+                            <span className="tracking-wide uppercase text-xs">
+                                View JSON
+                            </span>
+                        </>
+                    ) : (
+                        // 沒開或開著 JSON → 顯示 Upload JSON
+                        <>
+                            <Upload size={13} />
+
+                            <span className="tracking-wide uppercase text-xs">
+                                Upload JSON
+                            </span>
+                        </>
+                    )}
                 </button>
             </div>
         );
     }
 
+    // 未登入
     return (
         <button onClick={onViewJson} className={viewClass.base}>
             <span className={viewClass.glow} />
