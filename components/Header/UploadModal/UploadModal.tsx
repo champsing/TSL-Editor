@@ -21,7 +21,7 @@ export const TSL_EDITOR_KEYS = {
 } as const;
 
 // ── Comparable Song fields ────────────────────────────────────────────────────
-const COMPARABLE_FIELDS: (keyof Song)[] = [
+export const COMPARABLE_FIELDS: (keyof Song)[] = [
     "title",
     "subtitle",
     "artist",
@@ -155,7 +155,7 @@ const LyricsTab: React.FC<{
         setStatus("loading");
         setErrorMsg(undefined);
         try {
-            const res = await fetch(`${API_BASE_URL}/songs/lyrics/update`, {
+            const res = await fetch(`${API_BASE_URL}/lyrics/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
