@@ -181,6 +181,8 @@ function App() {
                         stagedLyrics={stagedLyrics}
                         activeLineIndices={activeLineIndices}
                         editingLineIndex={editingLineIndex}
+                        scrollContainerRef={scrollContainerRef}
+                        hasUncommittedChanges={hasUncommittedChanges}
                         setEditingLineIndex={setEditingLineIndex}
                         addLine={addLine}
                         updateLine={updateLine}
@@ -188,13 +190,11 @@ function App() {
                         handleStamp={handleStamp}
                         handleSeek={handleSeek}
                         setPreviewModalOpen={setPreviewModalOpen}
-                        scrollContainerRef={scrollContainerRef}
-                        hasUncommittedChanges={hasUncommittedChanges}
                         commitLyrics={commitLyrics}
                         discardChanges={discardChanges}
                         onViewDiff={() => setDiffModalOpen(true)}
-                        onImportJSON={() => setActiveIOModal("json")}
                         onPlayPause={handlePlayPause}
+                        onImportJson={handleFileUpload}
                     />
                 ) : (
                     <SongMetaEditorTab

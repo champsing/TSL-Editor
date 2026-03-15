@@ -96,31 +96,33 @@ export const LyricModal: React.FC<LyricModalProps> = ({
             maxWidthClass="max-w-4xl"
             actions={
                 <div className="flex gap-2">
-                    <label
-                        className={`${btnBase} bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-400 hover:text-white cursor-pointer`}
-                    >
-                        <Upload
-                            size={14}
-                            className="group-hover:scale-110 transition-transform"
-                        />
-                        <span className="uppercase tracking-wide text-xs">
-                            Import
-                        </span>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".json"
-                            className="hidden"
-                            onChange={(e) => {
-                                onFileUpload(e);
-                                if (fileInputRef.current)
-                                    fileInputRef.current.value = "";
-                                onClose();
-                            }}
-                        />
-                    </label>
+                    {isEditable && (
+                        <label
+                            className={`${btnBase} bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-400 hover:text-white cursor-pointer`}
+                        >
+                            <Upload
+                                size={14}
+                                className="group-hover:scale-110 transition-transform"
+                            />
+                            <span className="uppercase tracking-wide text-xs">
+                                Import
+                            </span>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".json"
+                                className="hidden"
+                                onChange={(e) => {
+                                    onFileUpload(e);
+                                    if (fileInputRef.current)
+                                        fileInputRef.current.value = "";
+                                    onClose();
+                                }}
+                            />
+                        </label>
+                    )}
 
-                    {user ? (
+                    {user && (
                         <button
                             onClick={onSwitchToUpload}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all"
@@ -128,8 +130,6 @@ export const LyricModal: React.FC<LyricModalProps> = ({
                             <FileJson2 size={13} />
                             Data Upload
                         </button>
-                    ) : (
-                        <></>
                     )}
                 </div>
             }

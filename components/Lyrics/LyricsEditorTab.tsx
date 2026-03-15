@@ -13,21 +13,21 @@ interface Props {
     stagedLyrics: LyricLine[];
     activeLineIndices: number[];
     editingLineIndex: number | null;
-    setEditingLineIndex: (index: number | null) => void;
-    addLine: () => void;
     updateLine: any;
     deleteLine: any;
     handleStamp: any;
     handleSeek: any;
-    setPreviewModalOpen: (open: boolean) => void;
     hasUncommittedChanges: boolean;
+    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    addLine: () => void;
     commitLyrics: () => void;
     discardChanges: () => void;
     onViewDiff: () => void;
-    onImportJSON: () => void;
     onPlayPause: () => void;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    setPreviewModalOpen: (open: boolean) => void;
+    setEditingLineIndex: (index: number | null) => void;
     replaceAllLines?: (lines: LyricLine[]) => void;
+    onImportJson: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const LyricsEditorTab: React.FC<Props> = (props) => {
@@ -47,11 +47,11 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
         commitLyrics,
         discardChanges,
         onViewDiff,
-        onImportJSON,
         onPlayPause,
         setPreviewModalOpen,
         setEditingLineIndex,
         replaceAllLines,
+        onImportJson,
     } = props;
 
     const [reorderModalOpen, setReorderModalOpen] = useState(false);
@@ -195,7 +195,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                                 get started.
                             </p>
                             <p className="text-sm mt-2 ">You can also</p>
-                            <div className="mt-2" onClick={onImportJSON}>
+                            <div className="mt-2" onClick={() => onImportJson}>
                                 {/* Import */}
                                 <label
                                     className="
