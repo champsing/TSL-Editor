@@ -3,7 +3,7 @@ import { useAuth } from "@composables/useAuth";
 import { FileText, Music } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { EditorHeader } from "./components/Header/EditorHeader";
-import { JsonModal } from "./components/Header/JsonModal";
+import { LyricModal } from "./components/Header/LyricModal";
 import { SongSelectionModal } from "./components/Header/SongSelection/SongSelectionModal";
 import { DiffModal } from "./components/Lyrics/DiffModal";
 import { EditorSidebar } from "./components/Lyrics/EditorSidebar";
@@ -283,7 +283,7 @@ function App() {
 
             {/* JSON Modal */}
             {activeIOModal === "json" && (
-                <JsonModal
+                <LyricModal
                     isOpen={activeIOModal === "json"}
                     committedJson={JSON.stringify(lyrics, null, 4)}
                     uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
@@ -309,18 +309,10 @@ function App() {
                     isOpen={activeIOModal === "upload"}
                     songData={songData}
                     lyrics={lyrics}
-                    committedJson={JSON.stringify(lyrics, null, 4)}
-                    uncommittedJson={JSON.stringify(stagedLyrics, null, 4)}
                     onClose={() => setActiveIOModal(null)}
                     onRemoteSongDataRefreshed={(refreshed) =>
                         setSongData(refreshed)
                     }
-                    onUpdateUncommitted={(newJson) => {
-                        try {
-                            setStagedLyrics(JSON.parse(newJson));
-                        } catch {}
-                    }}
-                    onFileUpload={handleFileUpload}
                     onSwitchToJson={() => setActiveIOModal("json")}
                 />
             )}

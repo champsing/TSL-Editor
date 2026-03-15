@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 import { LyricData, LyricLine } from "../composables/types";
 import {
     secondsToTime,
     timeToSeconds,
     TSL_EDITOR_KEYS,
 } from "../composables/utils";
-import { YouTubePlayerHandle } from "../components/YouTubePlayer";
 
 // --- Constants ---
 const STORAGE_KEY_VIDEO_ID = TSL_EDITOR_KEYS.VIDEO_ID;
@@ -51,7 +51,6 @@ export const useLyricEditor = () => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     // --- State: UI ---
-    const [jsonModalOpen, setJsonModalOpen] = useState(false);
     const [previewModalOpen, setPreviewModalOpen] = useState(false);
     const [editingLineIndex, setEditingLineIndex] = useState<number | null>(
         null,
@@ -326,8 +325,7 @@ export const useLyricEditor = () => {
         isPlaying,
         setIsPlaying,
         // UI State
-        jsonModalOpen,
-        setJsonModalOpen,
+
         previewModalOpen,
         setPreviewModalOpen,
         editingLineIndex,

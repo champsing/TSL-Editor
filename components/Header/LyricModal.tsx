@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type Tab = "committed" | "uncommitted";
 
-interface JsonModalProps {
+interface LyricModalProps {
     isOpen: boolean;
     committedJson: string;
     uncommittedJson: string;
@@ -23,7 +23,7 @@ interface JsonModalProps {
     onSwitchToUpload: () => void;
 }
 
-export const JsonModal: React.FC<JsonModalProps> = ({
+export const LyricModal: React.FC<LyricModalProps> = ({
     isOpen,
     committedJson,
     uncommittedJson,
@@ -90,7 +90,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
         <SongMetaEditorModal
             isOpen={isOpen}
             onClose={onClose}
-            title="View JSON"
+            title="Lyric JSON"
             icon={<FileJson2 size={20} />}
             accentColor="#4ade80"
             maxWidthClass="max-w-4xl"
@@ -104,7 +104,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                             className="group-hover:scale-110 transition-transform"
                         />
                         <span className="uppercase tracking-wide text-xs">
-                            Import File
+                            Import
                         </span>
                         <input
                             ref={fileInputRef}
@@ -126,7 +126,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all"
                         >
                             <FileJson2 size={13} />
-                            Upload JSON
+                            Data Upload
                         </button>
                     ) : (
                         <></>
@@ -135,7 +135,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
             }
             footer="Committed 為唯讀。Uncommitted 可直接編輯後 Apply，套用前請確保格式正確。"
         >
-            <div className="flex flex-col gap-0" style={{ height: "60vh" }}>
+            <div className="flex flex-col gap-0 " style={{ height: "60vh" }}>
                 {/* Sub-tab bar */}
                 <div className="flex gap-1 mb-5 bg-black/30 p-1 rounded-4xl border border-white/8">
                     {(["committed", "uncommitted"] as Tab[]).map((t) => (
@@ -177,7 +177,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
 
                 {/* Textarea */}
                 <textarea
-                    className={`flex-1 text-green-400 p-4 text-sm resize-none outline-none font-mono leading-relaxed ${
+                    className={`flex-1 text-green-400 p-4 text-base resize-none outline-none font-mono leading-relaxed ${
                         isEditable ? "bg-[#251e1e]" : "bg-[#1e1e1e]"
                     }`}
                     readOnly={!isEditable}

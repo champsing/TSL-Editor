@@ -4,16 +4,13 @@ import { authHeaders, useAuth } from "@composables/useAuth";
 import { API_BASE_URL } from "@composables/utils";
 import {
     AlertCircle,
-    AlertTriangle,
-    Check,
     CheckCircle2,
     ChevronDown,
-    Download,
     FileJson2,
     Loader2,
     Upload,
 } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // ── sessionStorage keys ───────────────────────────────────────────────────────
 export const TSL_EDITOR_KEYS = {
@@ -347,203 +344,6 @@ const MetadataTab: React.FC<{
     );
 };
 
-// ── View JSON Tab（移植自 JsonModal）────────────────────────────────────────────
-const ViewJsonTab: React.FC<{
-    committedJson: string;
-    uncommittedJson: string;
-    lyrics: LyricData;
-    onUpdateUncommitted: (json: string) => void;
-    onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}> = ({
-    committedJson,
-    uncommittedJson,
-    lyrics,
-    onUpdateUncommitted,
-    onFileUpload,
-}) => {
-    type JsonTab = "committed" | "uncommitted";
-    const [activeTab, setActiveTab] = useState<JsonTab>("committed");
-    const [editableJson, setEditableJson] = useState(uncommittedJson);
-    const [isCopied, setIsCopied] = useState(false);
-    const [isDownloaded, setIsDownloaded] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        setEditableJson(uncommittedJson);
-    }, [uncommittedJson]);
-
-    const isEditable = activeTab === "uncommitted";
-    const currentContent = isEditable ? editableJson : committedJson;
-
-    const handleCopy = useCallback(() => {
-        navigator.clipboard.writeText(currentContent);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-    }, [currentContent]);
-
-    const handleDownload = useCallback(() => {
-        const blob = new Blob([JSON.stringify(lyrics, null, 4)], {
-            type: "application/json",
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "original.json";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setIsDownloaded(true);
-        setTimeout(() => setIsDownloaded(false), 2000);
-    }, [lyrics]);
-
-    const handleApply = () => {
-        try {
-            if (!window.confirm("您確定要將JSON更動應用於尚未提交的歌詞嗎？"))
-                return;
-            JSON.parse(editableJson);
-            onUpdateUncommitted(editableJson);
-        } catch {
-            alert(
-                "Invalid JSON format. Please fix it before applying changes.",
-            );
-        }
-    };
-
-    const btnBase =
-        "group flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold border transition-all duration-200";
-
-    return (
-        <div className="flex flex-col gap-0" style={{ height: "55vh" }}>
-            {/* Sub-tab bar */}
-            <div className="flex border-b border-white/8 mb-0">
-                {(["committed", "uncommitted"] as JsonTab[]).map((t) => (
-                    <button
-                        key={t}
-                        onClick={() => setActiveTab(t)}
-                        className={`px-4 py-2 text-xs font-semibold transition-colors flex items-center gap-2 ${
-                            activeTab === t
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-gray-500 hover:text-gray-300"
-                        }`}
-                    >
-                        {t === "committed" ? "Committed" : "Uncommitted"}
-                        <span
-                            className={`rounded-full px-2 py-0.5 text-[9px] font-bold border ${
-                                t === "committed"
-                                    ? "text-emerald-300 bg-emerald-900/40 border-emerald-700"
-                                    : "text-yellow-300 bg-yellow-900/40 border-yellow-700"
-                            }`}
-                        >
-                            {t === "committed" ? "Read-Only" : "Editable"}
-                        </span>
-                    </button>
-                ))}
-            </div>
-
-            {/* Warning */}
-            {isEditable && (
-                <div className="px-3 py-2.5 bg-red-800/20 border-b border-red-700/40 text-red-300 flex items-center gap-2 text-xs">
-                    <AlertTriangle
-                        size={13}
-                        className="text-red-400 shrink-0"
-                    />
-                    應用前請確保 JSON 格式正確，否則將可能造成災難性後果。
-                </div>
-            )}
-
-            {/* Textarea */}
-            <textarea
-                className={`flex-1 text-green-400 p-3 text-xs resize-none outline-none font-mono leading-relaxed ${
-                    isEditable ? "bg-[#251e1e]" : "bg-[#1e1e1e]"
-                }`}
-                readOnly={!isEditable}
-                value={currentContent}
-                onChange={
-                    isEditable
-                        ? (e) => setEditableJson(e.target.value)
-                        : undefined
-                }
-                placeholder="JSON Content"
-            />
-
-            {/* Toolbar */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/8">
-                <div className="flex gap-2">
-                    {isEditable && (
-                        <label
-                            className={`${btnBase} bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-400 hover:text-white cursor-pointer`}
-                        >
-                            <Upload size={13} />
-                            <span className="uppercase tracking-wide text-xs">
-                                Import
-                            </span>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".json"
-                                className="hidden"
-                                onChange={(e) => {
-                                    onFileUpload(e);
-                                    if (fileInputRef.current)
-                                        fileInputRef.current.value = "";
-                                }}
-                            />
-                        </label>
-                    )}
-                    <button
-                        onClick={handleDownload}
-                        disabled={isDownloaded}
-                        className={`${btnBase} ${
-                            isDownloaded
-                                ? "bg-green-500/15 border-green-500/30 text-green-400 cursor-not-allowed"
-                                : "bg-white/5 hover:bg-primary/10 border-white/10 hover:border-primary/40 text-gray-400 hover:text-primary cursor-pointer"
-                        }`}
-                    >
-                        {isDownloaded ? (
-                            <Check size={13} />
-                        ) : (
-                            <Download
-                                size={13}
-                                className="group-hover:scale-110 transition-transform"
-                            />
-                        )}
-                        <span className="uppercase tracking-wide text-xs">
-                            {isDownloaded ? "Downloaded!" : "Download"}
-                        </span>
-                    </button>
-                </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={handleCopy}
-                        disabled={isCopied}
-                        className={`${btnBase} ${
-                            isCopied
-                                ? "bg-green-500/15 border-green-500/30 text-green-400 cursor-not-allowed"
-                                : "bg-white/5 hover:bg-primary/10 border-white/10 hover:border-primary/40 text-gray-400 hover:text-primary cursor-pointer"
-                        }`}
-                    >
-                        {isCopied && <Check size={13} />}
-                        <span className="uppercase tracking-wide text-xs">
-                            {isCopied ? "Copied!" : "Copy JSON"}
-                        </span>
-                    </button>
-                    {isEditable && (
-                        <button
-                            onClick={handleApply}
-                            className={`${btnBase} bg-red-500/10 hover:bg-red-500/20 border-red-500/30 hover:border-red-500/50 text-red-400 hover:text-red-300 cursor-pointer`}
-                        >
-                            <span className="uppercase tracking-wide text-xs">
-                                Apply Changes
-                            </span>
-                        </button>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
-
 // ── Main Modal ────────────────────────────────────────────────────────────────
 type TabKey = "lyrics" | "metadata" | "viewjson";
 
@@ -551,23 +351,15 @@ export const UploadModal: React.FC<{
     isOpen: boolean;
     songData: Song;
     lyrics: LyricData;
-    committedJson: string;
-    uncommittedJson: string;
     onClose: () => void;
     onRemoteSongDataRefreshed: (song: Song) => void;
-    onUpdateUncommitted: (json: string) => void;
-    onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSwitchToJson: () => void;
 }> = ({
     isOpen,
     songData,
     lyrics,
-    committedJson,
-    uncommittedJson,
     onClose,
     onRemoteSongDataRefreshed,
-    onUpdateUncommitted,
-    onFileUpload,
     onSwitchToJson,
 }) => {
     const { logout } = useAuth();
@@ -609,8 +401,8 @@ export const UploadModal: React.FC<{
     };
 
     const tabs: { key: TabKey; label: string }[] = [
-        { key: "lyrics", label: "Lyrics" },
         { key: "metadata", label: "Metadata" },
+        { key: "lyrics", label: "Lyrics" },
     ];
 
     return (
@@ -624,7 +416,7 @@ export const UploadModal: React.FC<{
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all"
                 >
                     <FileJson2 size={13} />
-                    View JSON
+                    View Lyric Data
                 </button>
             }
             icon={<Upload size={20} />}
