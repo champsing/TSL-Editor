@@ -1,11 +1,11 @@
 // components/LyricsEditorTab.tsx
-import React, { useState } from "react";
-import { Plus, Play, Pause, ArrowUpDown, Upload } from "lucide-react";
-import { LineReorderModal } from "./LineReorderModal";
-import { secondsToTime } from "@composables/utils";
 import { LyricLine } from "@composables/types";
+import { secondsToTime } from "@composables/utils";
+import { ArrowUpDown, Pause, Play, Plus, Upload } from "lucide-react";
+import React, { useState } from "react";
 import { EditActions } from "./EditActions";
 import { LineEditor } from "./LineEditor";
+import { LineReorderModal } from "./LineReorderModal";
 
 interface Props {
     isPlaying: boolean;
@@ -212,7 +212,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                                         className="transition-transform duration-200 group-hover:scale-110"
                                     />
                                     <span className="uppercase tracking-wide text-xs">
-                                        Import JSON file
+                                        Import JSON File
                                     </span>
                                 </label>
                             </div>

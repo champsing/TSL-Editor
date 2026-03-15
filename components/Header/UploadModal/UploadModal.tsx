@@ -611,7 +611,6 @@ export const UploadModal: React.FC<{
     const tabs: { key: TabKey; label: string }[] = [
         { key: "lyrics", label: "Lyrics" },
         { key: "metadata", label: "Metadata" },
-        { key: "viewjson", label: "View JSON" },
     ];
 
     return (
@@ -634,12 +633,12 @@ export const UploadModal: React.FC<{
             footer={`Song: ${songData.title ?? "—"}  ·  ID: ${songData.song_id ?? "—"}`}
         >
             {/* Tab bar */}
-            <div className="flex gap-1 mb-5 bg-black/30 p-1 rounded-xl border border-white/8">
+            <div className="flex gap-1 mb-5 bg-black/30 p-1 rounded-4xl border border-white/8">
                 {tabs.map((t) => (
                     <button
                         key={t.key}
                         onClick={() => setActiveTab(t.key)}
-                        className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                        className={`flex-1 py-2 rounded-4xl text-xs font-bold uppercase tracking-wider transition-all ${
                             activeTab === t.key
                                 ? "bg-primary/20 text-primary border border-primary/30"
                                 : "text-gray-500 hover:text-gray-300"
@@ -667,15 +666,6 @@ export const UploadModal: React.FC<{
                         onRemoteSongDataRefreshed(refreshed);
                     }}
                     onAuthError={handleAuthError}
-                />
-            )}
-            {activeTab === "viewjson" && (
-                <ViewJsonTab
-                    committedJson={committedJson}
-                    uncommittedJson={uncommittedJson}
-                    lyrics={lyrics}
-                    onUpdateUncommitted={onUpdateUncommitted}
-                    onFileUpload={onFileUpload}
                 />
             )}
         </SongMetaEditorModal>

@@ -1,4 +1,5 @@
 import { SongMetaEditorModal } from "@/components/Meta/EditorModal";
+import { useAuth } from "@/composables/useAuth";
 import { LyricData } from "@composables/types";
 import {
     AlertTriangle,
@@ -32,6 +33,7 @@ export const JsonModal: React.FC<JsonModalProps> = ({
     onFileUpload,
     onSwitchToUpload,
 }) => {
+    const { user } = useAuth();
     const [isCopied, setIsCopied] = useState(false);
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [activeTab, setActiveTab] = useState<Tab>("committed");
@@ -93,32 +95,60 @@ export const JsonModal: React.FC<JsonModalProps> = ({
             accentColor="#4ade80"
             maxWidthClass="max-w-4xl"
             actions={
-                <button
-                    onClick={onSwitchToUpload}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all"
-                >
-                    <FileJson2 size={13} />
-                    Upload JSON
-                </button>
+                <div className="flex gap-2">
+                    <label
+                        className={`${btnBase} bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-400 hover:text-white cursor-pointer`}
+                    >
+                        <Upload
+                            size={14}
+                            className="group-hover:scale-110 transition-transform"
+                        />
+                        <span className="uppercase tracking-wide text-xs">
+                            Import File
+                        </span>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".json"
+                            className="hidden"
+                            onChange={(e) => {
+                                onFileUpload(e);
+                                if (fileInputRef.current)
+                                    fileInputRef.current.value = "";
+                                onClose();
+                            }}
+                        />
+                    </label>
+
+                    {user ? (
+                        <button
+                            onClick={onSwitchToUpload}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all"
+                        >
+                            <FileJson2 size={13} />
+                            Upload JSON
+                        </button>
+                    ) : (
+                        <></>
+                    )}
+                </div>
             }
             footer="Committed 為唯讀。Uncommitted 可直接編輯後 Apply，套用前請確保格式正確。"
         >
             <div className="flex flex-col gap-0" style={{ height: "60vh" }}>
                 {/* Sub-tab bar */}
-                <div className="flex border-b border-white/8 mb-0">
+                <div className="flex gap-1 mb-5 bg-black/30 p-1 rounded-4xl border border-white/8">
                     {(["committed", "uncommitted"] as Tab[]).map((t) => (
                         <button
                             key={t}
                             onClick={() => setActiveTab(t)}
-                            className={`px-4 py-2.5 text-xs font-semibold transition-colors flex items-center gap-2 ${
+                            className={`flex-1 py-2 rounded-4xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                                 activeTab === t
-                                    ? "text-primary border-b-2 border-primary"
+                                    ? "bg-primary/20 text-primary border border-primary/30"
                                     : "text-gray-500 hover:text-gray-300"
                             }`}
                         >
-                            {t === "committed"
-                                ? "Committed Lyrics"
-                                : "Uncommitted Lyrics"}
+                            {t === "committed" ? "Committed" : "Uncommitted"}
                             <span
                                 className={`rounded-full px-2 py-0.5 text-[9px] font-bold border ${
                                     t === "committed"
@@ -163,31 +193,6 @@ export const JsonModal: React.FC<JsonModalProps> = ({
                 {/* Toolbar */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/8">
                     <div className="flex gap-2">
-                        {isEditable && (
-                            <label
-                                className={`${btnBase} bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-400 hover:text-white cursor-pointer`}
-                            >
-                                <Upload
-                                    size={14}
-                                    className="group-hover:scale-110 transition-transform"
-                                />
-                                <span className="uppercase tracking-wide text-xs">
-                                    Import
-                                </span>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".json"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                        onFileUpload(e);
-                                        if (fileInputRef.current)
-                                            fileInputRef.current.value = "";
-                                        onClose();
-                                    }}
-                                />
-                            </label>
-                        )}
                         <button
                             onClick={handleDownload}
                             disabled={isDownloaded}
