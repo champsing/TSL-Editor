@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from "react";
-import {
-    Upload,
-    FileJson2,
-    ChevronDown,
-    CheckCircle2,
-    AlertCircle,
-    Loader2,
-} from "lucide-react";
-import { Song, Version, LyricData, UploadStatus } from "@composables/types";
+import { LyricData, Song, UploadStatus, Version } from "@composables/types";
+import { authHeaders } from "@composables/useAuth";
 import { API_BASE_URL } from "@composables/utils";
-import { authHeaders, useAuth } from "@composables/useAuth";
-import { SongMetaEditorModal } from "@/components/Meta/EditorModal";
+import { Upload } from "lucide-react";
+import React, { useState } from "react";
 import { RawJsonCollapse } from "./RawJsonCollapse";
 import { StatusBadge } from "./UploadModal";
 

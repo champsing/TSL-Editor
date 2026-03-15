@@ -1,16 +1,13 @@
-import React, { useState } from "react";
-import {
-    Upload,
-    CheckCircle2,
-    ChevronDown,
-    Loader2,
-    AlertCircle,
-} from "lucide-react";
 import { Song, UploadStatus } from "@composables/types";
-import { API_BASE_URL } from "@composables/utils";
 import { authHeaders } from "@composables/useAuth";
-import { COMPARABLE_FIELDS, StatusBadge } from "./UploadModal";
+import { API_BASE_URL } from "@composables/utils";
+import {
+    CheckCircle2,
+    Upload
+} from "lucide-react";
+import React, { useState } from "react";
 import { RawJsonCollapse } from "./RawJsonCollapse";
+import { COMPARABLE_FIELDS, StatusBadge } from "./UploadModal";
 
 const FIELD_LABELS: Partial<Record<keyof Song, string>> = {
     title: "Title",

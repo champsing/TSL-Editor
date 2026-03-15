@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
-import { LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@composables/useAuth";
-import { SiGithub } from "react-icons/si";
-import { SlSocialGithub } from "react-icons/sl";
+import { ChevronDown, LogIn, LogOut } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaSquareGithub } from "react-icons/fa6";
+import { SlSocialGithub } from "react-icons/sl";
 
 // ─── Logout Confirmation Modal ────────────────────────────────────────────────
 const LogoutConfirmModal: React.FC<{
