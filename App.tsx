@@ -231,7 +231,7 @@ function App() {
                         size={18}
                         className={`transition-transform duration-300 ${activeTab === "meta" ? "scale-110" : "group-hover:scale-110"}`}
                     />
-                    <span className="tracking-wide text-sm">Song Info</span>
+                    <span className="tracking-wide text-sm">Song</span>
                 </button>
 
                 <div className="w-px h-4 bg-white/10 mx-1" />
