@@ -73,10 +73,10 @@ function renderValue(v: any): string {
 // ── Status badge ──────────────────────────────────────────────────────────────
 type UploadStatus = "idle" | "loading" | "success" | "error";
 
-const StatusBadge: React.FC<{ status: UploadStatus; error?: string }> = ({
-    status,
-    error,
-}) => {
+export const StatusBadge: React.FC<{
+    status: UploadStatus;
+    error?: string;
+}> = ({ status, error }) => {
     if (status === "idle") return null;
     if (status === "loading")
         return (

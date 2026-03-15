@@ -2,7 +2,7 @@
 import { LyricLine } from "@composables/types";
 import { secondsToTime } from "@composables/utils";
 import { ArrowUpDown, Pause, Play, Plus, Upload } from "lucide-react";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { EditActions } from "./EditActions";
 import { LineEditor } from "./LineEditor";
 import { LineReorderModal } from "./LineReorderModal";
@@ -55,6 +55,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
     } = props;
 
     const [reorderModalOpen, setReorderModalOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleReorder = (newLines: LyricLine[]) => {
         if (replaceAllLines) {
@@ -194,8 +195,21 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                                 Select an existing song or click "Add Line" to
                                 get started.
                             </p>
-                            <p className="text-sm mt-2 ">You can also</p>
-                            <div className="mt-2" onClick={() => onImportJson}>
+                            <p className="text-sm mt-2 mb-2">You can also</p>
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".json"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        onImportJson(e);
+                                        if (fileInputRef.current)
+                                            fileInputRef.current.value = "";
+                                    }}
+                                />
                                 {/* Import */}
                                 <label
                                     className="
@@ -215,7 +229,7 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                                         Import JSON File
                                     </span>
                                 </label>
-                            </div>
+                            </button>
                         </div>
                     ) : (
                         stagedLyrics.map((line, index) => (
