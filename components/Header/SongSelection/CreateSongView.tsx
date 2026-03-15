@@ -1,10 +1,10 @@
-import { Version } from "@composables/types";
-import { Plus, ArrowLeft, Layers, Music, AlertCircle } from "lucide-react";
-import React, { useState } from "react";
-import { authHeaders } from "@composables/useAuth";
 import { API_BASE_URL } from "@/composables/utils";
-import { VersionsEditor } from "./VersionEditor";
+import { Version } from "@composables/types";
+import { authHeaders } from "@composables/useAuth";
+import { AlertCircle, ArrowLeft, Layers, Music, Plus } from "lucide-react";
+import React, { useState } from "react";
 import { inputClassSong } from "./SongSelectionModal";
+import { VersionsEditor } from "./VersionEditor";
 
 // ── Create Song View ──────────────────────────────────────────────────────────
 type CreateStep = "info" | "versions";
@@ -32,7 +32,7 @@ export const CreateSongView: React.FC<{
         setIsSubmitting(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE_URL}/api/songs/create`, {
+            const res = await fetch(`$${API_BASE_URL}/songs/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -1,10 +1,7 @@
 import { Song, UploadStatus } from "@composables/types";
 import { authHeaders } from "@composables/useAuth";
 import { API_BASE_URL } from "@composables/utils";
-import {
-    CheckCircle2,
-    Upload
-} from "lucide-react";
+import { CheckCircle2, Upload } from "lucide-react";
 import React, { useState } from "react";
 import { RawJsonCollapse } from "./RawJsonCollapse";
 import { COMPARABLE_FIELDS, StatusBadge } from "./UploadModal";
@@ -68,7 +65,7 @@ export const MetaTab: React.FC<{
                 body[f] = (songData as any)[f];
             });
 
-            const res = await fetch(`${API_BASE_URL}/api/songs/update`, {
+            const res = await fetch(`$${API_BASE_URL}/songs/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

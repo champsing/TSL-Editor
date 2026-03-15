@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Plus, AlertCircle } from "lucide-react";
 import { authHeaders } from "@/composables/useAuth";
 import { API_BASE_URL } from "@/composables/utils";
+import { AlertCircle, Plus } from "lucide-react";
+import React, { useState } from "react";
 import { inputClassArtist } from "./ArtistSelectModal";
 
 // ── Create Artist inline form ─────────────────────────────────────────────────
@@ -24,7 +24,7 @@ export const CreateArtistForm: React.FC<{
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE_URL}/api/artists/create`, {
+            const res = await fetch(`$${API_BASE_URL}/artists/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
