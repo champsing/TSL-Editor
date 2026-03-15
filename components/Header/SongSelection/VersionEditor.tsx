@@ -1,8 +1,11 @@
+import { inputClassSong } from "@components/Header/SongSelection/SongSelectionModal";
 import { Version } from "@composables/types";
 import { Plus } from "lucide-react";
 import React from "react";
 import { FaLock } from "react-icons/fa6";
-import { inputClassSong } from "@components/Header/SongSelection/SongSelectionModal";
+
+// ── 暫時鎖死的版本選項，待播放器客戶端大更新後解禁 ────────────────────────────
+const VERSION_OPTIONS = ["original", "instrumental", "live"] as const;
 
 export const VersionsEditor: React.FC<{
     versions: Version[];
@@ -18,10 +21,8 @@ export const VersionsEditor: React.FC<{
         onUpdate(versions.map((v, i) => ({ ...v, default: i === idx })));
 
     const remove = (idx: number) => {
-        // original 版本不可刪除
         if (versions[idx].version === "original") return;
         const next = versions.filter((_, i) => i !== idx);
-        // 若刪掉的是 default，把第一個接手
         if (versions[idx].default && next.length > 0) {
             next[0] = { ...next[0], default: true };
         }
@@ -32,7 +33,13 @@ export const VersionsEditor: React.FC<{
         onUpdate([
             ...versions,
             {
-                version: "New Version",
+                // 預設選第一個非 original 的可用選項
+                version:
+                    VERSION_OPTIONS.find(
+                        (o) =>
+                            o !== "original" &&
+                            !versions.some((v) => v.version === o),
+                    ) ?? "instrumental",
                 id: "",
                 duration: "0:00",
                 default: false,
@@ -69,7 +76,14 @@ export const VersionsEditor: React.FC<{
                                         </span>
                                     </div>
                                 ) : (
-                                    <input
+                                    // TODO: 播放器客戶端大更新後，將下方 select 換回 input 自由輸入
+                                    // <input
+                                    //     value={v.version}
+                                    //     onChange={(e) => update(idx, "version", e.target.value)}
+                                    //     className={inputClassSong}
+                                    //     placeholder="e.g. live, acoustic"
+                                    // />
+                                    <select
                                         value={v.version}
                                         onChange={(e) =>
                                             update(
@@ -78,9 +92,16 @@ export const VersionsEditor: React.FC<{
                                                 e.target.value,
                                             )
                                         }
-                                        className={inputClassSong}
-                                        placeholder="e.g. live, acoustic"
-                                    />
+                                        className={`${inputClassSong} cursor-pointer`}
+                                    >
+                                        {VERSION_OPTIONS.filter(
+                                            (o) => o !== "original",
+                                        ).map((o) => (
+                                            <option key={o} value={o}>
+                                                {o}
+                                            </option>
+                                        ))}
+                                    </select>
                                 )}
                             </div>
                             <div>
