@@ -155,7 +155,7 @@ const LyricsTab: React.FC<{
         setStatus("loading");
         setErrorMsg(undefined);
         try {
-            const res = await fetch(`$${API_BASE_URL}/songs/lyrics/update`, {
+            const res = await fetch(`${API_BASE_URL}/songs/lyrics/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -250,7 +250,7 @@ const MetadataTab: React.FC<{
                 body[f] = (songData as any)[f];
             });
 
-            const res = await fetch(`$${API_BASE_URL}/songs/update`, {
+            const res = await fetch(`${API_BASE_URL}/songs/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

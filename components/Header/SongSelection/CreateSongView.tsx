@@ -32,7 +32,7 @@ export const CreateSongView: React.FC<{
         setIsSubmitting(true);
         setError(null);
         try {
-            const res = await fetch(`$${API_BASE_URL}/songs/create`, {
+            const res = await fetch(`${API_BASE_URL}/songs/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

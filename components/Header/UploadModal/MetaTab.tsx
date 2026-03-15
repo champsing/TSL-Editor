@@ -65,7 +65,7 @@ export const MetaTab: React.FC<{
                 body[f] = (songData as any)[f];
             });
 
-            const res = await fetch(`$${API_BASE_URL}/songs/update`, {
+            const res = await fetch(`${API_BASE_URL}/songs/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

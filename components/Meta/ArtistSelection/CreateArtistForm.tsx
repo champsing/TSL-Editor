@@ -24,7 +24,7 @@ export const CreateArtistForm: React.FC<{
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`$${API_BASE_URL}/artists/create`, {
+            const res = await fetch(`${API_BASE_URL}/artists/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
