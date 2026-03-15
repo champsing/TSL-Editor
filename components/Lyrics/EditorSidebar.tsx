@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { YouTubePlayer, YouTubePlayerHandle } from "../YouTubePlayer";
 // 引入 Volume2 圖標
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
+import { varColorPrimary } from "../Meta/EditorModal";
 
 interface EditorSidebarProps {
     videoId: string;
@@ -105,7 +106,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                                     {
                                         // 將 React 狀態傳遞給 CSS 變數
                                         "--value": volume,
-                                        "--fill": "#59bf22", // primary
+                                        "--fill": varColorPrimary, // primary
                                         "--empty": "rgba(255, 255, 255, 0.1)",
                                     } as React.CSSProperties
                                 }

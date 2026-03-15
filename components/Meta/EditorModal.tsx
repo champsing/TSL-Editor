@@ -1,6 +1,8 @@
 // components/SongMetaEditorModal.tsx
-import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import React, { useEffect, useRef } from "react";
+
+export const varColorPrimary = "var(--color-primary, #7c3aed)";
 
 interface SongMetaEditorModalProps {
     isOpen: boolean;
@@ -27,7 +29,7 @@ export const SongMetaEditorModal: React.FC<SongMetaEditorModalProps> = ({
     onClose,
     title,
     icon,
-    accentColor = "var(--color-primary, #7c3aed)",
+    accentColor = varColorPrimary,
     actions,
     footer,
     maxWidthClass = "max-w-3xl",
