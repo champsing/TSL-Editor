@@ -44,7 +44,8 @@ export const MetaTab: React.FC<{
     remoteSongData: Song | null;
     onSuccess: (refreshed: Song) => void;
     onAuthError: () => void;
-}> = ({ songData, remoteSongData, onSuccess, onAuthError }) => {
+    onSaveSnapshot: () => void;
+}> = ({ songData, remoteSongData, onSuccess, onAuthError, onSaveSnapshot }) => {
     const changedFields = remoteSongData
         ? diffSong(remoteSongData, songData)
         : [];
@@ -89,6 +90,7 @@ export const MetaTab: React.FC<{
             setStatus("success");
             onSuccess(refreshed);
         } catch (e: any) {
+            onSaveSnapshot(); // ← 不管什麼錯先存
             setStatus("error");
             setErrorMsg(e?.message);
         }

@@ -7,12 +7,13 @@ import { RawJsonCollapse } from "./RawJsonCollapse";
 import { StatusBadge } from "./UploadModal";
 
 // ── Lyrics Tab ────────────────────────────────────────────────────────────────
-export const LyricsTab: React.FC<{
+export const LyricTab: React.FC<{
     songData: Song;
     lyrics: LyricData;
     onSuccess: () => void;
     onAuthError: () => void;
-}> = ({ songData, lyrics, onSuccess, onAuthError }) => {
+    onSaveSnapshot: () => void;
+}> = ({ songData, lyrics, onSuccess, onAuthError, onSaveSnapshot }) => {
     const versions: Version[] = songData.versions ?? [];
     const defaultIdx = versions.findIndex((v) => v.default) ?? 0;
     const [selectedIdx, setSelectedIdx] = useState(Math.max(0, defaultIdx));
@@ -55,6 +56,7 @@ export const LyricsTab: React.FC<{
             setStatus("success");
             onSuccess();
         } catch (e: any) {
+            onSaveSnapshot(); // ← 不管什麼錯先存
             setStatus("error");
             setErrorMsg(e?.message);
         }
