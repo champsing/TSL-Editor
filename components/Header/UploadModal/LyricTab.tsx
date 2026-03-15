@@ -10,10 +10,18 @@ import { StatusBadge } from "./UploadModal";
 export const LyricTab: React.FC<{
     songData: Song;
     lyrics: LyricData;
+    hasUncommittedChanges: boolean;
     onSuccess: () => void;
     onAuthError: () => void;
     onSaveSnapshot: () => void;
-}> = ({ songData, lyrics, onSuccess, onAuthError, onSaveSnapshot }) => {
+}> = ({
+    songData,
+    lyrics,
+    hasUncommittedChanges,
+    onSuccess,
+    onAuthError,
+    onSaveSnapshot,
+}) => {
     const versions: Version[] = songData.versions ?? [];
     const defaultIdx = versions.findIndex((v) => v.default) ?? 0;
     const [selectedIdx, setSelectedIdx] = useState(Math.max(0, defaultIdx));
@@ -94,7 +102,11 @@ export const LyricTab: React.FC<{
                 <StatusBadge status={status} error={errorMsg} />
                 <button
                     onClick={handleUpload}
-                    disabled={status === "loading" || versions.length === 0}
+                    disabled={
+                        !hasUncommittedChanges ||
+                        status === "loading" ||
+                        versions.length === 0
+                    }
                     className="flex items-center gap-2 px-4 py-2 bg-primary/15 hover:bg-primary/25 border border-primary/40 text-primary rounded-lg text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     <Upload size={13} /> Upload Lyrics

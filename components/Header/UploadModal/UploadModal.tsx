@@ -74,6 +74,7 @@ export const UploadModal: React.FC<{
     isOpen: boolean;
     songData: Song;
     lyrics: LyricData;
+    hasUncommittedChanges: boolean;
     onClose: () => void;
     onRemoteSongDataRefreshed: (song: Song) => void;
     onSwitchToJson: () => void;
@@ -81,6 +82,7 @@ export const UploadModal: React.FC<{
     isOpen,
     songData,
     lyrics,
+    hasUncommittedChanges,
     onClose,
     onRemoteSongDataRefreshed,
     onSwitchToJson,
@@ -171,6 +173,7 @@ export const UploadModal: React.FC<{
 
             {activeTab === "lyrics" && (
                 <LyricTab
+                    hasUncommittedChanges={hasUncommittedChanges}
                     songData={songData}
                     lyrics={lyrics}
                     onSuccess={() => {}}

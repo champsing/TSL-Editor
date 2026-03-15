@@ -309,6 +309,7 @@ function App() {
                     isOpen={activeIOModal === "upload"}
                     songData={songData}
                     lyrics={lyrics}
+                    hasUncommittedChanges={hasUncommittedChanges}
                     onClose={() => setActiveIOModal(null)}
                     onRemoteSongDataRefreshed={(refreshed) =>
                         setSongData(refreshed)
