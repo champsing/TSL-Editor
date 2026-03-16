@@ -48,6 +48,7 @@ export interface Translation {
     available: boolean | false;
     author: string;
     cite: string;
+    modified?: boolean;
 }
 
 export interface Album {

@@ -1,24 +1,28 @@
 // components/SongMetaEditorTab.tsx
-import React, { useState } from "react";
+import { useArtistNames } from "@/hooks/useArtistName";
 import { Song } from "@composables/types";
 import {
-    Music,
-    Image as ImageIcon,
-    CheckCircle2,
+    BookOpen,
     Calendar,
+    CheckCircle2,
+    Disc3,
     Hash,
-    Plus,
+    Image as ImageIcon,
     Layers,
     LinkIcon,
+    Music,
+    Plus,
 } from "lucide-react";
+import React, { useState } from "react";
 import { SongSelectionModal } from "../Header/SongSelection/SongSelectionModal";
-import { useArtistNames } from "@/hooks/useArtistName";
-import { SongMetaEditorModal } from "./EditorModal";
-import { StatusModal } from "./EditorTab/Modals/StatusModal";
-import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
-import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
-import { InformationModal } from "./EditorTab/Modals/InformationModal";
 import { VersionsEditor } from "../Header/SongSelection/VersionEditor";
+import { SongMetaEditorModal } from "./EditorModal";
+import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
+import { AlbumModal } from "./EditorTab/Modals/AlbumModal";
+import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
+import { InformationModal } from "./EditorTab/Modals/InformationModal";
+import { StatusModal } from "./EditorTab/Modals/StatusModal";
+import { TranslationModal } from "./EditorTab/Modals/TranslationModal";
 
 interface Props {
     songData: Song;
@@ -31,8 +35,14 @@ export const labelClassEditor =
     "flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest";
 
 // ─── Modal key type ────────────────────────────────────────────────────────────
-type ModalKey = "status" | "main" | "cover" | "versions" | null;
-
+type ModalKey =
+    | "status"
+    | "main"
+    | "cover"
+    | "versions"
+    | "album"
+    | "translation"
+    | null;
 export const SongMetaEditorTab: React.FC<Props> = ({
     songData,
     setSongData,
@@ -41,7 +51,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const [isSongSelectOpen, setIsSongSelectOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const { artistLookup, formatArtistNames } = useArtistNames();
+    const { formatArtistNames } = useArtistNames();
 
     const handleChange = (field: keyof Song, value: any) => {
         setSongData({ ...songData, [field]: value });
@@ -70,6 +80,24 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const mainSummary = [songData.title, songData.subtitle]
         .filter(Boolean)
         .join(" — ");
+
+    const albumSummary =
+        songData.album === null
+            ? "Not set (null)"
+            : songData.album?.name
+              ? songData.album.name
+              : "No name set";
+
+    const translationSummary = (() => {
+        const t = songData.translation;
+        if (!t) return "No data";
+        const parts: string[] = [];
+        if (t.available) parts.push("Enabled");
+        else parts.push("Disabled");
+        if (t.author) parts.push(t.author);
+        if (t.modified) parts.push("Modified");
+        return parts.join(" · ");
+    })();
 
     return (
         <div className="flex-1 bg-[#1a202c] p-8 custom-scrollbar overflow-y-auto pb-32">
@@ -161,6 +189,20 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         accentClass="bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25"
                         onClick={() => setOpenModal("versions")}
                     />
+                    <EditorEntryButton
+                        icon={<Disc3 size={22} />}
+                        label="Album"
+                        subtitle={albumSummary}
+                        accentClass="bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/25"
+                        onClick={() => setOpenModal("album")}
+                    />
+                    <EditorEntryButton
+                        icon={<BookOpen size={22} />}
+                        label="Translation"
+                        subtitle={translationSummary}
+                        accentClass="bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/25"
+                        onClick={() => setOpenModal("translation")}
+                    />
                 </div>
             </div>
 
@@ -242,6 +284,30 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     versions={songData.versions || []}
                     onUpdate={(v) => handleChange("versions", v)}
                 />
+            </SongMetaEditorModal>
+
+            {/* 5. Album */}
+            <SongMetaEditorModal
+                isOpen={openModal === "album"}
+                onClose={close}
+                title="Album"
+                icon={<Disc3 size={20} />}
+                accentColor="#fb923c"
+                footer="Toggle 'No Album' to store null. The link field accepts a Google Music share code, not a full URL."
+            >
+                <AlbumModal songData={songData} onChange={handleChange} />
+            </SongMetaEditorModal>
+
+            {/* 6. Translation */}
+            <SongMetaEditorModal
+                isOpen={openModal === "translation"}
+                onClose={close}
+                title="Translation"
+                icon={<BookOpen size={20} />}
+                accentColor="#2dd4bf"
+                footer="'Available' controls whether translation is shown in the player. Disabling does not erase author or cite data."
+            >
+                <TranslationModal songData={songData} onChange={handleChange} />
             </SongMetaEditorModal>
 
             {/* Song Selection Modal */}
