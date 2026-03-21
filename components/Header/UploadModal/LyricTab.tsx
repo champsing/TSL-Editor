@@ -10,14 +10,14 @@ import { StatusBadge } from "./UploadModal";
 export const LyricTab: React.FC<{
     songData: Song;
     lyrics: LyricData;
-    hasUncommittedChanges: boolean;
+    remoteLyrics: LyricData | null; // 新增：從 R2 抓來的遠端歌詞
     onSuccess: () => void;
     onAuthError: () => void;
     onSaveSnapshot: () => void;
 }> = ({
     songData,
     lyrics,
-    hasUncommittedChanges,
+    remoteLyrics,
     onSuccess,
     onAuthError,
     onSaveSnapshot,
@@ -27,6 +27,11 @@ export const LyricTab: React.FC<{
     const [selectedIdx, setSelectedIdx] = useState(Math.max(0, defaultIdx));
     const [status, setStatus] = useState<UploadStatus>("idle");
     const [errorMsg, setErrorMsg] = useState<string>();
+
+    // 和遠端歌詞比較，而非用 hasUncommittedChanges
+    const hasChanges =
+        remoteLyrics !== null &&
+        JSON.stringify(lyrics) !== JSON.stringify(remoteLyrics);
 
     const handleUpload = async () => {
         const version = versions[selectedIdx];
@@ -64,7 +69,7 @@ export const LyricTab: React.FC<{
             setStatus("success");
             onSuccess();
         } catch (e: any) {
-            onSaveSnapshot(); // ← 不管什麼錯先存
+            onSaveSnapshot();
             setStatus("error");
             setErrorMsg(e?.message);
         }
@@ -94,6 +99,19 @@ export const LyricTab: React.FC<{
                 </div>
             </div>
 
+            {/* 差異狀態提示 */}
+            {remoteLyrics === null ? (
+                <p className="text-sm text-gray-500 py-2">載入遠端歌詞中…</p>
+            ) : !hasChanges ? (
+                <p className="text-sm text-green-400 py-2 flex items-center gap-2">
+                    ✓ 與遠端歌詞無差異
+                </p>
+            ) : (
+                <p className="text-sm text-amber-400 py-2">
+                    本地 committed 歌詞與遠端不同，可上傳更新。
+                </p>
+            )}
+
             {/* JSON preview */}
             <RawJsonCollapse label="Lyrics JSON Preview" data={lyrics} />
 
@@ -103,7 +121,7 @@ export const LyricTab: React.FC<{
                 <button
                     onClick={handleUpload}
                     disabled={
-                        !hasUncommittedChanges ||
+                        !hasChanges ||
                         status === "loading" ||
                         versions.length === 0
                     }

@@ -1,5 +1,6 @@
 import { SongMetaEditorModal } from "@/components/Meta/EditorModal";
-import { LyricData, Song } from "@composables/types";
+import { useLyricEditor } from "@/hooks/useLyricEditor";
+import { LyricData, Song, Version } from "@composables/types";
 import { useAuth } from "@composables/useAuth";
 import { API_BASE_URL } from "@composables/utils";
 import {
@@ -68,7 +69,7 @@ export const StatusBadge: React.FC<{
 };
 
 // ── Main Modal ────────────────────────────────────────────────────────────────
-type TabKey = "lyrics" | "metadata" | "viewjson";
+type TabKey = "lyrics" | "metadata";
 
 export const UploadModal: React.FC<{
     isOpen: boolean;
@@ -90,7 +91,10 @@ export const UploadModal: React.FC<{
     const { logout } = useAuth();
     const [activeTab, setActiveTab] = useState<TabKey>("lyrics");
     const [remoteSongData, setRemoteSongData] = useState<Song | null>(null);
+    const [remoteLyrics, setRemoteLyrics] = useState<LyricData | null>(null);
+    const { loadLyricsByPath } = useLyricEditor();
 
+    // 抓遠端歌曲 metadata
     useEffect(() => {
         if (!isOpen || !songData.song_id) return;
         setRemoteSongData(null);
@@ -99,6 +103,26 @@ export const UploadModal: React.FC<{
             .then(setRemoteSongData)
             .catch(() => {});
     }, [isOpen, songData.song_id]);
+
+    // 抓遠端歌詞（以 default version 為準）
+    useEffect(() => {
+        if (!isOpen || !songData.song_id || !songData.folder) return;
+        setRemoteLyrics(null);
+
+        const versions: Version[] = songData.versions ?? [];
+        const defaultVersion =
+            versions.find((v) => v.default) ??
+            versions.find((v) => v.version === "original") ??
+            versions[0];
+
+        if (!defaultVersion) return;
+
+        loadLyricsByPath(
+            songData.song_id,
+            songData.folder,
+            defaultVersion.version,
+        ).then(setRemoteLyrics);
+    }, [isOpen, songData.song_id, songData.folder, songData.versions]);
 
     const saveSnapshot = () => {
         sessionStorage.setItem(
@@ -123,7 +147,6 @@ export const UploadModal: React.FC<{
         );
     };
 
-    // 401 專用：存完再登出 reload
     const handleAuthError = () => {
         saveSnapshot();
         logout();
@@ -173,9 +196,9 @@ export const UploadModal: React.FC<{
 
             {activeTab === "lyrics" && (
                 <LyricTab
-                    hasUncommittedChanges={hasUncommittedChanges}
                     songData={songData}
                     lyrics={lyrics}
+                    remoteLyrics={remoteLyrics}
                     onSuccess={() => {}}
                     onAuthError={handleAuthError}
                     onSaveSnapshot={saveSnapshot}

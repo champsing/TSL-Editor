@@ -63,9 +63,6 @@ export const useLyricEditor = () => {
         version: string,
     ) => {
         try {
-            // 編碼 URL 以防資料夾名稱有空格或特殊字元
-            const encodedFolder = encodeURIComponent(folder);
-
             const url = `https://lyric.timesl.online/${songId}_${folder}/${version}.json`;
 
             const response = await fetch(url);
@@ -82,11 +79,11 @@ export const useLyricEditor = () => {
             sessionStorage.setItem(STORAGE_KEY_LYRICS, JSON.stringify(mapping));
 
             console.log(`Successfully loaded lyrics: ${folder}/${version}`);
-            return true;
+            return mapping;
         } catch (e) {
             console.error("Failed to fetch lyrics:", e);
             alert("無法載入歌詞檔案，請檢查 GitHub 儲存庫路徑是否存在。");
-            return false;
+            return [];
         }
     };
 
