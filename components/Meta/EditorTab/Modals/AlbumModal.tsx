@@ -77,7 +77,7 @@ export const AlbumModal: React.FC<{
                     {/* Preview */}
                     {album?.link && (
                         <a
-                            href={`https://music.youtube.com/playlist?list=${album.link}`}
+                            href={`https://g.co/kgs/${album.link}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 text-xs text-primary/70 hover:text-primary transition-colors"
