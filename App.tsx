@@ -64,6 +64,11 @@ function App() {
     const [isSongModalOpen, setIsSongModalOpen] = useState(false);
     const [songData, setSongData] = useState<Song>({} as Song);
 
+    const setSongChangeTitle = (song: Song) => {
+        setSongData(song);
+        document.title = `${song.title} - 同步開唱：編輯器`;
+    };
+
     // 當前歌詞編輯中的版本名稱（用於 UploadModal 的遠端比對）
     const [activeLyricVersion, setActiveLyricVersion] =
         useState<string>("original");
@@ -75,7 +80,7 @@ function App() {
         if (variant && savedSong) {
             try {
                 const song: Song = JSON.parse(savedSong);
-                setSongData(song);
+                setSongChangeTitle(song);
                 // 恢復版本
                 try {
                     const v = JSON.parse(variant);
@@ -115,7 +120,7 @@ function App() {
             `${API_BASE_URL}/songs/${selectedSong.song_id}`,
         );
         const fullSongData = await response.json();
-        setSongData(fullSongData);
+        setSongChangeTitle(fullSongData);
 
         const versions = fullSongData.versions || [];
         const defaultVersion: Version =
@@ -246,7 +251,7 @@ function App() {
                 ) : (
                     <SongMetaEditorTab
                         songData={songData}
-                        setSongData={setSongData}
+                        setSongChangeTitle={setSongChangeTitle}
                         onVersionSwitch={handleVersionSwitch}
                     />
                 )}
@@ -356,7 +361,7 @@ function App() {
                     hasUncommittedChanges={hasUncommittedChanges}
                     onClose={() => setActiveIOModal(null)}
                     onRemoteSongDataRefreshed={(refreshed) =>
-                        setSongData(refreshed)
+                        setSongChangeTitle(refreshed)
                     }
                     onSwitchToJson={() => setActiveIOModal("json")}
                 />
