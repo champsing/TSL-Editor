@@ -26,7 +26,7 @@ import { TranslationModal } from "./EditorTab/Modals/TranslationModal";
 
 interface Props {
     songData: Song;
-    setSongChangeTitle: (data: Song) => void;
+    setSongData: (data: Song) => void;
     /** 點擊鉛筆後，通知 App 切換歌詞編輯版本 */
     onVersionSwitch?: (version: Version) => void;
 }
@@ -45,9 +45,10 @@ type ModalKey =
     | "album"
     | "translation"
     | null;
+
 export const SongMetaEditorTab: React.FC<Props> = ({
     songData,
-    setSongChangeTitle,
+    setSongData,
     onVersionSwitch,
 }) => {
     const [openModal, setOpenModal] = useState<ModalKey>(null);
@@ -57,7 +58,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const { formatArtistNames } = useArtistNames();
 
     const handleChange = (field: keyof Song, value: any) => {
-        setSongChangeTitle({ ...songData, [field]: value });
+        setSongData({ ...songData, [field]: value });
     };
 
     const parseIds = (idString: string | undefined) => {
@@ -71,35 +72,118 @@ export const SongMetaEditorTab: React.FC<Props> = ({
 
     const close = () => setOpenModal(null);
 
-    // ── Derived display values for button subtitles ──────────────────────────
-    const statusSummary = [
-        songData.available ? "Available" : "Unavailable",
-        songData.is_duet ? "Duet" : null,
-        songData.furigana ? "Furigana" : null,
-    ]
-        .filter(Boolean)
-        .join(" · ");
+    // ── Derived subtitle ReactNodes ──────────────────────────────────────────
 
-    const mainSummary = [songData.title, songData.subtitle]
-        .filter(Boolean)
-        .join(" — ");
+    // Song Status — available 綠/紅，is_duet 藍，furigana 紫
+    const statusSubtitle = (
+        <>
+            <span
+                className={`font-semibold ${
+                    songData.available ? "text-green-400" : "text-red-400/80"
+                }`}
+            >
+                {songData.available ? "✓ Available" : "✗ Unavailable"}
+            </span>
+            {songData.is_duet && (
+                <span className="text-blue-400 font-semibold">· Duet</span>
+            )}
+            {songData.furigana && (
+                <span className="text-purple-400 font-semibold">
+                    · Furigana
+                </span>
+            )}
+        </>
+    );
 
-    const albumSummary =
-        songData.album === null
-            ? "Not set (null)"
-            : songData.album?.name
-              ? songData.album.name
-              : "No name set";
+    // Information — 標題白字，副標灰字
+    const mainSubtitle = songData.title ? (
+        <>
+            <span className="text-gray-300 font-medium">{songData.title}</span>
+            {songData.subtitle && (
+                <span className="text-gray-500">— {songData.subtitle}</span>
+            )}
+        </>
+    ) : (
+        <span className="text-gray-600 italic">Title, artist, language…</span>
+    );
 
-    const translationSummary = (() => {
+    // Cover Art — 綠色 ✓ 或灰色 ✗
+    const coverSubtitle = songData.art ? (
+        <span className="text-green-400 font-semibold">✓ configured</span>
+    ) : (
+        <span className="text-gray-500">✗ not set</span>
+    );
+
+    // Song Versions — 數量藍色 + 版本名列表
+    const versionsSubtitle = (() => {
+        const count = songData.versions?.length || 0;
+        const names = (songData.versions || []).map((v: Version) => v.version);
+        return (
+            <>
+                <span className="text-blue-400 font-semibold">
+                    {count} version{count !== 1 ? "s" : ""}
+                </span>
+                {names.length > 0 && (
+                    <span className="text-gray-600">· {names.join(", ")}</span>
+                )}
+            </>
+        );
+    })();
+
+    // Album — null 用灰色 mono，有名稱直接顯示（自訂內容），有 link 加橙色鏈結標示
+    const albumSubtitle = (() => {
+        if (songData.album === null) {
+            return (
+                <span className="text-gray-600 font-mono italic">
+                    null (disabled)
+                </span>
+            );
+        }
+        const name = songData.album?.name;
+        const hasLink = !!songData.album?.link;
+        if (!name) {
+            return (
+                <span className="text-gray-600 italic">No album name set</span>
+            );
+        }
+        return (
+            <>
+                {/* 自訂內容：原樣顯示，不加顏色標記 */}
+                <span className="text-gray-300">{name}</span>
+                {hasLink && (
+                    <span className="text-orange-400/80 font-semibold">
+                        · 🔗 link set
+                    </span>
+                )}
+            </>
+        );
+    })();
+
+    // Translation — available 綠/灰，author 灰字（自訂），modified 黃色
+    const translationSubtitle = (() => {
         const t = songData.translation;
-        if (!t) return "No data";
-        const parts: string[] = [];
-        if (t.available) parts.push("Enabled");
-        else parts.push("Disabled");
-        if (t.author) parts.push(t.author);
-        if (t.modified) parts.push("Modified");
-        return parts.join(" · ");
+        if (!t)
+            return <span className="text-gray-600 italic">No data</span>;
+        return (
+            <>
+                <span
+                    className={`font-semibold ${
+                        t.available ? "text-green-400" : "text-gray-500"
+                    }`}
+                >
+                    {t.available ? "✓ Enabled" : "Disabled"}
+                </span>
+                {t.author && (
+                    /* 自訂內容：作者名原樣顯示 */
+                    <span className="text-gray-400">· {t.author}</span>
+                )}
+                {t.modified && (
+                    <span className="text-yellow-400 font-semibold">
+                        · Modified
+                    </span>
+                )}
+            </>
+        );
     })();
 
     return (
@@ -154,25 +238,21 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     <EditorEntryButton
                         icon={<CheckCircle2 size={22} />}
                         label="Song Status"
-                        subtitle={statusSummary}
+                        subtitle={statusSubtitle}
                         accentClass="bg-green-500/15 text-green-400 group-hover:bg-green-500/25"
                         onClick={() => setOpenModal("status")}
                     />
                     <EditorEntryButton
                         icon={<Music size={22} />}
                         label="Information"
-                        subtitle={mainSummary || "Title, artist, language…"}
+                        subtitle={mainSubtitle}
                         accentClass="bg-rose-500/15 text-rose-500 group-hover:bg-rose-500/25"
                         onClick={() => setOpenModal("main")}
                     />
                     <EditorEntryButton
                         icon={<ImageIcon size={22} />}
                         label="Cover Art"
-                        subtitle={
-                            songData.art
-                                ? "Art URL configured"
-                                : "No art URL set"
-                        }
+                        subtitle={coverSubtitle}
                         accentClass="bg-purple-500/15 text-purple-400 group-hover:bg-purple-500/25"
                         onClick={() => setOpenModal("cover")}
                         preview={
@@ -188,21 +268,21 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     <EditorEntryButton
                         icon={<Layers size={22} />}
                         label="Song Versions"
-                        subtitle={`${songData.versions?.length || 0} version${(songData.versions?.length || 0) !== 1 ? "s" : ""} configured`}
+                        subtitle={versionsSubtitle}
                         accentClass="bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25"
                         onClick={() => setOpenModal("versions")}
                     />
                     <EditorEntryButton
                         icon={<Disc3 size={22} />}
                         label="Album"
-                        subtitle={albumSummary}
+                        subtitle={albumSubtitle}
                         accentClass="bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/25"
                         onClick={() => setOpenModal("album")}
                     />
                     <EditorEntryButton
                         icon={<BookOpen size={22} />}
                         label="Translation"
-                        subtitle={translationSummary}
+                        subtitle={translationSubtitle}
                         accentClass="bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/25"
                         onClick={() => setOpenModal("translation")}
                     />
@@ -318,7 +398,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
             <SongSelectionModal
                 isOpen={isSongSelectOpen}
                 onClose={() => setIsSongSelectOpen(false)}
-                onSelect={(selectedSong) => setSongChangeTitle(selectedSong)}
+                onSelect={(selectedSong) => setSongData(selectedSong)}
             />
 
             {/* Full-size image preview overlay */}

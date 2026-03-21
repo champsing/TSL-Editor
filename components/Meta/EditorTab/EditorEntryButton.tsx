@@ -1,13 +1,14 @@
-import React from "react";
 import { Plus } from "lucide-react";
+import React from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EditorEntryButton — the unified entry tile on the main page
+// subtitle 改為 ReactNode，支援彩色徽章式顯示
 // ─────────────────────────────────────────────────────────────────────────────
 export const EditorEntryButton: React.FC<{
     icon: React.ReactNode;
     label: string;
-    subtitle?: string;
+    subtitle?: React.ReactNode;
     accentClass?: string;
     onClick: () => void;
     preview?: React.ReactNode;
@@ -32,8 +33,8 @@ export const EditorEntryButton: React.FC<{
             <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
                 {label}
             </div>
-            {subtitle && (
-                <div className="text-xs text-gray-500 mt-0.5 truncate">
+            {subtitle !== undefined && (
+                <div className="text-xs mt-0.5 flex items-center gap-1.5 flex-wrap min-w-0">
                     {subtitle}
                 </div>
             )}
