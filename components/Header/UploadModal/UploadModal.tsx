@@ -1,6 +1,5 @@
 import { SongMetaEditorModal } from "@/components/Meta/EditorModal";
-import { useLyricEditor } from "@/hooks/useLyricEditor";
-import { LyricData, Song, Version } from "@composables/types";
+import { LyricData, Song } from "@composables/types";
 import { useAuth } from "@composables/useAuth";
 import { API_BASE_URL } from "@composables/utils";
 import {
@@ -68,6 +67,22 @@ export const StatusBadge: React.FC<{
     );
 };
 
+// ── 抓遠端歌詞 ────────────────────────────────────────────────────────────────
+async function fetchRemoteLyrics(
+    songId: number,
+    folder: string,
+    version: string,
+): Promise<LyricData | null> {
+    try {
+        const url = `https://lyric.timesl.online/${songId}_${folder}/${version}.json`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
 // ── Main Modal ────────────────────────────────────────────────────────────────
 type TabKey = "lyrics" | "metadata";
 
@@ -75,6 +90,8 @@ export const UploadModal: React.FC<{
     isOpen: boolean;
     songData: Song;
     lyrics: LyricData;
+    /** App 層目前正在編輯的版本名稱，用於遠端比對 */
+    activeLyricVersion: string;
     hasUncommittedChanges: boolean;
     onClose: () => void;
     onRemoteSongDataRefreshed: (song: Song) => void;
@@ -83,6 +100,7 @@ export const UploadModal: React.FC<{
     isOpen,
     songData,
     lyrics,
+    activeLyricVersion,
     hasUncommittedChanges,
     onClose,
     onRemoteSongDataRefreshed,
@@ -92,7 +110,6 @@ export const UploadModal: React.FC<{
     const [activeTab, setActiveTab] = useState<TabKey>("lyrics");
     const [remoteSongData, setRemoteSongData] = useState<Song | null>(null);
     const [remoteLyrics, setRemoteLyrics] = useState<LyricData | null>(null);
-    const { loadLyricsByPath } = useLyricEditor();
 
     // 抓遠端歌曲 metadata
     useEffect(() => {
@@ -104,25 +121,16 @@ export const UploadModal: React.FC<{
             .catch(() => {});
     }, [isOpen, songData.song_id]);
 
-    // 抓遠端歌詞（以 default version 為準）
+    // 抓遠端歌詞：以 activeLyricVersion 為準
     useEffect(() => {
         if (!isOpen || !songData.song_id || !songData.folder) return;
         setRemoteLyrics(null);
-
-        const versions: Version[] = songData.versions ?? [];
-        const defaultVersion =
-            versions.find((v) => v.default) ??
-            versions.find((v) => v.version === "original") ??
-            versions[0];
-
-        if (!defaultVersion) return;
-
-        loadLyricsByPath(
+        fetchRemoteLyrics(
             songData.song_id,
             songData.folder,
-            defaultVersion.version,
+            activeLyricVersion,
         ).then(setRemoteLyrics);
-    }, [isOpen, songData.song_id, songData.folder, songData.versions]);
+    }, [isOpen, songData.song_id, songData.folder, activeLyricVersion]);
 
     const saveSnapshot = () => {
         sessionStorage.setItem(
@@ -138,11 +146,7 @@ export const UploadModal: React.FC<{
             TSL_EDITOR_KEYS.VARIANT,
             JSON.stringify({
                 song_id: songData.song_id,
-                song_version:
-                    (
-                        songData.versions?.find((v) => v.default) ??
-                        songData.versions?.[0]
-                    )?.version ?? "original",
+                song_version: activeLyricVersion,
             }),
         );
     };
@@ -175,7 +179,7 @@ export const UploadModal: React.FC<{
             icon={<Upload size={20} />}
             accentColor="#A78BFA"
             maxWidthClass="max-w-2xl"
-            footer={`Song: ${songData.title ?? "—"}  ·  ID: ${songData.song_id ?? "—"}`}
+            footer={`Song: ${songData.title ?? "—"}  ·  ID: ${songData.song_id ?? "—"}  ·  Version: ${activeLyricVersion}`}
         >
             {/* Tab bar */}
             <div className="flex gap-1 mb-5 bg-black/30 p-1 rounded-4xl border border-white/8">
@@ -198,6 +202,7 @@ export const UploadModal: React.FC<{
                 <LyricTab
                     songData={songData}
                     lyrics={lyrics}
+                    activeLyricVersion={activeLyricVersion}
                     remoteLyrics={remoteLyrics}
                     onSuccess={() => {}}
                     onAuthError={handleAuthError}

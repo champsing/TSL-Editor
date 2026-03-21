@@ -18,7 +18,6 @@ import { useLyricEditor } from "./hooks/useLyricEditor";
 // --- Main App Component ---
 function App() {
     const {
-        // State
         videoId,
         tempVideoId,
         setTempVideoId,
@@ -36,9 +35,7 @@ function App() {
         currentLineIndex,
         activeLineIndices,
         hasUncommittedChanges,
-        // Refs
         playerRef,
-        // Actions
         handleVideoLoad,
         handleSeek,
         handlePlayPause,
@@ -67,7 +64,11 @@ function App() {
     const [isSongModalOpen, setIsSongModalOpen] = useState(false);
     const [songData, setSongData] = useState<Song>({} as Song);
 
-    // ── 401 restore：mount 時讀 tsl_editor_* 還原狀態 ─────────────────────────
+    // 當前歌詞編輯中的版本名稱（用於 UploadModal 的遠端比對）
+    const [activeLyricVersion, setActiveLyricVersion] =
+        useState<string>("original");
+
+    // ── 401 restore ────────────────────────────────────────────────────────────
     useEffect(() => {
         const variant = sessionStorage.getItem(TSL_EDITOR_KEYS.VARIANT);
         const savedSong = sessionStorage.getItem(TSL_EDITOR_KEYS.SONG_DATA);
@@ -75,6 +76,11 @@ function App() {
             try {
                 const song: Song = JSON.parse(savedSong);
                 setSongData(song);
+                // 恢復版本
+                try {
+                    const v = JSON.parse(variant);
+                    if (v?.song_version) setActiveLyricVersion(v.song_version);
+                } catch {}
             } catch {}
             sessionStorage.removeItem(TSL_EDITOR_KEYS.VARIANT);
             sessionStorage.removeItem(TSL_EDITOR_KEYS.SONG_DATA);
@@ -103,20 +109,15 @@ function App() {
 
     // ── 歌曲選取核心邏輯 ────────────────────────────────────────────────────────
     const handleSongSelect = async (selectedSong: Song) => {
-        if (!selectedSong) {
-            console.error("No song selected");
-            return;
-        }
+        if (!selectedSong) return;
 
         const response = await fetch(
             `${API_BASE_URL}/songs/${selectedSong.song_id}`,
         );
         const fullSongData = await response.json();
-
         setSongData(fullSongData);
 
         const versions = fullSongData.versions || [];
-
         const defaultVersion: Version =
             versions.find((v: Version) => v.default === true) ||
             versions.find((v: Version) => v.version === "original") ||
@@ -125,6 +126,7 @@ function App() {
         if (defaultVersion) {
             setVideoId(defaultVersion.id);
             setTempVideoId(defaultVersion.id);
+            setActiveLyricVersion(defaultVersion.version);
 
             if (fullSongData.folder) {
                 await loadLyricsByPath(
@@ -132,20 +134,66 @@ function App() {
                     fullSongData.folder,
                     defaultVersion.version,
                 );
-            } else {
-                console.warn(
-                    "Song folder is missing, cannot fetch lyrics from GitHub.",
-                );
             }
-        } else {
-            console.warn("This song has no versions available.");
         }
     };
 
-    // ── 自動滾動到當前行 ────────────────────────────────────────────────────────
+    // ── 版本切換（從 VersionsEditor 鉛筆觸發）────────────────────────────────
+    const handleVersionSwitch = async (version: Version) => {
+        if (!songData.folder || !songData.song_id) return;
+
+        // 切換播放器到該版本的 YouTube ID
+        if (version.id) {
+            setVideoId(version.id);
+            setTempVideoId(version.id);
+        }
+
+        setActiveLyricVersion(version.version);
+
+        // 嘗試載入遠端歌詞
+        try {
+            const url = `https://lyric.timesl.online/${songData.song_id}_${songData.folder}/${version.version}.json`;
+            const res = await fetch(url);
+
+            if (!res.ok) {
+                // 找不到（新版本尚未上傳）→ confirm 後以空陣列初始化
+                const confirmed = window.confirm(
+                    `找不到「${version.version}」版本的歌詞檔案（可能是剛新增的版本）。\n是否以空白歌詞開始編輯？`,
+                );
+                if (confirmed) {
+                    setStagedLyrics([]);
+                    // 同步 committed lyrics（lyrics state 透過 useLyricEditor 管理）
+                    sessionStorage.setItem(
+                        TSL_EDITOR_KEYS.LYRICS,
+                        JSON.stringify([]),
+                    );
+                    // 強制 useLyricEditor 的 lyrics 也歸零
+                    await loadLyricsByPath(
+                        songData.song_id,
+                        songData.folder,
+                        version.version,
+                    );
+                }
+                return;
+            }
+
+            // 正常載入
+            await loadLyricsByPath(
+                songData.song_id,
+                songData.folder,
+                version.version,
+            );
+        } catch {
+            window.alert(`載入「${version.version}」版本歌詞時發生網路錯誤。`);
+        }
+
+        // 切換成功後跳到 Lyrics tab 方便直接編輯
+        setActiveTab("lyrics");
+    };
+
+    // ── 自動滾動 ────────────────────────────────────────────────────────────────
     useEffect(() => {
         if (previewModalOpen || diffModalOpen) return;
-
         if (currentLineIndex !== -1 && scrollContainerRef.current) {
             const timeoutId = setTimeout(() => {
                 const currentLine =
@@ -173,7 +221,6 @@ function App() {
             />
 
             <div className="flex flex-1 overflow-hidden relative">
-                {/* Tab content */}
                 {activeTab === "lyrics" ? (
                     <LyricsEditorTab
                         isPlaying={isPlaying}
@@ -200,6 +247,7 @@ function App() {
                     <SongMetaEditorTab
                         songData={songData}
                         setSongData={setSongData}
+                        onVersionSwitch={handleVersionSwitch}
                     />
                 )}
 
@@ -215,7 +263,7 @@ function App() {
                 />
             </div>
 
-            {/* ── 底部 Tab 切換器 ──────────────────────────────────────────── */}
+            {/* Tab switcher */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 saturate-150 ring-1 ring-white/5">
                 <button
                     onClick={() => setActiveTab("meta")}
@@ -256,9 +304,7 @@ function App() {
                 </button>
             </div>
 
-            {/* ── Modals ───────────────────────────────────────────────────── */}
-
-            {/* Preview Modal */}
+            {/* Modals */}
             {previewModalOpen && (
                 <PreviewModal
                     lyrics={stagedLyrics}
@@ -272,7 +318,6 @@ function App() {
                 />
             )}
 
-            {/* Diff Modal */}
             {diffModalOpen && (
                 <DiffModal
                     committedJson={JSON.stringify(lyrics, null, 4)}
@@ -281,7 +326,6 @@ function App() {
                 />
             )}
 
-            {/* JSON Modal */}
             {activeIOModal === "json" && (
                 <LyricModal
                     isOpen={activeIOModal === "json"}
@@ -303,12 +347,12 @@ function App() {
                 />
             )}
 
-            {/* Upload Modal */}
             {activeIOModal === "upload" && (
                 <UploadModal
                     isOpen={activeIOModal === "upload"}
                     songData={songData}
                     lyrics={lyrics}
+                    activeLyricVersion={activeLyricVersion}
                     hasUncommittedChanges={hasUncommittedChanges}
                     onClose={() => setActiveIOModal(null)}
                     onRemoteSongDataRefreshed={(refreshed) =>
@@ -318,7 +362,6 @@ function App() {
                 />
             )}
 
-            {/* 歌曲選擇 Modal */}
             <SongSelectionModal
                 isOpen={isSongModalOpen}
                 onClose={() => setIsSongModalOpen(false)}

@@ -1,6 +1,6 @@
 import { inputClassSong } from "@components/Header/SongSelection/SongSelectionModal";
 import { Version } from "@composables/types";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import React from "react";
 import { FaLock } from "react-icons/fa6";
 
@@ -10,7 +10,9 @@ const VERSION_OPTIONS = ["original", "instrumental", "live"] as const;
 export const VersionsEditor: React.FC<{
     versions: Version[];
     onUpdate: (v: Version[]) => void;
-}> = ({ versions, onUpdate }) => {
+    /** 點擊鉛筆後，通知父層切換到該版本進行歌詞編輯 */
+    onEditVersion?: (version: Version) => void;
+}> = ({ versions, onUpdate, onEditVersion }) => {
     const update = (idx: number, field: keyof Version, value: any) => {
         const next = [...versions];
         next[idx] = { ...next[idx], [field]: value };
@@ -33,7 +35,6 @@ export const VersionsEditor: React.FC<{
         onUpdate([
             ...versions,
             {
-                // 預設選第一個非 original 的可用選項
                 version:
                     VERSION_OPTIONS.find(
                         (o) =>
@@ -77,12 +78,6 @@ export const VersionsEditor: React.FC<{
                                     </div>
                                 ) : (
                                     // TODO: 播放器客戶端大更新後，將下方 select 換回 input 自由輸入
-                                    // <input
-                                    //     value={v.version}
-                                    //     onChange={(e) => update(idx, "version", e.target.value)}
-                                    //     className={inputClassSong}
-                                    //     placeholder="e.g. live, acoustic"
-                                    // />
                                     <select
                                         value={v.version}
                                         onChange={(e) =>
@@ -131,6 +126,8 @@ export const VersionsEditor: React.FC<{
                                 />
                             </div>
                         </div>
+
+                        {/* Action buttons column */}
                         <div className="flex flex-col gap-2 pt-4">
                             <button
                                 onClick={() => setDefault(idx)}
@@ -142,6 +139,19 @@ export const VersionsEditor: React.FC<{
                             >
                                 {v.default ? "Default" : "Set Default"}
                             </button>
+
+                            {/* 鉛筆：切換到此版本進行歌詞編輯 */}
+                            {onEditVersion && (
+                                <button
+                                    onClick={() => onEditVersion(v)}
+                                    className="flex items-center justify-center gap-1 text-xs px-2 py-1 rounded-lg border border-sky-500/30 text-sky-400 hover:bg-sky-500/10 hover:border-sky-400/50 transition-all"
+                                    title={`編輯 ${v.version} 版本歌詞`}
+                                >
+                                    <Pencil size={11} />
+                                    Edit
+                                </button>
+                            )}
+
                             {v.version !== "original" && (
                                 <button
                                     onClick={() => remove(idx)}

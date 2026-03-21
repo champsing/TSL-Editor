@@ -1,11 +1,9 @@
 // components/SongMetaEditorTab.tsx
 import { useArtistNames } from "@/hooks/useArtistName";
-import { Song } from "@composables/types";
+import { Song, Version } from "@composables/types";
 import {
-    BookOpen,
     Calendar,
     CheckCircle2,
-    Disc3,
     Hash,
     Image as ImageIcon,
     Layers,
@@ -18,15 +16,15 @@ import { SongSelectionModal } from "../Header/SongSelection/SongSelectionModal";
 import { VersionsEditor } from "../Header/SongSelection/VersionEditor";
 import { SongMetaEditorModal } from "./EditorModal";
 import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
-import { AlbumModal } from "./EditorTab/Modals/AlbumModal";
 import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
 import { InformationModal } from "./EditorTab/Modals/InformationModal";
 import { StatusModal } from "./EditorTab/Modals/StatusModal";
-import { TranslationModal } from "./EditorTab/Modals/TranslationModal";
 
 interface Props {
     songData: Song;
     setSongData: (data: Song) => void;
+    /** 點擊鉛筆後，通知 App 切換歌詞編輯版本 */
+    onVersionSwitch?: (version: Version) => void;
 }
 
 export const inputClassEditor =
@@ -34,18 +32,12 @@ export const inputClassEditor =
 export const labelClassEditor =
     "flex items-center gap-2 text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest";
 
-// ─── Modal key type ────────────────────────────────────────────────────────────
-type ModalKey =
-    | "status"
-    | "main"
-    | "cover"
-    | "versions"
-    | "album"
-    | "translation"
-    | null;
+type ModalKey = "status" | "main" | "cover" | "versions" | null;
+
 export const SongMetaEditorTab: React.FC<Props> = ({
     songData,
     setSongData,
+    onVersionSwitch,
 }) => {
     const [openModal, setOpenModal] = useState<ModalKey>(null);
     const [isSongSelectOpen, setIsSongSelectOpen] = useState(false);
@@ -68,7 +60,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
 
     const close = () => setOpenModal(null);
 
-    // ── Derived display values for button subtitles ──────────────────────────
     const statusSummary = [
         songData.available ? "Available" : "Unavailable",
         songData.is_duet ? "Duet" : null,
@@ -81,28 +72,10 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         .filter(Boolean)
         .join(" — ");
 
-    const albumSummary =
-        songData.album === null
-            ? "Not set (null)"
-            : songData.album?.name
-              ? songData.album.name
-              : "No name set";
-
-    const translationSummary = (() => {
-        const t = songData.translation;
-        if (!t) return "No data";
-        const parts: string[] = [];
-        if (t.available) parts.push("Enabled");
-        else parts.push("Disabled");
-        if (t.author) parts.push(t.author);
-        if (t.modified) parts.push("Modified");
-        return parts.join(" · ");
-    })();
-
     return (
         <div className="flex-1 bg-[#1a202c] p-8 custom-scrollbar overflow-y-auto pb-32">
             <div className="max-w-5xl mx-auto space-y-6">
-                {/* ── Header ─────────────────────────────────────────────── */}
+                {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 pb-6">
                     <div className="flex items-center gap-4">
                         <h2 className="text-3xl font-black text-white flex items-center gap-3">
@@ -146,7 +119,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     </div>
                 </div>
 
-                {/* ── Editor Entry Buttons Grid ───────────────────────────── */}
+                {/* Editor Entry Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <EditorEntryButton
                         icon={<CheckCircle2 size={22} />}
@@ -189,26 +162,10 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         accentClass="bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25"
                         onClick={() => setOpenModal("versions")}
                     />
-                    <EditorEntryButton
-                        icon={<Disc3 size={22} />}
-                        label="Album"
-                        subtitle={albumSummary}
-                        accentClass="bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/25"
-                        onClick={() => setOpenModal("album")}
-                    />
-                    <EditorEntryButton
-                        icon={<BookOpen size={22} />}
-                        label="Translation"
-                        subtitle={translationSummary}
-                        accentClass="bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/25"
-                        onClick={() => setOpenModal("translation")}
-                    />
                 </div>
             </div>
 
-            {/* ── Modals ───────────────────────────────────────────────────── */}
-
-            {/* 1. Song Status */}
+            {/* Modals */}
             <SongMetaEditorModal
                 isOpen={openModal === "status"}
                 onClose={close}
@@ -220,7 +177,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 <StatusModal songData={songData} onChange={handleChange} />
             </SongMetaEditorModal>
 
-            {/* 2. Information */}
             <SongMetaEditorModal
                 isOpen={openModal === "main"}
                 onClose={close}
@@ -236,7 +192,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 />
             </SongMetaEditorModal>
 
-            {/* 3. Cover Art */}
             <SongMetaEditorModal
                 isOpen={openModal === "cover"}
                 onClose={close}
@@ -252,7 +207,6 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 />
             </SongMetaEditorModal>
 
-            {/* 4. Song Versions */}
             <SongMetaEditorModal
                 isOpen={openModal === "versions"}
                 onClose={close}
@@ -283,41 +237,16 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 <VersionsEditor
                     versions={songData.versions || []}
                     onUpdate={(v) => handleChange("versions", v)}
+                    onEditVersion={onVersionSwitch}
                 />
             </SongMetaEditorModal>
 
-            {/* 5. Album */}
-            <SongMetaEditorModal
-                isOpen={openModal === "album"}
-                onClose={close}
-                title="Album"
-                icon={<Disc3 size={20} />}
-                accentColor="#fb923c"
-                footer="Toggle 'No Album' to store null. The link field accepts a Google Music share code, not a full URL."
-            >
-                <AlbumModal songData={songData} onChange={handleChange} />
-            </SongMetaEditorModal>
-
-            {/* 6. Translation */}
-            <SongMetaEditorModal
-                isOpen={openModal === "translation"}
-                onClose={close}
-                title="Translation"
-                icon={<BookOpen size={20} />}
-                accentColor="#2dd4bf"
-                footer="'Available' controls whether translation is shown in the player. Disabling does not erase author or cite data."
-            >
-                <TranslationModal songData={songData} onChange={handleChange} />
-            </SongMetaEditorModal>
-
-            {/* Song Selection Modal */}
             <SongSelectionModal
                 isOpen={isSongSelectOpen}
                 onClose={() => setIsSongSelectOpen(false)}
                 onSelect={(selectedSong) => setSongData(selectedSong)}
             />
 
-            {/* Full-size image preview overlay */}
             {previewImage && (
                 <div
                     className="fixed inset-0 z-60 flex items-center justify-center bg-black/90 backdrop-blur-md cursor-zoom-out p-10 animate-in fade-in duration-200"
