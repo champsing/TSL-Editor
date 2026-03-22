@@ -70,20 +70,21 @@ export const AlbumModal: React.FC<{
                             placeholder="e.g. cCJ7CCq"
                         />
                         <p className="mt-1.5 text-[11px] text-gray-600">
-                            短代碼取自 Google 音樂的分享連結，非完整 URL。
+                            短代碼取自 Google 搜尋知識面板的分享連結，非完整
+                            URL。
                         </p>
                     </div>
 
                     {/* Preview */}
                     {album?.link && (
                         <a
-                            href={`https://g.co/kgs/${album.link}`}
+                            href={`https://share.google/${album.link}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 text-xs text-primary/70 hover:text-primary transition-colors"
                         >
                             <Link size={12} />
-                            Open on YouTube Music ↗
+                            Open via Google Search ↗
                         </a>
                     )}
                 </div>
