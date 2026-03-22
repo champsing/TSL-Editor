@@ -26,7 +26,7 @@ import { TranslationModal } from "./EditorTab/Modals/TranslationModal";
 
 interface Props {
     songData: Song;
-    setSongData: (data: Song) => void;
+    setSongChangeTitle: (data: Song) => void;
     /** 點擊鉛筆後，通知 App 切換歌詞編輯版本 */
     onVersionSwitch?: (version: Version) => void;
 }
@@ -48,7 +48,7 @@ type ModalKey =
 
 export const SongMetaEditorTab: React.FC<Props> = ({
     songData,
-    setSongData,
+    setSongChangeTitle,
     onVersionSwitch,
 }) => {
     const [openModal, setOpenModal] = useState<ModalKey>(null);
@@ -58,7 +58,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     const { formatArtistNames } = useArtistNames();
 
     const handleChange = (field: keyof Song, value: any) => {
-        setSongData({ ...songData, [field]: value });
+        setSongChangeTitle({ ...songData, [field]: value });
     };
 
     const parseIds = (idString: string | undefined) => {
@@ -162,8 +162,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     // Translation — available 綠/灰，author 灰字（自訂），modified 黃色
     const translationSubtitle = (() => {
         const t = songData.translation;
-        if (!t)
-            return <span className="text-gray-600 italic">No data</span>;
+        if (!t) return <span className="text-gray-600 italic">No data</span>;
         return (
             <>
                 <span
@@ -398,7 +397,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
             <SongSelectionModal
                 isOpen={isSongSelectOpen}
                 onClose={() => setIsSongSelectOpen(false)}
-                onSelect={(selectedSong) => setSongData(selectedSong)}
+                onSelect={(selectedSong) => setSongChangeTitle(selectedSong)}
             />
 
             {/* Full-size image preview overlay */}
