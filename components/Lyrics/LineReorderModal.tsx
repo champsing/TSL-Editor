@@ -1,12 +1,13 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import { secondsToTime, timeToSeconds } from "@/composables/utils";
 import { LyricLine } from "@composables/types";
 import {
-    X,
-    GripVertical,
-    ArrowUp,
     ArrowDown,
+    ArrowUp,
+    GripVertical,
     TriangleAlert,
+    X,
 } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface LineReorderModalProps {
     isOpen: boolean;
@@ -20,22 +21,6 @@ interface LineItemData {
     line: LyricLine;
 }
 
-// Helper: convert time string "MM:SS.ss" → seconds
-const timeToSeconds = (t: string): number => {
-    if (!t) return 0;
-    const [ms, cs] = t.split(".");
-    const [m, s] = (ms || "0:0").split(":").map(Number);
-    return (m || 0) * 60 + (s || 0) + (cs ? parseFloat(`0.${cs}`) : 0);
-};
-
-// Helper: seconds → "MM:SS.ss"
-const secondsToTimeStr = (secs: number): string => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    const ss = s.toFixed(2).padStart(5, "0");
-    return `${String(m).padStart(2, "0")}:${ss}`;
-};
-
 // Fix times: if a line's time < previous line's time, set it to prev_time - 3s (min 0)
 const fixTimes = (items: LineItemData[]): LineItemData[] => {
     return items.map((item, i) => {
@@ -46,7 +31,7 @@ const fixTimes = (items: LineItemData[]): LineItemData[] => {
             const newSec = Math.max(0, prevSec - 3);
             return {
                 ...item,
-                line: { ...item.line, time: secondsToTimeStr(newSec) },
+                line: { ...item.line, time: secondsToTime(newSec, true) },
             };
         }
         return item;

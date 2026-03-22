@@ -14,14 +14,14 @@ export const timeToSeconds = (timeStr: string): number => {
 
 export const secondsToTime = (
     totalSeconds: number,
-    decimal: number,
+    decimal: boolean,
 ): string => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = Math.floor(totalSeconds % 60);
     const ms = Math.round((totalSeconds - Math.floor(totalSeconds)) * 100);
 
     const pad = (num: number) => num.toString().padStart(2, "0");
-    if (decimal === 1) return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
+    if (decimal === true) return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
     else return `${pad(minutes)}:${pad(seconds)}`;
 };
 

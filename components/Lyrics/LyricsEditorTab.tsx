@@ -108,7 +108,10 @@ export const LyricsEditorTab: React.FC<Props> = (props) => {
                             Current Time
                         </span>
                         <div className="text-3xl font-mono text-emerald-400 font-bold tabular-nums leading-none">
-                            {secondsToTime(playerTime, isPlaying ? 0 : 1)}
+                            {secondsToTime(
+                                playerTime,
+                                isPlaying ? false : true,
+                            )}
                         </div>
                     </div>
                     <div className="h-10 w-px bg-gray-700"></div>

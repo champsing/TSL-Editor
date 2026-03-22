@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef } from "react";
 import { LyricData, LyricLine, LyricPhrase } from "@composables/types";
-import { timeToSeconds } from "@composables/utils";
-import { X, Play, Pause } from "lucide-react";
+import { secondsToTime, timeToSeconds } from "@composables/utils";
+import { Pause, Play, X } from "lucide-react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 // --- Interfaces ---
 interface PreviewModalProps {
@@ -535,10 +535,9 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
 
                 <div className="font-mono text-xl text-primary w-24 text-center">
                     {/* Format: MM:SS.mm */}
-                    {Math.floor(currentTime / 60)}:
                     {isPlaying
-                        ? Math.floor(currentTime % 60)
-                        : (currentTime % 60).toFixed(2).padStart(5, "0")}
+                        ? secondsToTime(Math.floor(currentTime % 60), false)
+                        : secondsToTime(Math.floor(currentTime % 60), true)}
                 </div>
 
                 {/* --- Close Button --- */}

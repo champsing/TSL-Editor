@@ -75,32 +75,37 @@ export const SongMetaEditorTab: React.FC<Props> = ({
     // ── Derived subtitle ReactNodes ──────────────────────────────────────────
 
     // Song Status — available 綠/紅，is_duet 藍，furigana 紫
-    const statusSubtitle = (
-        <>
-            <span
-                className={`font-semibold ${
-                    songData.available ? "text-green-400" : "text-red-400/80"
-                }`}
-            >
-                {songData.available ? "✓ Available" : "✗ Unavailable"}
-            </span>
-            {songData.is_duet && (
-                <span className="text-blue-400 font-semibold">· Duet</span>
-            )}
-            {songData.furigana && (
-                <span className="text-purple-400 font-semibold">
-                    · Furigana
+    const statusSubtitle = (() => {
+        return (
+            <>
+                <span
+                    className={`font-semibold ${
+                        songData.available
+                            ? "text-green-400"
+                            : "text-red-400/80"
+                    }`}
+                >
+                    {songData.available ? "✓ Available" : "✗ Unavailable"}
                 </span>
-            )}
-        </>
-    );
+                {!!songData.is_duet && (
+                    <span className="text-blue-400 font-semibold"> · Duet</span>
+                )}
+                {!!songData.furigana && (
+                    <span className="text-purple-400 font-semibold">
+                        {" "}
+                        · Furigana
+                    </span>
+                )}
+            </>
+        );
+    })();
 
     // Information — 標題白字，副標灰字
     const mainSubtitle = songData.title ? (
         <>
             <span className="text-gray-300 font-medium">{songData.title}</span>
             {songData.subtitle && (
-                <span className="text-gray-500">— {songData.subtitle}</span>
+                <span className="text-gray-500">{songData.subtitle}</span>
             )}
         </>
     ) : (
@@ -124,7 +129,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                     {count} version{count !== 1 ? "s" : ""}
                 </span>
                 {names.length > 0 && (
-                    <span className="text-gray-600">· {names.join(", ")}</span>
+                    <span className="text-gray-600"> · {names.join(", ")}</span>
                 )}
             </>
         );
@@ -152,6 +157,7 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 <span className="text-gray-300">{name}</span>
                 {hasLink && (
                     <span className="text-orange-400/80 font-semibold">
+                        {" "}
                         · 🔗 link set
                     </span>
                 )}
@@ -164,24 +170,27 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         const t = songData.translation;
         if (!t) return <span className="text-gray-600 italic">No data</span>;
         return (
-            <>
-                <span
-                    className={`font-semibold ${
-                        t.available ? "text-green-400" : "text-gray-500"
-                    }`}
-                >
-                    {t.available ? "✓ Enabled" : "Disabled"}
-                </span>
+            <div className="flex flex-col gap-1">
                 {t.author && (
                     /* 自訂內容：作者名原樣顯示 */
-                    <span className="text-gray-400">· {t.author}</span>
+                    <div className="text-gray-400">{t.author}</div>
                 )}
-                {t.modified && (
-                    <span className="text-yellow-400 font-semibold">
-                        · Modified
+                <div>
+                    <span
+                        className={`font-semibold ${
+                            t.available ? "text-green-400" : "text-gray-500"
+                        }`}
+                    >
+                        {t.available ? "✓ Enabled" : "Disabled"}
                     </span>
-                )}
-            </>
+                    {t.modified && (
+                        <span className="text-yellow-400 font-semibold ml-2">
+                            {" "}
+                            · ✏️Modified
+                        </span>
+                    )}
+                </div>
+            </div>
         );
     })();
 
