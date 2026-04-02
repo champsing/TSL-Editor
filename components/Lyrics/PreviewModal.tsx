@@ -428,47 +428,48 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
 
                                 {/* BG Text & Karaoke Effect */}
                                 <div className="text-bg md:text-xl leading-relaxed flex flex-wrap justify-center gap-x-1">
-                                    {line.background_voice?.text.map(
-                                        (phrase, pIndex) => (
-                                            <span
-                                                key={pIndex + "-bg"}
-                                                className="preview-lyric-phrase relative px-0.5"
-                                                style={
-                                                    isActiveLine
-                                                        ? getPhraseStyle(
-                                                              currentTime,
-                                                              line.bgStartTime,
-                                                              line
-                                                                  .bgPhraseDelays[
-                                                                  pIndex
-                                                              ],
-                                                              line
-                                                                  .bgPhraseDurations[
-                                                                  pIndex
-                                                              ],
-                                                              phrase,
-                                                          )
-                                                        : {}
-                                                }
-                                            >
-                                                {/* Pronunciation */}
-                                                {phrase.pronounciation ? (
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
-                                                            {
-                                                                phrase.pronounciation
-                                                            }
-                                                        </span>
-                                                        <span>
-                                                            {phrase.phrase}
-                                                        </span>
-                                                    </div>
-                                                ) : (
-                                                    phrase.phrase
-                                                )}
-                                            </span>
-                                        ),
-                                    )}
+                                    {line.background_voice &&
+                                        line.background_voice.text.map(
+                                            (phrase, pIndex) => (
+                                                <span
+                                                    key={pIndex + "-bg"}
+                                                    className="preview-lyric-phrase relative px-0.5"
+                                                    style={
+                                                        isActiveLine
+                                                            ? getPhraseStyle(
+                                                                  currentTime,
+                                                                  line.bgStartTime!,
+                                                                  line
+                                                                      .bgPhraseDelays![
+                                                                      pIndex
+                                                                  ],
+                                                                  line
+                                                                      .bgPhraseDurations![
+                                                                      pIndex
+                                                                  ],
+                                                                  phrase,
+                                                              )
+                                                            : {}
+                                                    }
+                                                >
+                                                    {/* Pronunciation */}
+                                                    {phrase.pronounciation ? (
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-sm font-normal text-gray-300 opacity-80 -mb-1 block">
+                                                                {
+                                                                    phrase.pronounciation
+                                                                }
+                                                            </span>
+                                                            <span>
+                                                                {phrase.phrase}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        phrase.phrase
+                                                    )}
+                                                </span>
+                                            ),
+                                        )}
                                 </div>
 
                                 {/* Translation (Only shown for active line) */}

@@ -6,7 +6,7 @@ import { varColorPrimary } from "../Meta/EditorModal";
 
 interface EditorSidebarProps {
     videoId: string;
-    playerRef: React.RefObject<YouTubePlayerHandle>;
+    playerRef: React.RefObject<YouTubePlayerHandle | null>;
     onTimeUpdate: (time: number) => void;
     onIsPlayingChange: (isPlaying: boolean) => void;
     tempVideoId: string;

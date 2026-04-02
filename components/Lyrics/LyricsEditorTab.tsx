@@ -18,7 +18,7 @@ interface Props {
     handleStamp: any;
     handleSeek: any;
     hasUncommittedChanges: boolean;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     addLine: () => void;
     commitLyrics: () => void;
     discardChanges: () => void;

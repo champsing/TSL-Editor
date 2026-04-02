@@ -191,7 +191,7 @@ export const useLyricEditor = () => {
         let newStagedLyrics = JSON.parse(JSON.stringify(stagedLyrics));
 
         // 2. 🚨 新增：根據 line.time 進行排序
-        newStagedLyrics.sort((a, b) => {
+        newStagedLyrics.sort((a: LyricLine, b: LyricLine) => {
             const timeA = timeToSeconds(a.time);
             const timeB = timeToSeconds(b.time);
             return timeA - timeB; // 升序排列 (時間早的在前)
@@ -234,13 +234,13 @@ export const useLyricEditor = () => {
                 ...newLyrics[index],
                 background_voice: {
                     ...newLyrics[index].background_voice,
-                    time: secondsToTime(playerTime, 1),
+                    time: secondsToTime(playerTime, true),
                 },
             };
         } else {
             newLyrics[index] = {
                 ...newLyrics[index],
-                time: secondsToTime(playerTime, 1),
+                time: secondsToTime(playerTime, true),
             };
         }
         setStagedLyrics(newLyrics);
@@ -265,7 +265,7 @@ export const useLyricEditor = () => {
 
     const addLine = () => {
         const newLine: LyricLine = {
-            time: secondsToTime(playerTime, 1),
+            time: secondsToTime(playerTime, true),
             text: [{ phrase: "輸入歌詞", duration: 20 }],
             translation: "",
         };

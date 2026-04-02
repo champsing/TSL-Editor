@@ -269,7 +269,7 @@ function App() {
             </div>
 
             {/* Tab switcher */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 saturate-150 ring-1 ring-white/5">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-49 saturate-150 ring-1 ring-white/5">
                 <button
                     onClick={() => setActiveTab("meta")}
                     className={`
@@ -347,7 +347,11 @@ function App() {
                     }}
                     onFileUpload={handleFileUpload}
                     onSwitchToUpload={
-                        user ? () => setActiveIOModal("upload") : undefined
+                        user
+                            ? () => setActiveIOModal("upload")
+                            : () => {
+                                  alert("請先登入以使用上傳功能");
+                              }
                     }
                 />
             )}
