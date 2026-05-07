@@ -157,7 +157,7 @@ function App() {
 
         // 嘗試載入遠端歌詞
         try {
-            const url = `https://lyric.timesl.online/${songData.song_id}_${songData.folder}/${version.version}.json`;
+            const url = `https://lyric.tslyric.com/${songData.song_id}_${songData.folder}/${version.version}.json`;
             const res = await fetch(url);
 
             if (!res.ok) {

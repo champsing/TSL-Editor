@@ -2,7 +2,7 @@ export const VERSION_NUMBER = import.meta.env.VITE_APP_VERSION || "1.0.0";
 
 export const API_BASE_URL = import.meta.env.DEV
     ? "http://localhost:8000/api"
-    : "https://api.timesl.online/api";
+    : "https://api.tslyric.com/api";
 
 export const timeToSeconds = (timeStr: string): number => {
     if (!timeStr) return 0;

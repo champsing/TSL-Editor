@@ -63,7 +63,7 @@ export const useLyricEditor = () => {
         version: string,
     ) => {
         try {
-            const url = `https://lyric.timesl.online/${songId}_${folder}/${version}.json`;
+            const url = `https://lyric.tslyric.com/${songId}_${folder}/${version}.json`;
 
             const response = await fetch(url);
             if (!response.ok) throw new Error("Network response was not ok");
