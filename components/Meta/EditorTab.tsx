@@ -12,6 +12,7 @@ import {
     LinkIcon,
     Music,
     Plus,
+    Users,
 } from "lucide-react";
 import React, { useState } from "react";
 import { SongSelectionModal } from "../Header/SongSelection/SongSelectionModal";
@@ -20,6 +21,7 @@ import { SongMetaEditorModal } from "./EditorModal";
 import { EditorEntryButton } from "./EditorTab/EditorEntryButton";
 import { AlbumModal } from "./EditorTab/Modals/AlbumModal";
 import { CoverArtModal } from "./EditorTab/Modals/CoverArtModal";
+import { CreditsModal } from "./EditorTab/Modals/CreditsModal";
 import { InformationModal } from "./EditorTab/Modals/InformationModal";
 import { StatusModal } from "./EditorTab/Modals/StatusModal";
 import { TranslationModal } from "./EditorTab/Modals/TranslationModal";
@@ -44,6 +46,7 @@ type ModalKey =
     | "versions"
     | "album"
     | "translation"
+    | "credits"
     | null;
 
 export const SongMetaEditorTab: React.FC<Props> = ({
@@ -194,6 +197,36 @@ export const SongMetaEditorTab: React.FC<Props> = ({
         );
     })();
 
+    // creditsSubtitle - performance 粉，song_writing 紫，engineering 藍，無成員灰字，未設定灰字斜體
+    const creditsSubtitle = (() => {
+        const c = songData.credits;
+        if (!c) return <span className="text-gray-600">未設定</span>;
+        const total =
+            (c.performance?.length ?? 0) +
+            (c.song_writing?.length ?? 0) +
+            (c.engineering?.length ?? 0);
+        if (total === 0) return <span className="text-gray-600">無成員</span>;
+        return (
+            <>
+                {c.performance?.length > 0 && (
+                    <span className="text-pink-400 font-semibold">
+                        表演 {c.performance.length}
+                    </span>
+                )}
+                {c.song_writing?.length > 0 && (
+                    <span className="text-violet-400 font-semibold">
+                        詞曲 {c.song_writing.length}
+                    </span>
+                )}
+                {c.engineering?.length > 0 && (
+                    <span className="text-sky-400 font-semibold">
+                        工程 {c.engineering.length}
+                    </span>
+                )}
+            </>
+        );
+    })();
+
     return (
         <div className="flex-1 bg-[#1a202c] p-8 custom-scrollbar overflow-y-auto pb-32">
             <div className="max-w-5xl mx-auto space-y-6">
@@ -293,6 +326,13 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                         subtitle={translationSubtitle}
                         accentClass="bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/25"
                         onClick={() => setOpenModal("translation")}
+                    />
+                    <EditorEntryButton
+                        icon={<Users size={22} />}
+                        label="Credits"
+                        subtitle={creditsSubtitle}
+                        accentClass="bg-pink-500/15 text-pink-400 group-hover:bg-pink-500/25"
+                        onClick={() => setOpenModal("credits")}
                     />
                 </div>
             </div>
@@ -400,6 +440,21 @@ export const SongMetaEditorTab: React.FC<Props> = ({
                 footer="'Available' controls whether translation is shown in the player. Disabling does not erase author or cite data."
             >
                 <TranslationModal songData={songData} onChange={handleChange} />
+            </SongMetaEditorModal>
+
+            <SongMetaEditorModal
+                isOpen={openModal === "credits"}
+                onClose={close}
+                title="Credits"
+                icon={<Users size={20} />}
+                accentColor="#f472b6"
+                actions={
+                    // 不需要全局 ADD 按鈕，CreditsModal 內部各 tab 各自有
+                    undefined
+                }
+                footer="Changes are saved to the current song buffer immediately."
+            >
+                <CreditsModal songData={songData} onChange={handleChange} />
             </SongMetaEditorModal>
 
             {/* Song Selection Modal */}
