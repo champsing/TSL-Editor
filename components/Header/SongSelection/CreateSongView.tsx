@@ -41,7 +41,6 @@ export const CreateSongView: React.FC<{
                 body: JSON.stringify({
                     song_id: Number(songId),
                     title: title.trim(),
-                    folder: "",
                     versions,
                 }),
             });
