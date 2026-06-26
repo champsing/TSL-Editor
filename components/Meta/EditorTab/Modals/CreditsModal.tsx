@@ -168,7 +168,7 @@ export const CreditsModal: React.FC<{
         updateSection(activeTab, list);
     };
 
-    const currentList = credits[activeTab];
+    const currentList = credits[activeTab] ?? [];
     const currentTabDef = TABS.find((t) => t.key === activeTab)!;
 
     return (
