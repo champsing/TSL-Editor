@@ -142,10 +142,11 @@ export const CreditsModal: React.FC<{
 }> = ({ songData, onChange }) => {
     const [activeTab, setActiveTab] = useState<CreditsTab>("performance");
 
-    const credits: Credits = songData.credits ?? {
-        performance: [],
-        song_writing: [],
-        engineering: [],
+    // 修改這裡：針對每一個分類獨立進行 null 檢查，確保預設值一定是陣列
+    const credits: Credits = {
+        performance: songData.credits?.performance ?? [],
+        song_writing: songData.credits?.song_writing ?? [],
+        engineering: songData.credits?.engineering ?? [],
     };
 
     const updateSection = (section: CreditsTab, list: Contributor[]) => {
@@ -154,6 +155,7 @@ export const CreditsModal: React.FC<{
 
     const addContributor = () => {
         const list = credits[activeTab];
+        // 現在 list 保證會是陣列，展開 [...list] 就不會報錯了
         updateSection(activeTab, [...list, { name: "", contribution: [] }]);
     };
 
@@ -168,7 +170,8 @@ export const CreditsModal: React.FC<{
         updateSection(activeTab, list);
     };
 
-    const currentList = credits[activeTab] ?? [];
+    // 因為上面已經保證了預設值，這裡也不需要再寫 ?? [] 了
+    const currentList = credits[activeTab]; 
     const currentTabDef = TABS.find((t) => t.key === activeTab)!;
 
     return (
